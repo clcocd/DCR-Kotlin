@@ -26,16 +26,21 @@ jobs:
           gradle-version: '8.14.3'
 
       - name: Kotlin/JS 테스트 및 브라우저 번들 생성
-        run: gradle --no-daemon -p kotlin jsNodeTest jsBrowserProductionWebpack
+        run: gradle --no-daemon -p kotlin jsNodeTest jsBrowserDistribution
 
       - name: Kotlin 번들을 WXT public 파일에 배치
         shell: bash
         run: |
           set -euo pipefail
-          bundle=$(find kotlin/build/dist/js/productionExecutable -maxdepth 1 -name '*.js' -type f -print -quit)
+          find kotlin/build -type f -name 'dcr-kotlin.js' -print
+          bundle=$(find kotlin/build -type f -path '*/productionExecutable/dcr-kotlin.js' -print -quit)
           test -n "$bundle"
           mkdir -p public
           cp "$bundle" public/kotlin-bridge.js
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '26'
 
       - uses: oven-sh/setup-bun@v2
 
@@ -74,4 +79,5 @@ jobs:
           name: dcrefresher-reborn-kotlin-chrome
           path: .output/*.zip
           if-no-files-found: error
+          include-hidden-files: true
           retention-days: 14
