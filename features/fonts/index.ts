@@ -6,7 +6,7 @@ import {kotlinBridge} from "@/kotlin/bridge";
 
 const STYLE_ID = "refresher-fonts";
 
-const apply = (ctx: Ctx): (() => void) => writeStyle(STYLE_ID, buildCss(ctx));
+const apply = (ctx: Ctx): (() => void) => writeStyle(STYLE_ID, kotlinBridge.buildFontCss(ctx.settings.customFonts, ctx.settings.bodyFontSize, ctx.settings.changeDCFont));
 
 export default defineModule(meta, {
     setup(ctx) {
