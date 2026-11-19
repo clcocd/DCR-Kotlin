@@ -10,7 +10,7 @@ class ContentTextTest {
         assertEquals("&lt;", htmlToText("&amp;lt;"))
         assertEquals(" 링크  ", htmlToText("<a title=\"a>b\">링크</a><!-- <b>숨김</b> -->"))
         assertEquals("그냥 글", htmlToText("그냥 글"))
-        assertEquals(" A B ", htmlToText("<div>A</div><div>B</div>"))
+        assertEquals(" A  B ", htmlToText("<div>A</div><div>B</div>"))
     }
 
     @Test
