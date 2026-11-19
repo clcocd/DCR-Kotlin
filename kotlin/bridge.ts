@@ -40,6 +40,9 @@ interface KotlinBridge {
     textWithoutScripts(element: Element | null | undefined): string;
     writeStyle(id: string, css: string): () => void;
     setAppearance(element: HTMLElement, dark: boolean): void;
+    isBrokenMedia(image: HTMLImageElement): boolean;
+    markPreviewMedia(media: HTMLElement, imageViewer: boolean): void;
+    markPreviewPressable(root: HTMLElement, imageViewer: boolean): void;
 }
 
 export const kotlinBridge = (globalThis as typeof globalThis & {__DCR_KOTLIN__: KotlinBridge}).__DCR_KOTLIN__;
