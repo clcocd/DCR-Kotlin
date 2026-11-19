@@ -29,6 +29,11 @@ interface KotlinBridge {
     createDoublePress(windowMs: number): (key: string) => boolean;
     fontFamilyOf(customFonts: string): string;
     buildFontCss(customFonts: string, size: number, changeDCFont: boolean): string;
+    stealthIsRevealed(): boolean;
+    stealthToggle(): void;
+    stealthCreateButton(): void;
+    stealthEnable(): void;
+    stealthDispose(): void;
 }
 
 export const kotlinBridge = (globalThis as typeof globalThis & {__DCR_KOTLIN__: KotlinBridge}).__DCR_KOTLIN__;
