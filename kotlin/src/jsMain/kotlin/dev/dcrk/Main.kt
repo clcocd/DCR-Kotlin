@@ -37,6 +37,8 @@ fun main() {
     api.stealthCreateButton = { stealthCreateButton() }
     api.stealthEnable = { stealthEnable() }
     api.stealthDispose = { stealthDispose() }
+    api.layoutCompact = { narrow: Boolean, force: Boolean, shop: Boolean, view: Boolean, viewAllowed: Boolean -> layoutCompact(narrow, force, shop, view, viewAllowed) }
+    api.layoutHideCss = { options: dynamic, settings: dynamic, noticePage: Boolean -> layoutHideCss(options, settings, noticePage) }
     val scope: dynamic = js("globalThis")
     scope.__DCR_KOTLIN__ = api
 }
