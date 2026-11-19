@@ -54,6 +54,8 @@ fun main() {
     api.isJsRecord = { value: dynamic -> isJsRecord(value) }
     api.canonicalStorageValue = { value: dynamic -> canonicalStorageValue(value) }
     api.storageSizeOf = { value: dynamic -> storageSizeOf(value) }
+    api.defineContentModule = { meta: dynamic, impl: dynamic -> defineContentModule(meta, impl) }
+    api.defineBackgroundModule = { meta: dynamic, impl: dynamic -> defineBackgroundModuleKotlin(meta, impl) }
     val scope: dynamic = js("globalThis")
     scope.__DCR_KOTLIN__ = api
 }
