@@ -42,21 +42,43 @@
 - `features/write`, `search`, `manage`, `userinfo`, `block`, `imagesearch`: 모듈 전체 Kotlin 전환 미완료.
 - `entrypoints/`, 옵션·팝업 및 다수 공통 UI: WXT/React/TS 유지.
 
-## 기존 테스트가 검증하는 범위
+## 원본 6.2.2 소스 무결성 검사
 
-`.github/workflows/build.yml`의 개발용 CI:
+- 사용자 원본 `DCRefresher-Reborn-develop.zip`과 최초 가져오기 `c1b857b1bf...`를 파일 경로/내용 Git blob SHA 기준으로 비교했다.
+- 원본 비교 대상 **383개** 중 최초 `main`의 원본 파일은 **382개 일치, 1개 누락**. 누락: `docs/README.md`.
+- 근본 원인: 가져오기 workflow의 `rsync --exclude='README.md'`가 루트뿐 아니라 중첩 디렉터리의 `README.md`까지 제외함.
+- `docs/README.md` 원본 파일을 **동일 blob SHA `948cf95d3233b10e78db0b13b0ee74d1d6a86698`**로 복구했다.
+- `rsync --exclude='/README.md'`로 바꾸고 `docs/README.md` 존재 검사 추가. 복구한 원본 파일 383개의 경로+blob SHA 지문이 ZIP과 일치했다.
+
+## CI 검증 범위와 실제 실행 결과
+
+개발용 CI에는 다음이 포함된다.
+
 1. `gradle -p kotlin jsNodeTest jsBrowserDistribution`
 2. `bun ci` → `bun run compile` → `bun run test`
-3. `bun run build`
-4. 생성된 Kotlin 번들의 존재, MV3 Manifest 존재, 최종 결과물에 `__DCR_KOTLIN__` 문자열 포함 여부 검사.
+3. `bun run build`; Kotlin 번들·MV3 Manifest 포함 검사.
+4. **실제 Chromium 확장 E2E** (`bunx playwright test --project=chromium`). 가짜 디시 페이지를 사용하고 서버 쓰기는 하지 않는다.
 
-이 순서의 성공은 **Kotlin 테스트·TypeScript 검사·Vitest 테스트·Chrome MV3 빌드의 성공**을 뜻한다. 다음은 여기서 검증하지 않는다.
+첫 전체 Chromium E2E 비교는 다음과 같다.
 
-- 실제 디시인사이드 서버와 로그인한 Chrome/Firefox에서의 기능 동작.
-- 브라우저로 화면을 열어 확인하는 원본↔Kotlin E2E 시각적·상호작용 동등성.
-- 모든 기능 모듈·팝업/옵션 UI의 Kotlin 이식 여부.
-- 사용자 개인 ZIP에 들어 있는 테스트 패치의 실제 사이트 동작.
-- Firefox 확장 패키징/실행 및 크로스 브라우저 회귀.
+| 비교 대상 | CI run | E2E 통과 | E2E 실패 |
+| --- | --- | ---: | ---: |
+| 순정 6.2.2 (Kotlin 적용 전) | `44587145395` | 103 | 5 |
+| Kotlin 혼합 `audit/6-2-2-parity` | `44585966465` | 103 | 5 |
+
+**두 결과의 실패 테스트 항목은 정확히 같다.** 현 시점의 실패가 새 Kotlin 이식으로 발생했다는 근거는 없다. 반대로 원본 자체의 결함/테스트 불일치/환경 문제 중 어느 원인인지는 아직 확인되지 않았으므로 정상 통과라고 표현하지 않는다.
+
+기준선에서 이미 실패하는 항목:
+
+1. `e2e/list.spec.ts:183` — 작성자 메뉴 아이디/IP 및 닉네임 검색.
+2. `e2e/options.spec.ts:79` — 옵션 페이지 본문 글꼴 기대값(기대 `Gulim, sans-serif`, 실제 `Gulim, sans-serif, sans-serif`).
+3. `e2e/preview.spec.ts:666` — 디시콘 선택 뒤 입력창 비활성 판정.
+4. `e2e/preview.spec.ts:742` — 관리자 댓글 삭제 후 `data-deleted` 표시.
+5. `e2e/preview.spec.ts:813` — 비회원 댓글 삭제 후 `data-deleted` 표시.
+
+`scripts/verify-e2e-baseline.mjs`는 **108개 전체 테스트를 실행한 결과를 검사**하고, 위에서 원본도 실패한 정확한 5개 이외에 **새 실패·미실행·건너뛰기·잘못된 결과 JSON이 발생하면 CI를 실패**시킨다. 원본 5건은 명시적인 경고와 실행 요약으로 남긴다. 이것은 ‘108개 모두 성공’이라는 판정이 아니다.
+
+**아직 검증하지 못한 항목:** 실제 디시 서버와 로그인 세션, Firefox 실행 및 크로스 브라우저, 모든 기능 모듈/팝업 UI의 Kotlin 전환 완결, 사용자 개인 패치 ZIP의 실제 동작.
 
 ## 감사 중 확인된 구체적 차이
 
