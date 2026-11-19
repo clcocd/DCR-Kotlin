@@ -1,5 +1,6 @@
+import {kotlinBridge} from "@/kotlin/bridge";
 /** 차단 목록 값의 검사, 정규화. core에서 stores를 불러오면 React가 배경 번들에 딸려 간다. */
-import {BLOCK_TYPES, DEFAULT_DETECT_MODE, DETECT_MODE_NAMES, DETECT_MODES} from "@/core/storage/items";
+import {BLOCK_TYPES, DEFAULT_DETECT_MODE, DETECT_MODES} from "@/core/storage/items";
 import type {BlockEntry, BlockType, DetectMode} from "@/core/storage/types";
 import {isRecord} from "@/utils/record";
 import {arrayIncludes} from "@/utils/typed";
@@ -16,18 +17,12 @@ const isBlockEntry = (value: unknown): value is Omit<BlockEntry, "id"> & { id?: 
     (value.extra === undefined || typeof value.extra === "string") &&
     (value.mode === undefined || arrayIncludes(DETECT_MODES, value.mode));
 
-/** 항목 플래그 표시 ([정규식] [갤러리: X] [모드명] 순). */
-export const composeExtra = (fields: { isRegex: boolean; gallery?: string; mode?: DetectMode }): string =>
-    [
-        fields.isRegex ? "[정규식]" : "",
-        fields.gallery ? `[갤러리: ${fields.gallery}]` : "",
-        fields.mode ? `[${DETECT_MODE_NAMES[fields.mode]}]` : ""
-    ]
-        .filter(Boolean)
-        .join(" ");
+/** 항목 플래그 표시 형식은 Kotlin/JS에서 처리한다. */
+export const composeExtra = (fields: {isRegex: boolean; gallery?: string; mode?: DetectMode}): string =>
+    kotlinBridge.composeExtra(fields.isRegex, fields.gallery, fields.mode);
 
-/** 같은 content+gallery는 한 항목이다. */
-export const blockKey = ({content, gallery}: BlockInputFields): string => JSON.stringify([content, gallery ?? ""]);
+/** 같은 content+gallery는 한 항목이다. 키 직렬화는 Kotlin/JS에서 처리한다. */
+export const blockKey = ({content, gallery}: BlockInputFields): string => kotlinBridge.blockKey(content, gallery);
 
 /** 유효한 항목만 남기고 id가 없거나 겹치면 새로 준다. known은 content+gallery로 옛 id를 잇는 목록. */
 export const normalizeBlockList = (value: unknown, known: BlockEntry[] = []): BlockEntry[] => {
