@@ -1,8 +1,9 @@
 import {defineModule} from "@/core/module/define";
 import {isViewPage, queryString} from "@/core/http/urls";
 import {writeStyle} from "@/utils/dom";
+import {kotlinBridge} from "@/kotlin/bridge";
 
-import meta, {type Ctx, HIDE_KEYS, HIDE_OPTIONS} from "./meta";
+import meta, {type Ctx, HIDE_OPTIONS} from "./meta";
 
 const COMPACT_KEYS = new Set<keyof Ctx["settings"]>(["forceCompact", "useCompactModeOnView"]);
 const PUSH_CLASS = "refresherPushToRight";
@@ -13,9 +14,7 @@ const isDcconShop = location.hostname === "dccon.dcinside.com";
 
 /** narrow: 창 폭이 기준(activePixel)보다 좁은지. */
 const applyCompact = (ctx: Ctx, narrow: boolean): void => {
-    const compact = narrow || ctx.settings.forceCompact;
-    const useCompact = compact && !isDcconShop && (!isViewPage || ctx.settings.useCompactModeOnView);
-
+    const useCompact = kotlinBridge.layoutCompact(narrow, ctx.settings.forceCompact, isDcconShop, isViewPage, ctx.settings.useCompactModeOnView);
     document.documentElement.classList.toggle("refresherCompact", useCompact);
 };
 
@@ -25,10 +24,7 @@ const applyHide = (ctx: Ctx): (() => void) => {
     const noticePage = queryString("exception_mode") === "notice";
 
     // 선택자마다 규칙을 따로 둔다. 하나로 합치면 :has 등을 모르는 브라우저가 규칙 전체를 버린다.
-    const removeHideStyle = writeStyle(HIDE_STYLE_ID, HIDE_KEYS
-        .filter((key) => ctx.settings[key] && !(noticePage && (key === "removeNotice" || key === "removeDCNotice")))
-        .map((key) => `${HIDE_OPTIONS[key].selector} { display: none !important; }`)
-        .join("\n"));
+    const removeHideStyle = writeStyle(HIDE_STYLE_ID, kotlinBridge.layoutHideCss(HIDE_OPTIONS, ctx.settings, noticePage));
 
     // 본문 확장은 잡다 링크가 숨겨졌을 때만 (page.css의 폭 조정).
     document.documentElement.classList.toggle(PUSH_CLASS, ctx.settings.pushToRight && ctx.settings.hideUselessView);
