@@ -30,6 +30,13 @@ fun main() {
     api.hasModifier = { ctrl: Boolean, alt: Boolean, meta: Boolean, shift: Boolean -> hasModifier(ctrl, alt, meta, shift) }
     api.pressedKey = { code: String, key: String -> pressedKey(code, key) }
     api.createDoublePress = { windowMs: Double -> createDoublePress(windowMs) }
+    api.fontFamilyOf = { customFonts: String -> fontFamilyOf(customFonts) }
+    api.buildFontCss = { customFonts: String, size: Double, changeDCFont: Boolean -> buildFontCss(customFonts, size, changeDCFont) }
+    api.stealthIsRevealed = { stealthIsRevealed() }
+    api.stealthToggle = { stealthToggle() }
+    api.stealthCreateButton = { stealthCreateButton() }
+    api.stealthEnable = { stealthEnable() }
+    api.stealthDispose = { stealthDispose() }
     val scope: dynamic = js("globalThis")
     scope.__DCR_KOTLIN__ = api
 }
