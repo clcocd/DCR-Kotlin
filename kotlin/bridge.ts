@@ -54,6 +54,8 @@ interface KotlinBridge {
     storageSizeOf(value: unknown): number | undefined;
     defineContentModule(meta: object, impl: object): unknown;
     defineBackgroundModule(meta: object, impl: object): unknown;
+    fontsModuleImpl(): unknown;
+    stealthModuleImpl(showToast: (message: string) => void): unknown;
 }
 
 export const kotlinBridge = (globalThis as typeof globalThis & {__DCR_KOTLIN__: KotlinBridge}).__DCR_KOTLIN__;
