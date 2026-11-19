@@ -34,6 +34,8 @@ interface KotlinBridge {
     stealthCreateButton(): void;
     stealthEnable(): void;
     stealthDispose(): void;
+    layoutCompact(narrow: boolean, forceCompact: boolean, isDcconShop: boolean, isViewPage: boolean, useCompactModeOnView: boolean): boolean;
+    layoutHideCss(options: Record<string, {selector: string}>, settings: Record<string, unknown>, noticePage: boolean): string;
 }
 
 export const kotlinBridge = (globalThis as typeof globalThis & {__DCR_KOTLIN__: KotlinBridge}).__DCR_KOTLIN__;
