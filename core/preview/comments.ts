@@ -45,10 +45,8 @@ const extractVoice = (memo: string): {memo: string; voice?: ProcessedComment["vo
 
 /** 목록을 정리하고 삭제 보존을 적용한다. 보존은 받을 때마다 한 번만. */
 export const prepareComments = (raw: DcinsideComment[], preData: GalleryPreData, archive: boolean, truncated = false): DcinsideComment[] => {
-    // 댓글돌이는 보존 기록에 안 들어가게 먼저 빼고, 삭제 판별은 is_delete "1"로 맞춘다.
-    const filtered = raw
-        .filter((comment) => comment.nicktype !== "COMMENT_BOY")
-        .map((comment) => ({...comment, is_delete: comment.is_delete !== "0" || comment.del_yn === "Y" ? "1" : "0"}));
+    // 댓글돌이 제거·삭제 표시 정규화는 Kotlin에서, 보존/복원은 기존 구현을 유지한다.
+    const filtered = kotlinBridge.normalizeIncomingComments(raw);
 
     return archive ? restoreArchive(preData, filtered, truncated) : filtered;
 };
