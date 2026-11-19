@@ -52,6 +52,8 @@ interface KotlinBridge {
     isJsRecord(value: unknown): boolean;
     canonicalStorageValue(value: unknown): string | undefined;
     storageSizeOf(value: unknown): number | undefined;
+    defineContentModule(meta: object, impl: object): unknown;
+    defineBackgroundModule(meta: object, impl: object): unknown;
 }
 
 export const kotlinBridge = (globalThis as typeof globalThis & {__DCR_KOTLIN__: KotlinBridge}).__DCR_KOTLIN__;

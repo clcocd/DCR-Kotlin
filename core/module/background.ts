@@ -1,3 +1,4 @@
+import {kotlinBridge} from "@/kotlin/bridge";
 import type {ScriptPublicPath} from "wxt/utils/inject-script";
 import {storage} from "wxt/utils/storage";
 import pLimit from "p-limit";
@@ -30,7 +31,7 @@ export interface BackgroundModule extends Pick<AnyModuleMeta, "id" | "defaultEna
 
 /** 모듈의 배경 쪽. features/<id>/background.ts가 default로 내보내면 배경 스크립트가 glob으로 모아 돌린다. */
 export const defineBackgroundModule = <M extends AnyModuleMeta>(meta: M, impl: BackgroundImpl<SchemaOf<M>>): BackgroundModule =>
-    ({id: meta.id, defaultEnable: meta.defaultEnable, settings: meta.settings, ...impl});
+    kotlinBridge.defineBackgroundModule(meta, impl) as BackgroundModule;
 
 /** 탭에서 온 메시지의 보낸 쪽. 팝업, 옵션 같은 확장 페이지는 tab이 없다. */
 type TabSender = Browser.runtime.MessageSender & { tab: { id: number } };
