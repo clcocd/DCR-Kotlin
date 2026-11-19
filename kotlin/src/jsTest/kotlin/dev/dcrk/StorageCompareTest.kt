@@ -1,5 +1,6 @@
 package dev.dcrk
 
+import kotlin.js.jsTypeOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -28,6 +29,6 @@ class StorageCompareTest {
     fun sizesAreOnlyForListsAndRecords() {
         assertEquals(2, storageSizeOf(js("([1,2])")))
         assertEquals(2, storageSizeOf(js("({a:1,b:2})")))
-        assertTrue(js("typeof")(storageSizeOf("string")) == "undefined")
+        assertTrue(jsTypeOf(storageSizeOf("string")) == "undefined")
     }
 }
