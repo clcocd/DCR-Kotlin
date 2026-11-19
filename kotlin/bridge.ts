@@ -1,6 +1,8 @@
 // Gradle에서 생성하는 번들. 프로젝트 코드에서는 Kotlin 함수의 타입만 이 파일이 담당한다.
 import "../generated/kotlin-bridge.js";
 import type {BlockEntry, BlockType, DetectMode} from "@/core/storage/types";
+import type {DcinsideComment} from "@/core/preview/types";
+import type {PreviewEntry} from "@/core/preview/history";
 
 interface KotlinBridge {
     dcinsideHref(url: string): string | null;
@@ -24,6 +26,8 @@ interface KotlinBridge {
     sameComments(a: object[], b: object[]): boolean;
     preprocessCommentMemo(memo: string): string;
     extractVoice(memo: string): {memo: string; voice?: {src: string; iframe: boolean}} | null;
+    previewEntry(state: unknown): PreviewEntry | null;
+    normalizeIncomingComments(raw: DcinsideComment[]): DcinsideComment[];
 }
 
 export const kotlinBridge = (globalThis as typeof globalThis & {__DCR_KOTLIN__: KotlinBridge}).__DCR_KOTLIN__;
