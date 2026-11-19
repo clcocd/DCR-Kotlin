@@ -65,10 +65,11 @@ export const DcconPopup = ({onSelect, onClose}: DcconPopupProps) => {
     // 검증된 방식: 렌더된 패키지 칸에 네이티브 wheel 캡처를 직접 단다.
     // React ref/MutationObserver나 누적 목표값 없이 deltaY를 scrollLeft에 바로 더한다.
     useEffect(() => {
-        const el = overlay.portal?.querySelector<HTMLElement>("[data-dccon-package-strip]")
-            ?? document.querySelector<HTMLElement>("[data-dccon-package-strip]");
+        const selector = `[data-dccon-package-strip="${id}"]`;
+        const el = overlay.portal?.querySelector<HTMLElement>(selector)
+            ?? document.querySelector<HTMLElement>(selector);
         return el ? kotlinBridge.bindDcconPackageWheel(el) : undefined;
-    }, []);
+    }, [id]);
 
     const clickDccon = (dccon: DcinsideDccon): void => {
         const next = doubleDccon ? [...selected, dccon] : [dccon];
@@ -105,7 +106,7 @@ export const DcconPopup = ({onSelect, onClose}: DcconPopupProps) => {
             )}
 
             {/* 스켈레톤은 넘치게 깔고 잘라 꽉 찬 목록처럼 보인다. 세로 휠도 옆으로 넘기므로 스크롤바는 숨긴다. */}
-            <div data-dccon-package-strip="" className="flex gap-1 overflow-x-auto scrollbar-none aria-busy:overflow-hidden" aria-busy={loading}>
+            <div data-dccon-package-strip={id} className="flex gap-1 overflow-x-auto scrollbar-none aria-busy:overflow-hidden" aria-busy={loading}>
                 {loading
                     ? Array.from({length: 12}, (_, index) => <Skeleton key={index} className="size-12 flex-none"/>)
                     : (
