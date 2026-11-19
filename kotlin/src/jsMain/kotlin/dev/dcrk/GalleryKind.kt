@@ -14,7 +14,3 @@ fun galleryKindFromPath(pathname: String): String = when {
     else -> "normal"
 }
 
-fun main() {
-    // Kotlin/JS 빌드의 실사용 연결 전에 실행 컨텍스트만 검증한다.
-    galleryKindFromPath("/")
-}

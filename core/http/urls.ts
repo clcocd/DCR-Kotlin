@@ -1,4 +1,5 @@
 import {VIEW_PAGE} from "@/core/pages";
+import {kotlinBridge} from "@/kotlin/bridge";
 
 export const urls = {
     base: "https://gall.dcinside.com/",
@@ -24,57 +25,20 @@ export const urls = {
     }
 };
 
-/** 갤러리 종류별 경로 접두사, _GALLTYPE_ 값, 관리 API 접두사. 디시가 정한 값이라 바꾸면 안 된다. */
-const GALLERIES = {
-    normal: {path: "", galltype: "G", manager: "minor"},
-    minor: {path: "mgallery/", galltype: "M", manager: "minor"},
-    mini: {path: "mini/", galltype: "MI", manager: "mini"},
-    person: {path: "person/", galltype: "PR", manager: "person"}
-} as const;
-
-type GalleryKind = keyof typeof GALLERIES;
-
-/** https 디시 주소만 통과 - javascript:나 다른 사이트로 따라가지 않게. */
+/** 원본의 URL/갤러리 판정 로직은 Kotlin/JS에서 실행한다. */
 export const dcinsideHref = (url: string | URL | null | undefined): string | undefined => {
-    const parsed = typeof url === "string" ? URL.parse(url) : url;
-    return parsed?.protocol === "https:" && parsed.hostname.endsWith(".dcinside.com") ? parsed.href : undefined;
+    if (url == null) return undefined;
+    return kotlinBridge.dcinsideHref(typeof url === "string" ? url : url.href) ?? undefined;
 };
 
-/** 주소의 경로 첫 칸으로 본다 - 전체에서 찾으면 검색어(s_keyword)에 든 글자에 걸린다. */
-export const galleryKind = (url: string): GalleryKind => {
-    const path = /^\/(mgallery|mini|person)\//.exec(URL.parse(url)?.pathname ?? "")?.[1];
-    return path === "mgallery" ? "minor" : path === "mini" || path === "person" ? path : "normal";
-};
-
-/** URL의 갤러리 경로 접두사. */
-export const galleryPath = (url: string): string => GALLERIES[galleryKind(url)].path;
-
-/** 댓글, 관리, 캡차 요청에 넣는 _GALLTYPE_ 값. */
-export const galltypeOf = (url: string): string => GALLERIES[galleryKind(url)].galltype;
-
-/** 관리 API 주소 (ajax/<접두사>_manager_board_ajax/<action>). */
-export const managerAjaxUrl = (url: string, action: string): string => `${urls.base}ajax/${GALLERIES[galleryKind(url)].manager}_manager_board_ajax/${action}`;
-
-/** 같은 목록이면 같은 문자열이 나오게 글 보기 값(no, t), page=1을 빼고 쿼리를 정렬한다. */
-export const listUrl = (url: string): string => {
-    const queries = new URL(url).searchParams;
-    queries.delete("no");
-    queries.delete("t");
-    queries.delete("page", "1");
-    queries.sort();
-    return `${urls.base}${galleryPath(url)}board/lists?${queries}`;
-};
-
-/** origin의 쿼리에 from의 쿼리를 덮어쓴 "?..." 문자열. */
-export const mergeParamURL = (origin: string, from: string): string => {
-    const params = new URL(origin).searchParams;
-    for (const [key, value] of new URL(from).searchParams) params.set(key, value);
-    return `?${params}`;
-};
-
-/** 디시 통합검색의 최신순 글 검색 주소. 검색어의 UTF-8 바이트를 검색창처럼 ".XX"로 쓴다. */
-export const postSearchUrl = (query: string): string =>
-    `https://search.dcinside.com/post/sort/latest/q/${Array.from(new TextEncoder().encode(query), (byte) => `.${byte.toString(16).padStart(2, "0").toUpperCase()}`).join("")}`;
+export type GalleryKind = "normal" | "minor" | "mini" | "person";
+export const galleryKind = kotlinBridge.galleryKind;
+export const galleryPath = kotlinBridge.galleryPath;
+export const galltypeOf = kotlinBridge.galltypeOf;
+export const managerAjaxUrl = kotlinBridge.managerAjaxUrl;
+export const listUrl = kotlinBridge.listUrl;
+export const mergeParamURL = kotlinBridge.mergeParamURL;
+export const postSearchUrl = kotlinBridge.postSearchUrl;
 
 /** 작성자 거르기가 목록 주소에 얹는 쿼리 이름 - 디시 글쓴이 검색은 닉네임만 찾는다. */
 export const WRITER_PARAMS = {uid: "rf_uid", ip: "rf_ip"} as const;
