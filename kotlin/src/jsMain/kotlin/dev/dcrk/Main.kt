@@ -24,6 +24,9 @@ fun main() {
     api.blockKey = { content: String, gallery: String? -> blockKey(content, gallery) }
     api.normalizeBlockList = { value: dynamic, known: dynamic -> normalizeBlockList(value, known) }
     api.normalizeDefaults = { value: dynamic -> normalizeDefaults(value) }
+    api.sameComments = { a: dynamic, b: dynamic -> sameComments(a, b) }
+    api.preprocessCommentMemo = { memo: String -> preprocessCommentMemo(memo) }
+    api.extractVoice = { memo: String -> extractVoice(memo) }
     val scope: dynamic = js("globalThis")
     scope.__DCR_KOTLIN__ = api
 }
