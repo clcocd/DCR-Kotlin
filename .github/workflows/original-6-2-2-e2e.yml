@@ -1,0 +1,32 @@
+name: 원본 6.2.2 Chromium E2E 기준선
+
+on:
+  push:
+    branches:
+      - audit/original-6-2-2-e2e-baseline
+
+permissions:
+  contents: read
+
+jobs:
+  original-e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '26'
+      - uses: oven-sh/setup-bun@v2
+      - name: 원본 의존성
+        run: bun ci
+      - name: 원본 TypeScript 검사 및 단위 테스트
+        run: |
+          bun run compile
+          bun run test
+      - name: 원본 Chrome 확장 빌드
+        run: bun run build
+      - name: Chromium 설치
+        run: bunx playwright install --with-deps chromium
+      - name: 원본 6.2.2 Chromium E2E
+        run: bunx playwright test --project=chromium
