@@ -40,6 +40,9 @@ fun main() {
     api.layoutCompact = { narrow: Boolean, force: Boolean, shop: Boolean, view: Boolean, viewAllowed: Boolean -> layoutCompact(narrow, force, shop, view, viewAllowed) }
     api.layoutHideCss = { options: dynamic, settings: dynamic, noticePage: Boolean -> layoutHideCss(options, settings, noticePage) }
     api.setTitleCount = { count: Int -> setTitleCount(count) }
+    api.textWithoutScripts = { element: dynamic -> textWithoutScripts(element) }
+    api.writeStyle = { id: String, css: String -> writeStyle(id, css) }
+    api.setAppearance = { element: dynamic, dark: Boolean -> setAppearance(element, dark) }
     val scope: dynamic = js("globalThis")
     scope.__DCR_KOTLIN__ = api
 }
