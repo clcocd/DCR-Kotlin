@@ -1,9 +1,7 @@
-/** Tailwind dark: 변형은 조상의 dark 클래스를 본다. color-scheme도 여기서 정한다. */
-const setAppearance = (root: HTMLElement, dark: boolean): void => {
-    root.classList.toggle("dark", dark);
-    root.classList.toggle("light", !dark);
-    root.style.colorScheme = dark ? "dark" : "light";
-};
+import {kotlinBridge} from "@/kotlin/bridge";
+
+/** dark/light class와 color-scheme은 Kotlin 코드로 갱신한다. */
+const setAppearance = kotlinBridge.setAppearance;
 
 /** 시스템 다크 모드를 따라간다. 첫 렌더 전에 불러 밝은 화면이 비치지 않게 한다. */
 export const followSystemAppearance = (): void => {
