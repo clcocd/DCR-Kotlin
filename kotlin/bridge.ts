@@ -14,6 +14,10 @@ interface KotlinBridge {
     nickType(iconUrl: string): "FIXED" | "HALF_FIXED" | "UNFIXED";
     submitResult(response: string): {result: string; message?: string; detail?: string};
     resultMessage(message?: string, detail?: string): string | null;
+    htmlToText(html: string): string;
+    decodeD(value: string): string;
+    composeExtra(isRegex: boolean, gallery?: string, mode?: string): string;
+    blockKey(content: string, gallery?: string): string;
 }
 
 export const kotlinBridge = (globalThis as typeof globalThis & {__DCR_KOTLIN__: KotlinBridge}).__DCR_KOTLIN__;
