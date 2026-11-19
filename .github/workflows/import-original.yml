@@ -31,10 +31,11 @@ jobs:
           rsync -a \
             --exclude='.git/' \
             --exclude='.github/' \
-            --exclude='README.md' \
+            --exclude='/README.md' \
             --exclude='AGENTS.md' \
             --exclude='docs/MIGRATION.md' \
             "$RUNNER_TEMP/dcr-source/" ./
+          test -f docs/README.md || { echo "원본 docs/README.md 누락"; exit 1; }
           git add -A
           if git diff --cached --quiet; then
             echo "새로 추가할 원본 파일이 없습니다."
