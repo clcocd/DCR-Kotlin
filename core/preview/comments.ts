@@ -1,4 +1,5 @@
 import QuickLRU from "quick-lru";
+import {kotlinBridge} from "@/kotlin/bridge";
 
 import {blockMode, duplicateOf, groupDuplicates, isAnyBlocked, isBlocked} from "@/core/block";
 import type {ModuleSettings} from "@/core/module/types";
@@ -22,12 +23,9 @@ export interface ProcessedComment extends DcinsideComment {
 
 const GALLOG_DCCON = /dcimg5\.dcinside\.com\/dccon\.php\?no=(\w*)/g;
 
-/** 디시콘 2개짜리는 두 태그가 >< 없이 붙어 온다. 정화 전에 떼어 놓는다. */
-const splitDccons = (memo: string): string => memo.replace(/"\s*(img|video) class="written_dccon/g, "\"><$1 class=\"written_dccon");
-
-// 정화는 입력의 순수 함수라 기억해 둔다.
+// 정화는 입력의 순수 함수라 기억해 둔다. HTML 정화 자체는 기존 DOMPurify를 유지한다.
 const cleaned = new QuickLRU<string, string>({maxSize: 2000});
-const sanitizeMemo = (memo: string): string => sanitizeHtml(splitDccons(memo).replace(/data-dcconoverstatus="?\w+"?/g, "data-dcconoverstatus=\"true\""));
+const sanitizeMemo = (memo: string): string => sanitizeHtml(kotlinBridge.preprocessCommentMemo(memo));
 
 // 평문도 입력의 순수 함수라 함께 기억한다.
 const plainTexts = new QuickLRU<string, string>({maxSize: 2000});
@@ -42,19 +40,8 @@ const remember = (cache: QuickLRU<string, string>, key: string, compute: (key: s
 
 const plainTextOf = (html: string): string => remember(plainTexts, html, (text) => htmlToText(text).trim());
 
-const extractVoice = (memo: string): { memo: string; voice?: ProcessedComment["voice"] } | undefined => {
-    if (!memo.includes("@^dc^@")) return;
-
-    // 구분자 앞은 음성 경로(또는 iframe 태그), 뒤는 글이다 (디시와 같은 해석).
-    const [raw = "", display = ""] = memo.split("@^dc^@");
-    const iframe = raw.includes("<iframe");
-    const src = iframe ? (raw.match(/src="([^"]+)"/)?.[1] ?? "") : `https://vr.dcinside.com/${raw}`;
-
-    // 호스트가 아니면 임의 iframe이라 음성을 버리고 display만 돌려준다.
-    if (!src.startsWith("https://vr.dcinside.com/")) return {memo: display};
-
-    return {memo: display, voice: {src, iframe}};
-};
+const extractVoice = (memo: string): {memo: string; voice?: ProcessedComment["voice"]} | undefined =>
+    kotlinBridge.extractVoice(memo) ?? undefined;
 
 /** 목록을 정리하고 삭제 보존을 적용한다. 보존은 받을 때마다 한 번만. */
 export const prepareComments = (raw: DcinsideComment[], preData: GalleryPreData, archive: boolean, truncated = false): DcinsideComment[] => {
@@ -66,21 +53,8 @@ export const prepareComments = (raw: DcinsideComment[], preData: GalleryPreData,
     return archive ? restoreArchive(preData, filtered, truncated) : filtered;
 };
 
-/** 두 목록이 같은지. JSON 문자열 대신 필드를 차례로 비교한다(1MB 문자열 방지). */
-export const sameComments = <T extends object>(a: T[], b: T[]): boolean => {
-    if (a.length !== b.length) return false;
-    for (const [index, comment] of a.entries()) {
-        const other = b[index];
-        if (other === undefined) return false;
-        let fields = 0;
-        for (const key in comment) {
-            if (comment[key] !== other[key]) return false;
-            fields++;
-        }
-        if (fields !== Object.keys(other).length) return false;
-    }
-    return true;
-};
+/** 댓글 필드별 비교는 Kotlin/JS에서 수행한다. */
+export const sameComments = <T extends object>(a: T[], b: T[]): boolean => kotlinBridge.sameComments(a, b);
 
 /** 차단하지 않은 깡계 댓글을 가린다. */
 const markLowActivity = (list: ProcessedComment[], ratios: Ratios | null): ProcessedComment[] => {

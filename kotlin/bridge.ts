@@ -21,6 +21,9 @@ interface KotlinBridge {
     blockKey(content: string, gallery?: string): string;
     normalizeBlockList(value: unknown, known: BlockEntry[]): BlockEntry[];
     normalizeDefaults(value: unknown): Record<BlockType, DetectMode>;
+    sameComments(a: object[], b: object[]): boolean;
+    preprocessCommentMemo(memo: string): string;
+    extractVoice(memo: string): {memo: string; voice?: {src: string; iframe: boolean}} | null;
 }
 
 export const kotlinBridge = (globalThis as typeof globalThis & {__DCR_KOTLIN__: KotlinBridge}).__DCR_KOTLIN__;
