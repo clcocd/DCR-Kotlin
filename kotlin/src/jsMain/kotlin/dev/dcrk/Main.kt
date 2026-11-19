@@ -58,6 +58,9 @@ fun main() {
     api.defineBackgroundModule = { meta: dynamic, impl: dynamic -> defineBackgroundModuleKotlin(meta, impl) }
     api.fontsModuleImpl = { fontsModuleImplementation() }
     api.stealthModuleImpl = { showToast: (String) -> Unit -> stealthModuleImplementation(showToast) }
+    api.layoutModuleImpl = { hideOptions: dynamic, view: Boolean, shop: Boolean, isNotice: () -> Boolean ->
+        layoutModuleImplementation(hideOptions, view, shop, isNotice)
+    }
     val scope: dynamic = js("globalThis")
     scope.__DCR_KOTLIN__ = api
 }
