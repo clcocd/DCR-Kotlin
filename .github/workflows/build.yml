@@ -38,6 +38,10 @@ jobs:
           mkdir -p public
           cp "$bundle" public/kotlin-bridge.js
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
       - uses: oven-sh/setup-bun@v2
 
       - name: WXT 의존성 설치
