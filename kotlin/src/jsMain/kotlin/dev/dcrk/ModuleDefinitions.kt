@@ -18,7 +18,7 @@ fun defineContentModule(meta: dynamic, impl: dynamic): dynamic {
         for (index in 0 until (toggles.length as Int)) {
             val id = toggles[index] as String
             val action: dynamic = if (actions != null) actions[id] else null
-            if (action != null) {
+            if (js("Boolean")(action) as Boolean) {
                 val entry: dynamic = js("({})")
                 entry.id = id
                 configured.push(js("Object.assign")(entry, action))
