@@ -8,10 +8,8 @@ describe("Kotlin module definition compatibility", () => {
         const meta = defineModuleMeta({id: "demo", defaultEnable: false, toggles: ["reveal"] as const});
         const setup = () => ({revealed: false});
         const toggle = vi.fn();
-        const shortcut = vi.fn();
         const module = defineModule(meta, {
             setup,
-            shortcuts: {},
             pageToggles: {
                 reveal: {
                     desc: "이미지 보이기",
@@ -27,7 +25,6 @@ describe("Kotlin module definition compatibility", () => {
         expect(module.pageToggles).toHaveLength(1);
         expect(module.pageToggles![0]).toMatchObject({id: "reveal", desc: "이미지 보이기"});
         expect(module.pageToggles![0]!.toggle).toBe(toggle);
-        expect(shortcut).not.toHaveBeenCalled();
     });
 
     it("does not add phantom page toggles", () => {
