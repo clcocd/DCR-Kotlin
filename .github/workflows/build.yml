@@ -79,4 +79,5 @@ jobs:
           name: dcrefresher-reborn-kotlin-chrome
           path: .output/*.zip
           if-no-files-found: error
+          include-hidden-files: true
           retention-days: 14
