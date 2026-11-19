@@ -56,6 +56,9 @@ interface KotlinBridge {
     defineBackgroundModule(meta: object, impl: object): unknown;
     fontsModuleImpl(): unknown;
     stealthModuleImpl(showToast: (message: string) => void): unknown;
+    layoutModuleImpl(
+        hideOptions: Record<string, {selector: string}>, isViewPage: boolean, isDcconShop: boolean, isNoticePage: () => boolean
+    ): unknown;
 }
 
 export const kotlinBridge = (globalThis as typeof globalThis & {__DCR_KOTLIN__: KotlinBridge}).__DCR_KOTLIN__;
