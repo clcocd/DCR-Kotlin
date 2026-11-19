@@ -67,13 +67,6 @@ export default defineConfig({
                     exclude_matches: CONTENT_EXCLUDE_MATCHES,
                     css: ["content-scripts/page.css"],
                     run_at: "document_start"
-                },
-                {
-                    // Kotlin/JS가 생성한 번들을 별도 콘텐츠 스크립트로 주입한다.
-                    matches: CONTENT_MATCHES,
-                    exclude_matches: CONTENT_EXCLUDE_MATCHES,
-                    js: ["kotlin-bridge.js"],
-                    run_at: "document_start"
                 }
             ],
             // 콘텐츠 본문 청크와 오버레이 CSS - 웹 페이지에서 접근할 수 있으니 DC 페이지에만 연다.
