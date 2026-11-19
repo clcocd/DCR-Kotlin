@@ -43,6 +43,7 @@ interface KotlinBridge {
     isBrokenMedia(image: HTMLImageElement): boolean;
     markPreviewMedia(media: HTMLElement, imageViewer: boolean): void;
     markPreviewPressable(root: HTMLElement, imageViewer: boolean): void;
+    bindDcconPackageWheel(container: HTMLElement): () => void;
 }
 
 export const kotlinBridge = (globalThis as typeof globalThis & {__DCR_KOTLIN__: KotlinBridge}).__DCR_KOTLIN__;
