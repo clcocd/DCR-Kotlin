@@ -1,17 +1,8 @@
 import {defineModule} from "@/core/module/define";
-import {writeStyle} from "@/utils/dom";
-
-import meta, {type Ctx} from "./meta";
+import type {ModuleImpl} from "@/core/module/types";
 import {kotlinBridge} from "@/kotlin/bridge";
 
-const STYLE_ID = "refresher-fonts";
+import meta from "./meta";
 
-const apply = (ctx: Ctx): (() => void) => writeStyle(STYLE_ID, kotlinBridge.buildFontCss(ctx.settings.customFonts, ctx.settings.bodyFontSize, ctx.settings.changeDCFont));
-
-export default defineModule(meta, {
-    setup(ctx) {
-        ctx.onRevoke(apply(ctx));
-
-        ctx.onSettingsChanged(() => apply(ctx));
-    }
-});
+/** 글꼴 적용·설정 변경·종료 처리는 Kotlin/JS에서 실행한다. */
+export default defineModule(meta, kotlinBridge.fontsModuleImpl() as ModuleImpl<typeof meta, void>);
