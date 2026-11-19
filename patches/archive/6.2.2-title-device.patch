@@ -1,0 +1,87 @@
+diff --git a/core/preview/types.ts b/core/preview/types.ts
+--- a/core/preview/types.ts
++++ b/core/preview/types.ts
+@@ -44,5 +44,6 @@ export interface PostInfo {
+     header?: string;
+     title?: string;
++    deviceHtml?: string;
+     expire?: string;
+     /** 작성 시각 ("2026-09-26 02:29:40"). */
+     date?: string;
+diff --git a/core/preview/parser.ts b/core/preview/parser.ts
+--- a/core/preview/parser.ts
++++ b/core/preview/parser.ts
+@@ -129,6 +129,7 @@ export const parsePostInfo = (html: string): PostInfo | undefined => {
+     // 제목 안 <script>의 글자가 textContent에 섞이므로 먼저 지운다. 제목은 말머리처럼 평문으로 꺼내 화면에 텍스트로 넣는다.
+     const subject = dom.querySelector<HTMLElement>(".title_subject");
+     for (const script of subject?.querySelectorAll("script") ?? []) script.remove();
++    const device = dom.querySelector<HTMLElement>(".title_device");
+ 
+     // 본문을 먼저 꺼내고 문서에서 뗀다. 아래 값(댓글 폼·추천 코드 등)은 문서 전체에서 찾으므로,
+     // 본문이 남아 있으면 본문에 넣은 같은 이름의 입력칸·스크립트가 먼저 걸린다.
+@@ -145,6 +146,7 @@ export const parsePostInfo = (html: string): PostInfo | undefined => {
+     const info: PostInfo = {
+         header,
+         title: strip(subject?.textContent),
++        deviceHtml: device?.innerHTML.trim() ? device.outerHTML : undefined,
+         expire: strip(
+             dom.querySelector<HTMLElement>(".view_content_wrap div.fl > span.mini_autodeltime > div.pop_tipbox > div")?.textContent,
+             " 자동 삭제"
+diff --git a/features/preview/ui/Frame.tsx b/features/preview/ui/Frame.tsx
+--- a/features/preview/ui/Frame.tsx
++++ b/features/preview/ui/Frame.tsx
+@@ -41,6 +41,42 @@ const hasAdjacent = (dir: number): boolean => {
+     return preData !== null && adjacentPreData(preData, dir) !== null;
+ };
+ 
++/** 원본 게시글의 작성 기기 아이콘. 확인된 방법대로 사이트 CSS를 읽어 Shadow DOM에 복사한다. */
++const DeviceIcon = ({html}: { html: string }) => {
++    const target = useRef<HTMLSpanElement>(null);
++
++    useLayoutEffect(() => {
++        const source = new DOMParser().parseFromString(html, "text/html").querySelector<HTMLElement>(".title_device");
++        if (!source || !target.current) return;
++
++        const probe = document.createElement("div");
++        probe.className = "gallview_head";
++        probe.style.cssText = "position:fixed!important;left:-10000px!important;opacity:0!important";
++        const heading = document.createElement("h3");
++        heading.className = "title ub-word";
++        heading.append(source);
++        probe.append(heading);
++        document.body.append(probe);
++
++        const clone = source.cloneNode(true) as HTMLElement;
++        const originals = [source, ...source.querySelectorAll<HTMLElement>("*")];
++        const copies = [clone, ...clone.querySelectorAll<HTMLElement>("*")];
++        originals.forEach((element, i) => {
++            const css = getComputedStyle(element);
++            for (let j = 0; j < css.length; j++) {
++                const name = css[j];
++                copies[i].style.setProperty(name, css.getPropertyValue(name));
++            }
++        });
++        probe.remove();
++
++        target.current.append(clone);
++        return () => clone.remove();
++    }, [html]);
++
++    return <span ref={target}/>;
++};
++
+ /** run이 끝날 때까지 로딩으로 돌며, 그동안은 다시 누를 수 없다. */
+ const RefreshButton = ({label, run}: { label: string; run: () => Promise<void> }) => {
+     const [busy, setBusy] = useState(false);
+@@ -280,7 +314,10 @@ export const Frame = () => {
+                     <Fragment key={postKey}>
+                     <div className="px-8 pt-6 pb-3">
+                         {/* 본문을 못 받았으면(삭제된 글 등) 목록의 제목이라도 보인다. */}
+-                        <Dialog.Title render={<h2 className="text-2xl font-bold"/>}>{post ? postTitle(post) : listTitle ?? ""}</Dialog.Title>
++                        <Dialog.Title render={<h2 className="text-2xl font-bold"/>}>
++                            {post ? postTitle(post) : listTitle ?? ""}
++                            {post?.deviceHtml && <DeviceIcon html={post.deviceHtml}/>}
++                        </Dialog.Title>
+ 
+                         {post && (
+                             <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
