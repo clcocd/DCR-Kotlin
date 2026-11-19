@@ -53,10 +53,8 @@ jobs:
       - name: 원본 단위 테스트
         run: bun run test
 
-      - name: Chrome MV3 확장 및 ZIP 빌드
-        run: |
-          bun run build
-          bun run zip
+      - name: Chrome MV3 확장 빌드
+        run: bun run build
 
       - name: Kotlin 포함 여부와 Manifest 검증
         shell: bash
@@ -66,14 +64,3 @@ jobs:
           test -s .output/chrome-mv3/manifest.json
           # Kotlin API가 WXT의 실행 번들에 실제로 포함됐는지 검증한다.
           grep -R -F -q '__DCR_KOTLIN__' .output/chrome-mv3
-          find .output -maxdepth 2 -name '*.zip' -type f -print
-          test -n "$(find .output -maxdepth 2 -name '*.zip' -type f -print -quit)"
-
-      - name: 확장 ZIP 업로드
-        uses: actions/upload-artifact@v4
-        with:
-          name: dcrefresher-reborn-kotlin-chrome
-          path: .output/*.zip
-          if-no-files-found: error
-          include-hidden-files: true
-          retention-days: 14
