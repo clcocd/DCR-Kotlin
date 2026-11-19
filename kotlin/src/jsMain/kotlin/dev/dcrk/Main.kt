@@ -18,6 +18,10 @@ fun main() {
     api.nickType = { iconUrl: String -> nickType(iconUrl) }
     api.submitResult = { response: String -> submitResult(response) }
     api.resultMessage = { message: String?, detail: String? -> resultMessage(message, detail) }
+    api.htmlToText = { html: String -> htmlToText(html) }
+    api.decodeD = { value: String -> decodeD(value) }
+    api.composeExtra = { isRegex: Boolean, gallery: String?, mode: String? -> composeExtra(isRegex, gallery, mode) }
+    api.blockKey = { content: String, gallery: String? -> blockKey(content, gallery) }
     val scope: dynamic = js("globalThis")
     scope.__DCR_KOTLIN__ = api
 }
