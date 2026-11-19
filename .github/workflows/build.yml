@@ -1,0 +1,77 @@
+name: Kotlin + WXT 확장 빌드
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.14.3'
+
+      - name: Kotlin/JS 테스트 및 브라우저 번들 생성
+        run: gradle --no-daemon -p kotlin jsNodeTest jsBrowserProductionWebpack
+
+      - name: Kotlin 번들을 WXT public 파일에 배치
+        shell: bash
+        run: |
+          set -euo pipefail
+          bundle=$(find kotlin/build/dist/js/productionExecutable -maxdepth 1 -name '*.js' -type f -print -quit)
+          test -n "$bundle"
+          mkdir -p public
+          cp "$bundle" public/kotlin-bridge.js
+
+      - uses: oven-sh/setup-bun@v2
+
+      - name: WXT 의존성 설치
+        run: bun ci
+
+      - name: 원본 TypeScript 검사
+        run: bun run compile
+
+      - name: 원본 단위 테스트
+        run: bun run test
+
+      - name: Chrome MV3 확장 및 ZIP 빌드
+        run: |
+          bun run build
+          bun run zip
+
+      - name: Kotlin 포함 여부와 Manifest 검증
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -s .output/chrome-mv3/kotlin-bridge.js
+          node --input-type=module -e '
+            import fs from "node:fs";
+            const manifest = JSON.parse(fs.readFileSync(".output/chrome-mv3/manifest.json", "utf8"));
+            if (!manifest.content_scripts?.some(s => s.js?.includes("kotlin-bridge.js"))) {
+              throw Error("Kotlin content script missing from manifest");
+            }
+          '
+          find .output -maxdepth 2 -name '*.zip' -type f -print
+          test -n "$(find .output -maxdepth 2 -name '*.zip' -type f -print -quit)"
+
+      - name: 확장 ZIP 업로드
+        uses: actions/upload-artifact@v4
+        with:
+          name: dcrefresher-reborn-kotlin-chrome
+          path: .output/*.zip
+          if-no-files-found: error
+          retention-days: 14
