@@ -1,0 +1,56 @@
+/** 단위 테스트 공통 준비 (setupFiles). 아래 polyfill은 브라우저에는 다 있고 jsdom, fake-browser에만 없는 것이다. */
+import {URLPattern} from "node:url";
+
+import {afterEach, beforeEach, vi} from "vitest";
+import {fakeBrowser} from "wxt/testing/fake-browser";
+
+// React 18+는 act()가 테스트 환경임을 이 플래그로 확인한다 (경고 방지).
+(globalThis as Record<string, unknown>).IS_REACT_ACT_ENVIRONMENT = true;
+
+beforeEach(() => fakeBrowser.reset());
+// 가짜 타이머를 쓴 테스트가 실패로 끝나도 다음 테스트는 실제 타이머로 시작한다.
+afterEach(() => void vi.useRealTimers());
+
+// fake-browser의 getKeys는 구현되지 않았다고 던진다. reset이 바꾸지 않는 객체라 한 번만 채운다.
+fakeBrowser.storage.local.getKeys = async () => Object.keys(await fakeBrowser.storage.local.get(null));
+fakeBrowser.storage.sync.getKeys = async () => Object.keys(await fakeBrowser.storage.sync.get(null));
+
+// permissions.contains도 던진다 (옵션 차단 탭의 이미지 호스트 권한 확인). 받은 권한이 없는 것으로 둔다.
+fakeBrowser.permissions.contains = async () => false;
+// 권한 변경 이벤트도 걸면 던진다. 바뀌지 않는 것으로 둔다.
+for (const event of [fakeBrowser.permissions.onAdded, fakeBrowser.permissions.onRemoved]) Object.assign(event, {addListener: () => undefined, removeListener: () => undefined});
+
+// Cookie Store API (core/http/cookie). 쿠키가 하나도 없는 것으로 둔다.
+Object.assign(globalThis, {cookieStore: {get: async () => null}});
+
+// 배경의 콘텐츠 스크립트 주소 판정 (entrypoints/background/index.ts). Node에는 있지만 jsdom 환경의 전역에는 없다.
+if (!("URLPattern" in globalThis)) Object.assign(globalThis, {URLPattern});
+
+if (typeof window !== "undefined") {
+    // core/http/urls가 불러올 때 내비게이션 기록을 읽는다.
+    performance.getEntriesByType ??= () => [];
+    // utils/sanitize가 style 속성을 for...of로 돈다.
+    const style = CSSStyleDeclaration.prototype as unknown as Record<typeof Symbol.iterator, unknown>;
+    style[Symbol.iterator] ??= function* (this: CSSStyleDeclaration) {
+        for (let index = 0; index < this.length; index++) yield this.item(index);
+    };
+    // utils/dom의 smoothScroll이 쓴다. 동작 줄이기는 꺼진 것으로, 스크롤은 하지 않는 것으로 둔다.
+    window.matchMedia ??= (query: string) => ({
+        matches: false, media: query, onchange: null, dispatchEvent: () => false,
+        addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {}
+    });
+    Element.prototype.scrollIntoView ??= () => undefined;
+    // Web Locks (stores/modules, core/storage/sync). 한 탭뿐이므로 차례대로 잇기만 한다.
+    if (!("locks" in navigator)) {
+        let queue: Promise<unknown> = Promise.resolve();
+        Object.defineProperty(navigator, "locks", {
+            value: {
+                request: (_name: string, callback: () => Promise<unknown>) => {
+                    const result = queue.then(callback);
+                    queue = result.catch(() => undefined);
+                    return result;
+                }
+            }
+        });
+    }
+}

@@ -1,0 +1,237 @@
+// @vitest-environment node
+// jsdom의 Blob에는 stream()이 없어 압축을 못 한다. 이 모듈은 DOM을 쓰지 않는다.
+import {beforeEach, describe, expect, it, vi} from "vitest";
+
+import {clearCloudBackups, collectLocalData, isBackupTarget, readBackupTargets, readCloudBackup, readCloudBackupStatus, runBackup} from "@/core/backup";
+
+import {isRecord} from "@/utils/record";
+
+import {stored} from "../../helpers";
+
+const ERROR = "refresher:backup:error";
+
+/** 압축되지 않는 글자. 조각 수를 늘릴 때 쓴다. */
+const noise = (length: number): string => Array.from(crypto.getRandomValues(new Uint8Array(length)), (byte) => String.fromCharCode(0xac00 + byte)).join("");
+
+/** 수동 칸 메타를 고친다. 새 버전 확장이 올린 백업처럼 꾸밀 때 쓴다. */
+const patchManualMeta = async (patch: Record<string, unknown>): Promise<void> => {
+    const {backup} = await browser.storage.sync.get("backup");
+    if (!isRecord(backup)) throw new Error("수동 백업이 없습니다.");
+    await browser.storage.sync.set({backup: {...backup, ...patch}});
+};
+
+const syncKeys = async (): Promise<string[]> => Object.keys(await browser.storage.sync.get(null)).sort();
+
+beforeEach(() => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+});
+
+describe("isBackupTarget", () => {
+    it("설정, 차단, 메모만 대상이다", () => {
+        const targets = ["refresher:modules", "refresher:block:defaults", "refresher:block:NICK", "refresher:block:TAB", "refresher:memo:UID", "refresher:module:preview:settings"];
+        const others = ["refresher:db:ip", "refresher:db:meta", "refresher:module:userinfo:data", "refresher:module:zzz:settings", "refresher:backup:auto", "refresher:block:UNKNOWN", "refresher:memo:X", "other"];
+        expect(targets.filter(isBackupTarget)).toEqual(targets);
+        expect(others.filter(isBackupTarget)).toEqual([]);
+    });
+});
+
+describe("readBackupTargets / collectLocalData", () => {
+    it("대상 키만 읽고 차단 항목의 id를 뺀다", async () => {
+        await browser.storage.local.set({
+            "refresher:modules": {preview: true},
+            "refresher:block:NICK": [{id: "uuid", content: "닉", isRegex: false}, "깨진 항목"],
+            "refresher:memo:UID": {a: {text: "메모", color: "red"}},
+            "refresher:db:ip": "큰 값"
+        });
+        expect(Object.keys(await readBackupTargets()).sort()).toEqual(["refresher:block:NICK", "refresher:memo:UID", "refresher:modules"]);
+
+        const data = await collectLocalData();
+        expect(JSON.parse(JSON.stringify(data))).toEqual({
+            "refresher:modules": {preview: true},
+            "refresher:block:NICK": [{content: "닉", isRegex: false}, "깨진 항목"],
+            "refresher:memo:UID": {a: {text: "메모", color: "red"}}
+        });
+    });
+
+    it("없어진 모듈의 설정은 내보내기, 백업에 넣지 않는다", async () => {
+        await browser.storage.local.set({"refresher:module:preview:settings": {width: 900}, "refresher:module:zzz:settings": {width: 1}});
+        expect(await collectLocalData()).toEqual({"refresher:module:preview:settings": {width: 900}});
+    });
+
+    it("대상이 없으면 빈 객체다", async () => {
+        await browser.storage.local.set({"refresher:db:ip": "x"});
+        expect(await readBackupTargets()).toEqual({});
+    });
+});
+
+describe("runBackup / readCloudBackup", () => {
+    it("올린 설정을 그대로 읽어 오고 수동, 자동 칸은 따로다", async () => {
+        vi.spyOn(Date, "now").mockReturnValue(1234);
+        await browser.storage.local.set({"refresher:modules": {a: true}});
+        await runBackup("manual");
+        await browser.storage.local.set({"refresher:modules": {a: false}});
+        await runBackup("auto");
+
+        expect(await readCloudBackup("manual")).toEqual({data: {"refresher:modules": {a: true}}, createdAt: 1234});
+        expect(await readCloudBackup("auto")).toEqual({data: {"refresher:modules": {a: false}}, createdAt: 1234});
+        expect(await syncKeys()).toEqual(["autoBackup", "autoBackup:0", "backup", "backup:0"]);
+    });
+
+    it("백업이 없으면 null이다", async () => {
+        expect(await readCloudBackup("manual")).toBeNull();
+    });
+
+    it("큰 설정은 8KB 이하 조각으로 나누고 줄어들면 남는 조각을 지운다", async () => {
+        await browser.storage.local.set({"refresher:modules": {big: noise(6000)}});
+        await runBackup("manual");
+        await browser.storage.local.set({"refresher:modules": {small: true}});
+        await runBackup("auto");
+
+        const all = await browser.storage.sync.get(null);
+        const chunks = Object.keys(all).filter((key) => key.startsWith("backup:"));
+        expect(chunks.length).toBeGreaterThan(1);
+        for (const key of chunks) expect(String(all[key]).length).toBeLessThanOrEqual(8000);
+
+        await browser.storage.local.set({"refresher:modules": {small: true}});
+        await runBackup("manual");
+        expect(await syncKeys()).toEqual(["autoBackup", "autoBackup:0", "backup", "backup:0"]);
+        expect((await readCloudBackup("manual"))?.data).toEqual({"refresher:modules": {small: true}});
+    });
+
+    it("조각이 빠지면 던진다", async () => {
+        await browser.storage.local.set({"refresher:modules": {big: noise(6000)}});
+        await runBackup("manual");
+        await browser.storage.sync.remove("backup:1");
+        await expect(readCloudBackup("manual")).rejects.toThrow("백업 조각이 빠져 있습니다");
+    });
+
+    it("지우기 전에 다른 기기가 백업을 올렸으면 남는 조각을 그대로 둔다", async () => {
+        await browser.storage.local.set({"refresher:modules": {big: noise(6000)}});
+        await runBackup("manual");
+        await browser.storage.local.set({"refresher:modules": {small: true}});
+
+        // 두 번째 백업이 조각을 쓴 뒤 지우기 전에, 다른 기기가 새 백업(다른 메타)을 올린 상황을 흉내 낸다.
+        const original = browser.storage.sync.set.bind(browser.storage.sync);
+        let planted = false;
+        const set = vi.spyOn(browser.storage.sync, "set").mockImplementation(async (items) => {
+            await original(items);
+            if (!planted && isRecord(items) && "backup" in items) {
+                planted = true;
+                await original({backup: {...(items.backup as Record<string, unknown>), createdAt: 999, hash: "다른 기기"}});
+            }
+        });
+        const remove = vi.spyOn(browser.storage.sync, "remove").mockResolvedValue(undefined);
+        await runBackup("manual");
+
+        expect(remove).not.toHaveBeenCalled();
+        set.mockRestore();
+        remove.mockRestore();
+        await runBackup("manual");
+        expect((await syncKeys()).filter((key) => key.startsWith("backup:"))).toEqual(["backup:0"]);
+    });
+
+    it("조각이 메타와 맞지 않으면 던진다", async () => {
+        await browser.storage.local.set({"refresher:modules": {a: true}});
+        await runBackup("manual");
+        // 다른 기기의 새 메타만 먼저 온 경우처럼 조각이 다른 백업의 것이다.
+        await browser.storage.local.set({"refresher:modules": {a: false}});
+        await runBackup("auto");
+        await browser.storage.sync.set({"backup:0": (await browser.storage.sync.get("autoBackup:0"))["autoBackup:0"]});
+        await expect(readCloudBackup("manual")).rejects.toThrow("백업 데이터가 맞지 않습니다");
+    });
+
+    it("조각이 섞여 가운데에 '='가 끼어도 같은 안내로 던진다", async () => {
+        await browser.storage.local.set({"refresher:modules": {a: true}});
+        await runBackup("manual");
+        await patchManualMeta({chunks: 2});
+        await browser.storage.sync.set({"backup:0": "QQ==", "backup:1": "QUJD"});
+        // vmThreads에서는 SyntaxError가 다른 realm에서 오므로 메시지로 본다.
+        await expect(readCloudBackup("manual")).rejects.toThrow("백업 데이터가 맞지 않습니다");
+    });
+
+    it("더 높은 형식의 백업은 있다고 알리고 읽지 않는다", async () => {
+        await browser.storage.local.set({"refresher:modules": {a: true}});
+        await runBackup("manual");
+        await patchManualMeta({format: 2, createdAt: 99});
+
+        expect((await readCloudBackupStatus()).manual).toEqual({createdAt: 99, size: expect.any(Number), other: false});
+        await expect(readCloudBackup("manual")).rejects.toThrow("새 버전 확장에서 만든 백업입니다");
+    });
+
+    it("다른 칸 크기는 더 높은 형식이어도 한도 계산에 넣는다", async () => {
+        await browser.storage.local.set({"refresher:modules": {big: noise(40_000)}});
+        await runBackup("manual");
+        await patchManualMeta({format: 2});
+
+        await expect(runBackup("auto")).rejects.toThrow(/클라우드 한도를 넘습니다/);
+    });
+
+    it("성공하면 남은 실패 이유를 지운다", async () => {
+        await browser.storage.local.set({[ERROR]: "이전 실패"});
+        await runBackup("manual");
+        expect(await stored(ERROR)).toBe("");
+    });
+
+    it("쓰다 실패하면 이전 백업을 그대로 두고 이유를 남긴다", async () => {
+        await browser.storage.local.set({"refresher:modules": {a: true}});
+        await runBackup("manual");
+        await browser.storage.local.set({"refresher:modules": {a: false}});
+        vi.spyOn(browser.storage.sync, "set").mockRejectedValueOnce(new Error("MAX_WRITE_OPERATIONS_PER_MINUTE"));
+
+        await expect(runBackup("manual")).rejects.toThrow("MAX_WRITE_OPERATIONS");
+        expect(await stored(ERROR)).toBe("짧은 시간에 너무 자주 저장했습니다. 잠시 후 다시 시도해 주세요.");
+        expect((await readCloudBackup("manual"))?.data).toEqual({"refresher:modules": {a: true}});
+    });
+
+    it("두 칸을 합쳐 한도를 넘으면 쓰지 않고 크기를 알린다", async () => {
+        await browser.storage.local.set({"refresher:modules": {big: noise(40_000)}});
+        await runBackup("manual");
+        const before = await browser.storage.sync.get(null);
+
+        await expect(runBackup("auto")).rejects.toThrow(/클라우드 한도를 넘습니다.*KB \+ 다른 백업 \d+KB \/ 97KB/);
+        expect(await browser.storage.sync.get(null)).toEqual(before);
+        expect(await stored(ERROR)).toMatch(/클라우드 한도/);
+    });
+});
+
+describe("readCloudBackupStatus", () => {
+    it("칸마다 시각, 크기를 알린다", async () => {
+        vi.spyOn(Date, "now").mockReturnValue(77);
+        await browser.storage.local.set({"refresher:modules": {a: true}});
+        await runBackup("auto");
+
+        const status = await readCloudBackupStatus();
+        const meta = (await browser.storage.sync.get("autoBackup")).autoBackup;
+        expect(status).toEqual({manual: undefined, auto: {createdAt: 77, size: expect.any(Number), other: false}});
+        expect(meta).toMatchObject({size: status.auto?.size, chunks: 1});
+    });
+
+    it("다른 기기나 기기를 남기기 전 버전이 올린 백업은 other로 알린다", async () => {
+        await browser.storage.local.set({"refresher:modules": {a: true}});
+        await runBackup("manual");
+        expect((await readCloudBackupStatus()).manual?.other).toBe(false);
+
+        await patchManualMeta({device: "다른 기기"});
+        expect((await readCloudBackupStatus()).manual?.other).toBe(true);
+
+        await patchManualMeta({device: undefined});
+        expect((await readCloudBackupStatus()).manual?.other).toBe(true);
+
+        await runBackup("manual");
+        expect((await readCloudBackupStatus()).manual?.other).toBe(false);
+    });
+});
+
+describe("clearCloudBackups", () => {
+    it("두 칸의 메타와 조각, v5가 남긴 키까지 모두 지운다", async () => {
+        await browser.storage.local.set({"refresher:modules": {a: true}});
+        await runBackup("manual");
+        await runBackup("auto");
+        await browser.storage.sync.set({"refresher:block:NICK": "[]"});
+
+        await clearCloudBackups();
+
+        expect(await browser.storage.sync.get(null)).toEqual({});
+        expect(await readCloudBackupStatus()).toEqual({manual: undefined, auto: undefined});
+    });
+});

@@ -1,0 +1,228 @@
+import {beforeEach, describe, expect, it} from "vitest";
+
+import {blockingEntries, dcconCode, groupDuplicates, isAnyBlocked, isBlocked, isBlockedHidden} from "@/core/block";
+import {DETECT_MODES} from "@/core/storage/items";
+import type {BlockEntry} from "@/core/storage/types";
+import {useBlocksStore} from "@/stores/blocks";
+
+import {blockEntry, setBlockLists} from "../../helpers";
+
+let nextId = 0;
+// 색인 비교 테스트에 내용이 같은 항목이 있어 id는 순번으로 붙인다.
+const entry = (content: string, fields: Partial<BlockEntry> = {}): BlockEntry => blockEntry(content, {id: `e${nextId++}`, ...fields});
+
+beforeEach(() => setBlockLists());
+
+describe("isBlocked", () => {
+    it("유형의 기본 모드를 따른다", () => {
+        setBlockLists({NICK: [entry("닉")], TITLE: [entry("광고")]});
+        expect(isBlocked("NICK", "닉")).toBe(true);
+        expect(isBlocked("NICK", "닉네임")).toBe(false);
+        expect(isBlocked("TITLE", "무료 광고 글")).toBe(true);
+    });
+
+    it("바꾼 기본 모드를 따른다", () => {
+        setBlockLists({NICK: [entry("닉")]}, {NICK: "CONTAIN"});
+        expect(isBlocked("NICK", "닉네임")).toBe(true);
+    });
+
+    it("항목의 모드가 기본 모드보다 앞선다", () => {
+        setBlockLists({TITLE: [entry("광고", {mode: "SAME"})]});
+        expect(isBlocked("TITLE", "무료 광고")).toBe(false);
+        expect(isBlocked("TITLE", "광고")).toBe(true);
+    });
+
+    it("IP 포함은 숫자 경계에서만 맞는다", () => {
+        setBlockLists({IP: [entry("1.2.3.4", {mode: "CONTAIN"})]});
+        expect(isBlocked("IP", "1.2.3.4")).toBe(true);
+        expect(isBlocked("IP", "11.2.3.45")).toBe(false);
+        expect(isBlocked("IP", "1.2.3.45")).toBe(false);
+        setBlockLists({IP: [entry("1.2.3", {mode: "CONTAIN"})]});
+        expect(isBlocked("IP", "1.2.3.4")).toBe(true);
+        expect(isBlocked("IP", "1.2.34.5")).toBe(false);
+        expect(isBlocked("IP", "21.2.3.4")).toBe(false);
+    });
+
+    it("빈 내용은 막지 않는다", () => {
+        setBlockLists({TITLE: [entry("")]});
+        expect(isBlocked("TITLE", "")).toBe(false);
+    });
+
+    it("갤러리 한정 항목은 그 갤러리에서만 막는다", () => {
+        setBlockLists({NICK: [entry("닉", {gallery: "a"})]});
+        expect(isBlocked("NICK", "닉", "a")).toBe(true);
+        expect(isBlocked("NICK", "닉", "b")).toBe(false);
+        expect(isBlocked("NICK", "닉")).toBe(false);
+    });
+
+    it("정규식은 포함 모드에서 일부만 맞아도 막는다", () => {
+        setBlockLists({TITLE: [entry("^광고\\d+", {isRegex: true})]});
+        expect(isBlocked("TITLE", "광고12 입니다")).toBe(true);
+        expect(isBlocked("TITLE", "무료 광고12")).toBe(false);
+    });
+
+    it("정규식은 일치 모드에서 전체가 맞아야 막는다", () => {
+        setBlockLists({NICK: [entry("닉\\d", {isRegex: true})]});
+        expect(isBlocked("NICK", "닉1")).toBe(true);
+        expect(isBlocked("NICK", "닉1a")).toBe(false);
+    });
+
+    it("일치 모드 정규식은 짧은 앞 대안이 먼저 맞아도 긴 대안으로 전체 일치를 찾는다", () => {
+        setBlockLists({NICK: [entry("닉1|닉1a", {isRegex: true})]});
+        expect(isBlocked("NICK", "닉1a")).toBe(true);
+    });
+
+    it("잘못된 정규식은 아무것도 막지 않는다", () => {
+        setBlockLists({TITLE: [entry("(", {isRegex: true})]});
+        expect(isBlocked("TITLE", "(")).toBe(false);
+    });
+
+    it("NOT_* 항목들은 하나의 허용 목록이다", () => {
+        setBlockLists({NICK: [entry("가", {mode: "NOT_SAME"}), entry("나", {mode: "NOT_SAME"})]});
+        expect(isBlocked("NICK", "가")).toBe(false);
+        expect(isBlocked("NICK", "나")).toBe(false);
+        expect(isBlocked("NICK", "다")).toBe(true);
+    });
+
+    it("NOT_CONTAIN은 하나라도 포함하면 허용한다", () => {
+        setBlockLists({TITLE: [entry("공지", {mode: "NOT_CONTAIN"})]});
+        expect(isBlocked("TITLE", "오늘의 공지")).toBe(false);
+        expect(isBlocked("TITLE", "잡담")).toBe(true);
+    });
+
+    it("잘못된 정규식 NOT_* 항목은 허용 목록에 넣지 않는다", () => {
+        setBlockLists({NICK: [entry("(", {isRegex: true, mode: "NOT_SAME"})]});
+        expect(isBlocked("NICK", "아무나")).toBe(false);
+    });
+
+    it("다른 갤러리의 NOT_* 항목은 허용 목록에 넣지 않는다", () => {
+        setBlockLists({NICK: [entry("가", {mode: "NOT_SAME", gallery: "a"})]});
+        expect(isBlocked("NICK", "나", "b")).toBe(false);
+        expect(isBlocked("NICK", "나", "a")).toBe(true);
+    });
+
+    it("허용 목록에 맞아도 SAME 항목에 걸리면 막는다", () => {
+        setBlockLists({NICK: [entry("가", {mode: "NOT_SAME"}), entry("가")]});
+        expect(isBlocked("NICK", "가")).toBe(true);
+    });
+});
+
+describe("isAnyBlocked", () => {
+    it("값 중 하나라도 막히면 참이고 빈 값은 건너뛴다", () => {
+        setBlockLists({ID: [entry("uid")]});
+        expect(isAnyBlocked({NICK: "닉", ID: "uid"})).toBe(true);
+        expect(isAnyBlocked({NICK: "닉", ID: null, IP: undefined})).toBe(false);
+    });
+});
+
+describe("blockingEntries", () => {
+    it("걸린 항목을 유형과 함께 돌려준다", () => {
+        const nick = entry("닉");
+        const id = entry("uid");
+        setBlockLists({NICK: [nick, entry("딴닉")], ID: [id]});
+        expect(blockingEntries({NICK: "닉", ID: "uid", IP: ""})).toEqual([{type: "NICK", entry: nick}, {type: "ID", entry: id}]);
+    });
+
+    it("허용 목록에 맞지 않으면 그 NOT_* 항목 전부를, 맞으면 하나도 돌려주지 않는다", () => {
+        const a = entry("가", {mode: "NOT_SAME"});
+        const b = entry("나", {mode: "NOT_SAME"});
+        setBlockLists({NICK: [a, b]});
+        expect(blockingEntries({NICK: "다"}).map(({entry}) => entry)).toEqual([a, b]);
+        expect(blockingEntries({NICK: "가"})).toEqual([]);
+    });
+
+    it("넘긴 목록을 스토어 대신 쓴다", () => {
+        const nick = entry("닉");
+        const {defaults} = useBlocksStore.getState();
+        expect(blockingEntries({NICK: "닉"}, undefined, {entries: {...useBlocksStore.getState().entries, NICK: [nick]}, defaults})).toEqual([{type: "NICK", entry: nick}]);
+        expect(blockingEntries({NICK: "닉"})).toEqual([]);
+    });
+});
+
+describe("일치 항목 색인", () => {
+    it("항목을 하나씩 볼 때와 결과가 같다", () => {
+        // 정규식이 아닌 항목을 같은 뜻의 이스케이프한 정규식으로 바꾸면 색인에 들지 않고 하나씩 본다.
+        const nicks = [
+            entry("가", {mode: "CONTAIN"}), entry("가나"), entry("가", {gallery: "a"}), entry("가"), entry("가나", {mode: "SAME", gallery: "b"}),
+            entry("다", {mode: "NOT_SAME"}), entry("라", {mode: "NOT_CONTAIN", gallery: "b"}), entry("마\\d", {isRegex: true}), entry("(", {isRegex: true})
+        ];
+        const linear = nicks.map((item) => (item.isRegex ? item : {...item, content: RegExp.escape(item.content), isRegex: true}));
+        const result = (value: string, gallery?: string): { blocked: boolean; ids: string[] } => ({blocked: isBlocked("NICK", value, gallery), ids: blockingEntries({NICK: value}, gallery).map(({entry}) => entry.id)});
+
+        for (const mode of DETECT_MODES) {
+            for (const gallery of [undefined, "a", "b"]) {
+                for (const value of ["가", "가나", "가나다", "다", "라라", "마1", "(", "바"]) {
+                    // 같은 배열이어도 기본 모드가 바뀌면 색인을 다시 만들어야 한다.
+                    setBlockLists({NICK: nicks}, {NICK: mode});
+                    const indexed = result(value, gallery);
+                    setBlockLists({NICK: linear}, {NICK: mode});
+                    expect(indexed).toEqual(result(value, gallery));
+                }
+            }
+        }
+    });
+});
+
+describe("dcconCode", () => {
+    const element = (html: string): HTMLElement => {
+        const wrap = document.createElement("div");
+        wrap.innerHTML = html;
+        return wrap.querySelector<HTMLElement>(":scope > *")!;
+    };
+
+    it("이미지 src의 no를 읽는다", () => {
+        expect(dcconCode(element("<img src='https://dcimg5.dcinside.com/dccon.php?no=abc'>"))).toBe("abc");
+    });
+
+    it("src가 없거나 비었으면 data-src를 읽는다", () => {
+        expect(dcconCode(element("<video data-src='/dccon.php?no=v1'></video>"))).toBe("v1");
+        expect(dcconCode(element("<img src='' data-src='/dccon.php?no=v2'>"))).toBe("v2");
+    });
+
+    it("src가 없는 요소는 안의 img, source를 본다", () => {
+        expect(dcconCode(element("<span><img src='/dccon.php?no=i1'></span>"))).toBe("i1");
+        expect(dcconCode(element("<video><source src='/dccon.php?no=s1'></video>"))).toBe("s1");
+    });
+
+    it("no가 없으면 undefined다", () => {
+        expect(dcconCode(element("<img src='/dccon.php?x=1'>"))).toBeUndefined();
+        expect(dcconCode(element("<span></span>"))).toBeUndefined();
+    });
+});
+
+describe("isBlockedHidden", () => {
+    const target = (html: string): Element => {
+        document.body.innerHTML = html;
+        return document.querySelector("#t")!;
+    };
+
+    it("차단 표시 안이면 가려진 것이다", () => {
+        expect(isBlockedHidden(target("<div data-blocked='hide'><img id='t'></div>"))).toBe(true);
+        expect(isBlockedHidden(target("<div><img id='t'></div>"))).toBe(false);
+    });
+
+    it("가린 내용 보기 중이면 가려지지 않은 것이다", () => {
+        expect(isBlockedHidden(target("<div data-block-revealed><div data-blocked='hide'><img id='t'></div></div>"))).toBe(false);
+        expect(isBlockedHidden(target("<div data-comments-revealed><div data-blocked='hide'><img id='t'></div></div>"))).toBe(false);
+    });
+
+    it("흐림 풀기는 흐림 차단만 밝힌다", () => {
+        expect(isBlockedHidden(target("<div data-blur-reveal><div data-blocked='blur'><img id='t'></div></div>"))).toBe(false);
+        expect(isBlockedHidden(target("<div data-blur-reveal><div data-blocked='hide'><img id='t'></div></div>"))).toBe(true);
+    });
+});
+
+describe("groupDuplicates", () => {
+    it("공백만 다른 글을 묶고 첫 항목에 반복 수를 적는다", () => {
+        const items = ["도배 글", " 도배   글 ", "다른 글", "도배\n글"].map((text) => ({text}));
+        const groups = groupDuplicates(items, ({text}) => text, {count: 3, minLength: 2});
+        expect([...groups]).toEqual([[items[0], 3], [items[1], 0], [items[3], 0]]);
+    });
+
+    it("짧은 글과 적게 반복된 글은 건너뛴다", () => {
+        const items = ["ㅋㅋ", "ㅋㅋ", "ㅋㅋ", "두번", "두번"].map((text) => ({text}));
+        expect(groupDuplicates(items, ({text}) => text, {count: 3, minLength: 3}).size).toBe(0);
+        expect(groupDuplicates(items, ({text}) => text, {count: 3, minLength: 2}).size).toBe(3);
+        expect(groupDuplicates(items, ({text}) => text, {count: 2, minLength: 2}).size).toBe(5);
+    });
+});

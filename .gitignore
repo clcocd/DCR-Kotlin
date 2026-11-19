@@ -1,0 +1,10 @@
+.idea
+.output
+.wxt
+node_modules
+.env.submit
+web-ext.config.ts
+db
+test-results
+playwright-report
+stats.html

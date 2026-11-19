@@ -1,0 +1,151 @@
+import {cn} from "cn";
+import {useEffect, useId, useRef, useState} from "react";
+
+import {DialogCloseButton, ModalDialog} from "@/components/dialogs";
+import {FOCUS_RING} from "@/components/focusRing";
+import {Button} from "@/components/ui/button";
+import {DialogTitle} from "@/components/ui/dialog";
+import {Field, FieldLabel} from "@/components/ui/field";
+import {Skeleton} from "@/components/ui/skeleton";
+import {Switch} from "@/components/ui/switch";
+import {ToggleGroup, ToggleGroupItem} from "@/components/ui/toggle-group";
+import {fetchDcconList} from "@/core/preview/request";
+import {cachedDcconList, setCachedDcconList} from "@/core/preview/dccon";
+import type {DcinsideDccon} from "@/core/preview/types";
+import {useUiStore} from "@/stores/ui";
+import {smoothScroll} from "@/utils/dom";
+
+interface DcconPopupProps {
+    onSelect: (dccons: DcinsideDccon[], bigDccon: boolean) => void;
+    onClose: () => void;
+}
+
+export const DcconPopup = ({onSelect, onClose}: DcconPopupProps) => {
+    const cached = cachedDcconList();
+    const [packages, setPackages] = useState(() => cached ?? []);
+    // 고른 패키지. 고르기 전에는 첫 패키지다.
+    const [activeIdx, setActiveIdx] = useState<string>();
+    const [doubleDccon, setDoubleDccon] = useState(false);
+    const [bigDccon, setBigDccon] = useState(false);
+    const [selected, setSelected] = useState<DcinsideDccon[]>([]);
+    // 목록은 비어 있지 않을 때만 채운다. 비었거나 받지 못하면 창을 닫는다.
+    const loading = packages.length === 0;
+    const active = packages.find((pack) => pack.package_idx === activeIdx) ?? packages[0];
+
+    useEffect(() => {
+        if (!loading) return;
+        // 닫으면 남은 쪽 요청을 끊고 늦게 온 결과는 버린다. onClose는 새로 연 창도 닫으므로 늦게 온 실패가 다시 연 창을 닫으면 안 된다.
+        const controller = new AbortController();
+        const {signal} = controller;
+
+        void fetchDcconList(signal).then((result) => {
+            if (signal.aborted) return;
+            // 가진 디시콘이 없으면 빈 목록이 온다. 빈 창을 띄우지 않고 알린다.
+            if (typeof result === "string" || result.length === 0) {
+                const notLogin = result === "not_login";
+                useUiStore.getState().showToast(notLogin ? "디시콘은 로그인한 뒤에 쓸 수 있습니다." : "사용 가능한 디시콘이 없습니다.", notLogin ? "warning" : "error");
+                onClose();
+                return;
+            }
+
+            setCachedDcconList(result);
+            setPackages(result);
+        }, () => {
+            if (signal.aborted) return;
+            useUiStore.getState().showToast("디시콘을 불러오지 못했습니다.", "error");
+            onClose();
+        });
+
+        return () => controller.abort();
+    }, []);
+
+    const id = useId();
+    // 휠로 굴러갈 곳. 굴리는 동안 휠이 이어지면 지금 위치가 아니라 여기에 더해야 빠르게 굴려도 덜 가지 않는다. 다 굴러가면 비운다.
+    const wheelTarget = useRef<number | null>(null);
+    const strip = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const el = strip.current;
+        if (!el) return;
+        // React의 onWheel은 수동(passive) 리스너라 preventDefault가 안 먹는다. 페이지가 함께 굴러가지 않게 네이티브로 단다.
+        const onWheel = (ev: WheelEvent): void => {
+            if (ev.shiftKey || ev.ctrlKey || Math.abs(ev.deltaY) <= Math.abs(ev.deltaX) || el.scrollWidth <= el.clientWidth) return;
+            ev.preventDefault();
+            const left = Math.min(Math.max((wheelTarget.current ?? el.scrollLeft) + ev.deltaY, 0), el.scrollWidth - el.clientWidth);
+            wheelTarget.current = left;
+            el.scrollTo({left, behavior: smoothScroll()});
+        };
+        el.addEventListener("wheel", onWheel, {passive: false});
+        return () => el.removeEventListener("wheel", onWheel);
+    }, []);
+
+    const clickDccon = (dccon: DcinsideDccon): void => {
+        const next = doubleDccon ? [...selected, dccon] : [dccon];
+        if (!doubleDccon || next.length === 2) onSelect(next, bigDccon);
+        else setSelected(next);
+    };
+
+    return (
+        <ModalDialog onClose={onClose} className="sm:max-w-140" focusOnOpen="keyboard">
+            <div className="flex items-center justify-between">
+                <DialogTitle>디시콘</DialogTitle>
+                <div className="flex items-center gap-4">
+                    <Field orientation="horizontal">
+                        <FieldLabel htmlFor={`${id}-double`} className="font-normal">더블콘</FieldLabel>
+                        <Switch id={`${id}-double`} size="sm" checked={doubleDccon} onCheckedChange={(value) => {
+                            setDoubleDccon(value);
+                            setSelected([]);
+                        }}/>
+                    </Field>
+                    <Field orientation="horizontal">
+                        <FieldLabel htmlFor={`${id}-big`} className="font-normal">대왕콘</FieldLabel>
+                        <Switch id={`${id}-big`} size="sm" checked={bigDccon} onCheckedChange={setBigDccon}/>
+                    </Field>
+                    <DialogCloseButton/>
+                </div>
+            </div>
+
+            {doubleDccon && selected.length > 0 && (
+                <div className="flex items-center gap-2">
+                    <img src={selected[0]!.list_img} alt={selected[0]!.title} width={32} height={32}/>
+                    <span className="flex-1 text-muted-foreground">더블콘 {selected.length}/2 - 하나만 더 선택</span>
+                    <Button size="xs" variant="secondary" onClick={() => setSelected([])}>초기화</Button>
+                </div>
+            )}
+
+            {/* 스켈레톤은 넘치게 깔고 잘라 꽉 찬 목록처럼 보인다. 세로 휠도 옆으로 넘기므로 스크롤바는 숨긴다. */}
+            <div ref={strip} className="flex gap-1 overflow-x-auto scrollbar-none aria-busy:overflow-hidden" aria-busy={loading} onScrollEnd={() => (wheelTarget.current = null)}>
+                {loading
+                    ? Array.from({length: 12}, (_, index) => <Skeleton key={index} className="size-12 flex-none"/>)
+                    : (
+                        // 하나만 고르는 묶음이라 Tab 정지점은 하나이고 패키지 사이는 화살표로 옮긴다. 고른 패키지를 다시 눌러 빈 값이 오면 그대로 둔다.
+                        <ToggleGroup aria-label="디시콘 패키지" spacing={1} value={active ? [active.package_idx] : []} onValueChange={([value]) => {
+                            if (value !== undefined) setActiveIdx(value);
+                        }}>
+                            {packages.map((pack) => (
+                                <ToggleGroupItem
+                                    key={pack.package_idx}
+                                    value={pack.package_idx}
+                                    title={pack.title}
+                                    className="cursor-pointer rounded-lg p-0.5 [&>img]:size-full [&>img]:rounded-md [&>img]:object-contain size-12 flex-none border-2 border-transparent aria-pressed:border-primary aria-pressed:bg-transparent"
+                                    onClick={(ev) => ev.currentTarget.scrollIntoView({behavior: smoothScroll(), block: "nearest", inline: "center"})}
+                                >
+                                    <img src={pack.main_img_url} alt={pack.title} loading="lazy" decoding="async"/>
+                                </ToggleGroupItem>
+                            ))}
+                        </ToggleGroup>
+                    )}
+            </div>
+
+            <div className="grid h-80 grid-cols-[repeat(auto-fill,minmax(72px,1fr))] content-start gap-1 overflow-y-auto scrollbar-none aria-busy:overflow-hidden" aria-busy={loading}>
+                {loading
+                    ? Array.from({length: 36}, (_, index) => <Skeleton key={index} className="aspect-square w-full"/>)
+                    : (active?.detail ?? []).map((dccon) => (
+                        <button type="button" key={dccon.detail_idx} title={dccon.title} className={cn(FOCUS_RING, "aspect-square rounded-lg p-0.5 hover:bg-muted [&>img]:size-full [&>img]:rounded-md [&>img]:object-contain")} onClick={() => clickDccon(dccon)}>
+                            <img src={dccon.list_img} alt={dccon.title} loading="lazy" decoding="async"/>
+                        </button>
+                    ))}
+            </div>
+        </ModalDialog>
+    );
+};

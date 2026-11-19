@@ -1,0 +1,289 @@
+import {afterEach, describe, expect, it, vi} from "vitest";
+import {fakeBrowser} from "wxt/testing/fake-browser";
+
+import {storageSync, typedListSync, watchStorage} from "@/core/storage/sync";
+import {isRecord} from "@/utils/record";
+
+import {stored, tick} from "../../../helpers";
+
+const contexts: AbortController[] = [];
+/** 테스트가 끝나면 끝나는 컨텍스트 signal. 앞 테스트의 bfcache 리스너가 남지 않게 한다. */
+const contextSignal = (): AbortSignal => {
+    const controller = new AbortController();
+    contexts.push(controller);
+    return controller.signal;
+};
+afterEach(() => {
+    for (const controller of contexts.splice(0)) controller.abort();
+});
+
+const restoreFromBfcache = () => window.dispatchEvent(new PageTransitionEvent("pageshow", {persisted: true}));
+
+describe("watchStorage", () => {
+    it("값이 바뀌면 새 값, 옛 값으로 부른다", async () => {
+        const callback = vi.fn();
+        watchStorage("local:k", callback);
+
+        await fakeBrowser.storage.local.set({k: 1});
+        await fakeBrowser.storage.local.set({k: 2});
+
+        expect(callback.mock.calls).toEqual([[1, null], [2, 1]]);
+    });
+
+    it("signal이 끝나거나 돌려준 함수를 부르면 멈춘다", async () => {
+        const controller = new AbortController();
+        const bySignal = vi.fn();
+        const byDispose = vi.fn();
+        watchStorage("local:k", bySignal, controller.signal);
+        watchStorage("local:k", byDispose)();
+
+        controller.abort();
+        await fakeBrowser.storage.local.set({k: 1});
+
+        expect(bySignal).not.toHaveBeenCalled();
+        expect(byDispose).not.toHaveBeenCalled();
+    });
+
+    it("이미 끝난 signal이면 걸지 않는다", async () => {
+        const callback = vi.fn();
+        watchStorage("local:k", callback, AbortSignal.abort());
+
+        await fakeBrowser.storage.local.set({k: 1});
+
+        expect(callback).not.toHaveBeenCalled();
+    });
+});
+
+describe("storageSync", () => {
+    const keys = ["local:a", "local:b"] as const;
+
+    it("start는 한 번만 읽고 없는 키는 null로 넘긴다", async () => {
+        await fakeBrowser.storage.local.set({a: 1});
+        const apply = vi.fn();
+        const sync = storageSync(keys, apply);
+
+        await Promise.all([sync.start(contextSignal()), sync.start(contextSignal())]);
+
+        expect(apply.mock.calls).toEqual([["local:a", 1], ["local:b", null]]);
+    });
+
+    it("읽는 사이 바뀐 키는 옛 값으로 덮지 않는다", async () => {
+        await fakeBrowser.storage.local.set({a: "old", b: "old"});
+        const get = fakeBrowser.storage.local.get.bind(fakeBrowser.storage.local);
+        vi.spyOn(fakeBrowser.storage.local, "get").mockImplementationOnce(async (query) => {
+            const read = await get(query);
+            await fakeBrowser.storage.local.set({a: "new"});
+            return read;
+        });
+        const values = new Map<string, unknown>();
+        const sync = storageSync(keys, (key, value) => values.set(key, value));
+
+        await sync.start(contextSignal());
+
+        expect(values).toEqual(new Map([["local:a", "new"], ["local:b", "old"]]));
+    });
+
+    it("읽기가 실패하면 감시를 풀고 다음 start가 다시 한다", async () => {
+        vi.spyOn(fakeBrowser.storage.local, "get").mockRejectedValueOnce(new Error("read"));
+        const apply = vi.fn();
+        const sync = storageSync(keys, apply);
+
+        await expect(sync.start(contextSignal())).rejects.toThrow("read");
+        await sync.start(contextSignal());
+        apply.mockClear();
+        await fakeBrowser.storage.local.set({a: 1});
+
+        expect(apply).toHaveBeenCalledTimes(1);
+    });
+
+    it("signal이 끝나면 감시를 푼다", async () => {
+        const controller = new AbortController();
+        const apply = vi.fn();
+        await storageSync(keys, apply).start(controller.signal);
+        apply.mockClear();
+
+        controller.abort();
+        await fakeBrowser.storage.local.set({a: 1});
+
+        expect(apply).not.toHaveBeenCalled();
+    });
+
+    it("bfcache에서 돌아오면 다시 읽는다", async () => {
+        const apply = vi.fn();
+        await storageSync(keys, apply).start(contextSignal());
+        vi.spyOn(fakeBrowser.storage.local.onChanged, "trigger").mockResolvedValue([]);
+        await fakeBrowser.storage.local.set({b: 2});
+        apply.mockClear();
+
+        restoreFromBfcache();
+
+        await vi.waitFor(() => expect(apply).toHaveBeenCalledWith("local:b", 2));
+    });
+
+    it("save의 write이 동기적으로 던져도 이후 저장소 변경을 계속 넣는다", async () => {
+        vi.spyOn(console, "error").mockImplementation(() => {});
+        const apply = vi.fn();
+        const sync = storageSync(keys, apply);
+        await sync.start(contextSignal());
+        apply.mockClear();
+
+        // pending이 풀리지 않으면 apply가 영구히 막혀 다른 탭의 변경이 이 탭에 안 온다.
+        await expect(sync.save(() => { throw new Error("동기 throw"); }, "failed")).rejects.toThrow("동기 throw");
+        apply.mockClear();
+
+        await fakeBrowser.storage.local.set({a: 1});
+
+        expect(apply).toHaveBeenCalledWith("local:a", 1);
+    });
+});
+
+describe("typedListSync", () => {
+    type Lists = Record<"X" | "Y", string[]>;
+
+    const create = (extra?: Partial<Record<`local:${string}`, (value: unknown) => void>>) => {
+        let lists: Lists = {X: [], Y: []};
+        const set = vi.fn((next: Lists) => void (lists = next));
+        const sync = typedListSync({
+            types: ["X", "Y"] as const,
+            keyOf: (type) => `local:list:${type}`,
+            normalize: (value) => (Array.isArray(value) ? value.filter((item): item is string => typeof item === "string") : []),
+            get: () => lists,
+            set,
+            failure: "failed",
+            extra,
+            lock: "test"
+        });
+        return {sync, set, lists: () => lists};
+    };
+
+    it("저장소 값을 normalize해 넣고, 같은 값이면 건드리지 않는다", async () => {
+        await fakeBrowser.storage.local.set({"list:X": ["a", 1]});
+        const {sync, set, lists} = create();
+        await sync.start(contextSignal());
+        expect(lists()).toEqual({X: ["a"], Y: []});
+        set.mockClear();
+
+        await fakeBrowser.storage.local.set({"list:X": ["a", 2]});
+        expect(set).not.toHaveBeenCalled();
+
+        await fakeBrowser.storage.local.set({"list:Y": ["b"]});
+        expect(lists()).toEqual({X: ["a"], Y: ["b"]});
+    });
+
+    it("extra 키는 그 함수로 넘긴다", async () => {
+        const defaults = vi.fn();
+        await fakeBrowser.storage.local.set({extra: "v"});
+        const {sync} = create({"local:extra": defaults});
+
+        await sync.start(contextSignal());
+
+        expect(defaults).toHaveBeenCalledWith("v");
+    });
+
+    it("update는 스토어에 먼저 넣고 저장한다", async () => {
+        const {sync, lists} = create();
+
+        const saving = sync.update("X", () => ["a"]);
+        expect(lists().X).toEqual(["a"]);
+        await saving;
+
+        expect(await stored("list:X")).toEqual(["a"]);
+    });
+
+    it("update는 다른 창이 쓴 저장소 값에 붙인다", async () => {
+        const {sync, lists} = create();
+        await sync.start(contextSignal());
+        const trigger = vi.spyOn(fakeBrowser.storage.local.onChanged, "trigger").mockResolvedValue([]);
+        await fakeBrowser.storage.local.set({"list:X": ["other"]});
+        trigger.mockRestore();
+
+        await sync.update("X", (current) => [...current, "mine"]);
+
+        expect(await stored("list:X")).toEqual(["other", "mine"]);
+        expect(lists().X).toEqual(["other", "mine"]);
+    });
+
+    it("동시에 부른 update는 차례로 써서 서로 덮지 않는다", async () => {
+        const {sync} = create();
+
+        await Promise.all([sync.update("X", (current) => [...current, "a"]), sync.update("X", (current) => [...current, "b"])]);
+
+        expect(await stored("list:X")).toEqual(["a", "b"]);
+    });
+
+    it("앞 update의 값이 돌아와도 뒤 update를 반영한 스토어를 되돌리지 않는다", async () => {
+        const {sync, set, lists} = create();
+        await sync.start(contextSignal());
+
+        await Promise.all([sync.update("X", (current) => [...current, "a"]), sync.update("X", (current) => [...current, "b"])]);
+        await tick();
+
+        expect(set.mock.calls.map(([next]) => next.X)).toEqual([["a"], ["a", "b"]]);
+        expect(lists().X).toEqual(["a", "b"]);
+    });
+
+    it("update하는 사이 다른 창이 쓴 값은 쓰기가 끝난 뒤 읽어 넣는다", async () => {
+        const {sync, lists} = create();
+        await sync.start(contextSignal());
+        const original = fakeBrowser.storage.local.set.bind(fakeBrowser.storage.local);
+        vi.spyOn(fakeBrowser.storage.local, "set").mockImplementationOnce(async (items) => {
+            await original({"list:Y": ["other"]});
+            await original(items);
+        });
+
+        await sync.update("X", () => ["a"]);
+
+        expect(lists()).toEqual({X: ["a"], Y: ["other"]});
+    });
+
+    it("파이어폭스 콘텐츠 스크립트는 잠그지 않고도 탭 안의 update를 차례로 쓴다", async () => {
+        vi.stubEnv("BROWSER", "firefox");
+        const request = vi.spyOn(navigator.locks, "request");
+        const {sync} = create();
+
+        await Promise.all([sync.update("X", (current) => [...current, "a"]), sync.update("X", (current) => [...current, "b"])]);
+
+        expect(request).not.toHaveBeenCalled();
+        expect(await stored("list:X")).toEqual(["a", "b"]);
+        vi.unstubAllEnvs();
+    });
+
+    it("크롬처럼 키를 정렬해 돌려줘도 이 탭이 쓴 값이 돌아올 때 스토어를 다시 바꾸지 않는다", async () => {
+        type Entry = {text: string; color: string};
+        let lists: Record<"X", Entry[]> = {X: []};
+        const set = vi.fn((next: typeof lists) => void (lists = next));
+        const sync = typedListSync({
+            types: ["X"] as const,
+            keyOf: () => "local:list:X",
+            normalize: (value) => (Array.isArray(value) ? value : []),
+            get: () => lists,
+            set,
+            failure: "failed"
+        });
+        await sync.start(contextSignal());
+        // 크롬 흉내: 객체의 키를 정렬해 저장한다.
+        const sortKeys = (value: unknown): unknown =>
+            Array.isArray(value) ? value.map(sortKeys) : isRecord(value) ? Object.fromEntries(Object.keys(value).sort().map((key) => [key, sortKeys(value[key])])) : value;
+        const original = fakeBrowser.storage.local.set.bind(fakeBrowser.storage.local);
+        vi.spyOn(fakeBrowser.storage.local, "set").mockImplementation((items) => original(Object.fromEntries(Object.entries(items).map(([key, value]) => [key, sortKeys(value)]))));
+        set.mockClear();
+
+        await sync.update("X", (current) => [...current, {text: "a", color: "red"}]);
+        await tick();
+
+        expect(JSON.stringify(await stored("list:X"))).toBe('[{"color":"red","text":"a"}]');
+        expect(set).toHaveBeenCalledTimes(1);
+    });
+
+    it("update가 실패하면 되돌리고 던진다", async () => {
+        vi.spyOn(console, "error").mockImplementation(() => {});
+        const {sync, lists} = create();
+        await sync.start(contextSignal());
+        vi.spyOn(fakeBrowser.storage.local, "set").mockRejectedValueOnce(new Error("quota"));
+
+        await expect(sync.update("X", (current) => [...current, "a"])).rejects.toThrow("quota");
+        await tick();
+
+        expect(lists().X).toEqual([]);
+    });
+});
