@@ -11,6 +11,9 @@ interface KotlinBridge {
     mergeParamURL(origin: string, from: string): string;
     postSearchUrl(query: string): string;
     hash53(text: string): number;
+    nickType(iconUrl: string): "FIXED" | "HALF_FIXED" | "UNFIXED";
+    submitResult(response: string): {result: string; message?: string; detail?: string};
+    resultMessage(message?: string, detail?: string): string | null;
 }
 
 export const kotlinBridge = (globalThis as typeof globalThis & {__DCR_KOTLIN__: KotlinBridge}).__DCR_KOTLIN__;
