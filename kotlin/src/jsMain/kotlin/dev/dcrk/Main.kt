@@ -46,6 +46,14 @@ fun main() {
     api.isBrokenMedia = { image: dynamic -> isBrokenMedia(image) }
     api.markPreviewMedia = { media: dynamic, imageViewer: Boolean -> markPreviewMedia(media, imageViewer) }
     api.markPreviewPressable = { root: dynamic, imageViewer: Boolean -> markPreviewPressable(root, imageViewer) }
+    api.isModuleEnabled = { def: dynamic, enables: dynamic -> isModuleEnabledKotlin(def, enables) }
+    api.defaultSettingValue = { schema: dynamic -> defaultSettingValue(schema) }
+    api.normalizeModuleSetting = { schema: dynamic, value: dynamic -> normalizeModuleSetting(schema, value) }
+    api.moduleEnablesOf = { stored: dynamic -> moduleEnablesOf(stored) }
+    api.moduleSettingsOf = { def: dynamic, stored: dynamic -> moduleSettingsOf(def, stored) }
+    api.isJsRecord = { value: dynamic -> isJsRecord(value) }
+    api.canonicalStorageValue = { value: dynamic -> canonicalStorageValue(value) }
+    api.storageSizeOf = { value: dynamic -> storageSizeOf(value) }
     val scope: dynamic = js("globalThis")
     scope.__DCR_KOTLIN__ = api
 }
