@@ -39,6 +39,7 @@ fun main() {
     api.stealthDispose = { stealthDispose() }
     api.layoutCompact = { narrow: Boolean, force: Boolean, shop: Boolean, view: Boolean, viewAllowed: Boolean -> layoutCompact(narrow, force, shop, view, viewAllowed) }
     api.layoutHideCss = { options: dynamic, settings: dynamic, noticePage: Boolean -> layoutHideCss(options, settings, noticePage) }
+    api.setTitleCount = { count: Int -> setTitleCount(count) }
     val scope: dynamic = js("globalThis")
     scope.__DCR_KOTLIN__ = api
 }
