@@ -42,7 +42,7 @@ fun normalizeBlockList(value: dynamic, known: dynamic): dynamic {
 
     val ids = mutableSetOf<String>()
     val copyFields: dynamic = js("Object.assign")
-    val uuid: dynamic = js("crypto.randomUUID")
+    val browserCrypto: dynamic = js("crypto")
     for (index in 0 until (value.length as Int)) {
         val entry: dynamic = value[index]
         if (!isValidBlockEntry(entry)) continue
@@ -52,7 +52,7 @@ fun normalizeBlockList(value: dynamic, known: dynamic): dynamic {
         val mode = if (jsTypeOf(entry.mode) == "string") entry.mode as String else null
         val key = blockKey(content, gallery)
         val requested = if (jsTypeOf(entry.id) == "string") entry.id as String else knownIds[key]
-        val id = if (requested != null && requested !in ids) requested else uuid() as String
+        val id = if (requested != null && requested !in ids) requested else browserCrypto.randomUUID() as String
         ids.add(id)
 
         val copy: dynamic = copyFields(js("({})"), entry)
