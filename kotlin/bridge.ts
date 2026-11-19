@@ -27,6 +27,8 @@ interface KotlinBridge {
     hasModifier(ctrl: boolean, alt: boolean, meta: boolean, shift: boolean): boolean;
     pressedKey(code: string, key: string): string;
     createDoublePress(windowMs: number): (key: string) => boolean;
+    fontFamilyOf(customFonts: string): string;
+    buildFontCss(customFonts: string, size: number, changeDCFont: boolean): string;
 }
 
 export const kotlinBridge = (globalThis as typeof globalThis & {__DCR_KOTLIN__: KotlinBridge}).__DCR_KOTLIN__;
