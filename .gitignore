@@ -8,3 +8,7 @@ db
 test-results
 playwright-report
 stats.html
+# Kotlin/JS 컴파일 생성물
+/generated/
+/kotlin/.gradle/
+/kotlin/build/
