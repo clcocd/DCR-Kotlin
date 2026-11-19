@@ -1,6 +1,7 @@
 import {BLURRED_ROW_SELECTOR} from "@/core/block";
 import {rowPostNo} from "@/core/http/urls";
 import {LIST_SELECTOR} from "@/core/list";
+import {kotlinBridge} from "@/kotlin/bridge";
 
 import {NOTICE_ICON} from "./markup";
 import type {Ctx} from "./meta";
