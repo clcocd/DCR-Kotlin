@@ -15,6 +15,9 @@ fun main() {
     api.mergeParamURL = { origin: String, from: String -> mergeParamURL(origin, from) }
     api.postSearchUrl = { query: String -> postSearchUrl(query) }
     api.hash53 = { value: String -> hash53(value) }
+    api.nickType = { iconUrl: String -> nickType(iconUrl) }
+    api.submitResult = { response: String -> submitResult(response) }
+    api.resultMessage = { message: String?, detail: String? -> resultMessage(message, detail) }
     val scope: dynamic = js("globalThis")
     scope.__DCR_KOTLIN__ = api
 }
