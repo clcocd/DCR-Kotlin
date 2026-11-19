@@ -1,0 +1,46 @@
+name: 원본 6.2.2 초기 가져오기
+
+on:
+  push:
+    paths:
+      - .github/workflows/import-original.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: 원본 고정 커밋 가져오기
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -f package.json ]]; then
+            echo "원본 파일이 이미 있으므로 덮어쓰지 않습니다."
+            exit 0
+          fi
+          mkdir -p "$RUNNER_TEMP/dcr-source"
+          git -C "$RUNNER_TEMP/dcr-source" init -q
+          git -C "$RUNNER_TEMP/dcr-source" remote add origin https://github.com/green1052/DCRefresher-Reborn.git
+          git -C "$RUNNER_TEMP/dcr-source" fetch --depth=1 origin 19fdd7ad4362568a6f3641c461b272351ee10efa
+          git -C "$RUNNER_TEMP/dcr-source" checkout -q --detach FETCH_HEAD
+          rsync -a \
+            --exclude='.git/' \
+            --exclude='.github/' \
+            --exclude='README.md' \
+            --exclude='AGENTS.md' \
+            --exclude='docs/MIGRATION.md' \
+            "$RUNNER_TEMP/dcr-source/" ./
+          git add -A
+          if git diff --cached --quiet; then
+            echo "새로 추가할 원본 파일이 없습니다."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "초기 구성: DCRefresher Reborn 6.2.2 원본 소스 가져오기"
+          git push origin HEAD:main
