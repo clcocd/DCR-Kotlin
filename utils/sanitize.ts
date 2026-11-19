@@ -1,4 +1,5 @@
 import DOMPurify, {type Config, type DOMPurify as Purifier} from "dompurify";
+import {kotlinBridge} from "@/kotlin/bridge";
 
 /** 움짤(gif를 mp4로 바꾼 것)과 디시콘 <video> - data-src나 디시콘 표시로 일반 동영상과 구분한다. */
 const isGifVideo = (node: Element): boolean =>
@@ -104,12 +105,5 @@ export const sanitizeHtml = (html: string, options: { stripMedia?: boolean } = {
     return root.innerHTML;
 };
 
-/** 직렬화된 HTML → 평문. 태그만 떼면 엔티티가 남아 'R&B' 같은 차단어가 안 걸린다. */
-export const htmlToText = (html: string): string => {
-    // 속성값 안의 '>'는 이스케이프되지 않아 속성과 주석을 통째로 건너뛴다.
-    const text = html.includes("<") ? html.replace(/<!--[\s\S]*?-->|<(?:[^>"]|"[^"]*")*>/g, " ") : html;
-    if (!text.includes("&")) return text;
-
-    // 직렬화는 텍스트의 &, <, >, U+00A0만 이스케이프한다. &amp;는 마지막에 풀어야 '&amp;lt;'가 '<'로 두 번 풀리지 않는다.
-    return text.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&");
-};
+/** 직렬화된 HTML → 평문은 Kotlin/JS에서 처리한다. DOMPurify 설정은 변경하지 않는다. */
+export const htmlToText = kotlinBridge.htmlToText;
