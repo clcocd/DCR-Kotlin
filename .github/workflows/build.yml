@@ -56,6 +56,12 @@ jobs:
       - name: Chrome MV3 확장 빌드
         run: bun run build
 
+      - name: Chromium 테스트 브라우저 설치
+        run: bunx playwright install --with-deps chromium
+
+      - name: Chrome 확장 실제 실행 E2E (가짜 디시 페이지)
+        run: bunx playwright test --project=chromium
+
       - name: Kotlin 포함 여부와 Manifest 검증
         shell: bash
         run: |
