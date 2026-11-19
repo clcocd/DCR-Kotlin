@@ -9,6 +9,11 @@ fun submitResult(response: String): dynamic {
         return result
     }
 
+    // 원본의 {result, message, detail} 리터럴과 동일한 enumerable 속성 보존.
+    // 구분자가 없어도 message/detail 키는 존재하며 값만 undefined다.
+    result.message = js("undefined")
+    result.detail = js("undefined")
+
     val first = text.indexOf("||")
     if (first < 0) {
         result.result = text
