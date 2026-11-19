@@ -29,6 +29,7 @@ fun main() {
     api.extractVoice = { memo: String -> extractVoice(memo) }
     api.hasModifier = { ctrl: Boolean, alt: Boolean, meta: Boolean, shift: Boolean -> hasModifier(ctrl, alt, meta, shift) }
     api.pressedKey = { code: String, key: String -> pressedKey(code, key) }
+    api.createDoublePress = { windowMs: Double -> createDoublePress(windowMs) }
     val scope: dynamic = js("globalThis")
     scope.__DCR_KOTLIN__ = api
 }
