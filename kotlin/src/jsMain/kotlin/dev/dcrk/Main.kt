@@ -27,6 +27,8 @@ fun main() {
     api.sameComments = { a: dynamic, b: dynamic -> sameComments(a, b) }
     api.preprocessCommentMemo = { memo: String -> preprocessCommentMemo(memo) }
     api.extractVoice = { memo: String -> extractVoice(memo) }
+    api.previewEntry = { state: dynamic -> previewEntry(state) }
+    api.normalizeIncomingComments = { raw: dynamic -> normalizeIncomingComments(raw) }
     val scope: dynamic = js("globalThis")
     scope.__DCR_KOTLIN__ = api
 }
