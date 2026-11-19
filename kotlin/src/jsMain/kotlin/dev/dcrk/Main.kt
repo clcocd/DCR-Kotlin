@@ -43,6 +43,9 @@ fun main() {
     api.textWithoutScripts = { element: dynamic -> textWithoutScripts(element) }
     api.writeStyle = { id: String, css: String -> writeStyle(id, css) }
     api.setAppearance = { element: dynamic, dark: Boolean -> setAppearance(element, dark) }
+    api.isBrokenMedia = { image: dynamic -> isBrokenMedia(image) }
+    api.markPreviewMedia = { media: dynamic, imageViewer: Boolean -> markPreviewMedia(media, imageViewer) }
+    api.markPreviewPressable = { root: dynamic, imageViewer: Boolean -> markPreviewPressable(root, imageViewer) }
     val scope: dynamic = js("globalThis")
     scope.__DCR_KOTLIN__ = api
 }
