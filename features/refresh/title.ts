@@ -5,22 +5,8 @@ import {LIST_SELECTOR} from "@/core/list";
 import {NOTICE_ICON} from "./markup";
 import type {Ctx} from "./meta";
 
-/** 탭 제목 앞의 새 글 수 "(3) ". */
-const TITLE_COUNT = /^\(\d+\) /;
-
-/** 수를 붙였다는 문서 표시. 파이어폭스 재주입 시 새 인스턴스가 옛 인스턴스의 수를 뗄 수 있게 문서에 둔다. */
-const COUNTED_ATTRIBUTE = "data-refresher-title-count";
-
-/** 탭 제목 앞에 새 글 수를 붙인다. 0이면 붙여 둔 수를 뗀다. 미리보기가 제목을 바꿔도 앞에 붙은 수만 갈아 쓴다. */
-export const setTitleCount = (count: number): void => {
-    const root = document.documentElement;
-    const titleCounted = root.hasAttribute(COUNTED_ATTRIBUTE);
-    if (count === 0 && !titleCounted) return;
-    const title = titleCounted ? document.title.replace(TITLE_COUNT, "") : document.title;
-    root.toggleAttribute(COUNTED_ATTRIBUTE, count > 0);
-    const next = count > 0 ? `(${count}) ${title}` : title;
-    if (next !== document.title) document.title = next;
-};
+/** 탭 제목 카운트는 Kotlin/JS가 갱신한다. 재주입 표시 속성은 그대로 유지한다. */
+export const setTitleCount = kotlinBridge.setTitleCount;
 
 /** '여기까지 읽음' 구분선을 그을 행. 탭을 떠날 때 맨 위에 있던 글이다. */
 const READ_MARK_CLASS = "refresherReadMark";
