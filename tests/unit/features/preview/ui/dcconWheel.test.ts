@@ -16,15 +16,24 @@ describe("DCCon wheel capture", () => {
         strip.dispatchEvent(up);
         expect(strip.scrollLeft).toBe(66);
 
+        // 버블링이 대상에서 중단돼도 컨테이너의 캡처 리스너가 먼저 처리한다.
+        const inner = document.createElement("button");
+        strip.append(inner);
+        inner.addEventListener("wheel", (event) => event.stopPropagation());
+        const captured = new WheelEvent("wheel", {deltaY: 5, bubbles: true, cancelable: true});
+        inner.dispatchEvent(captured);
+        expect(captured.defaultPrevented).toBe(true);
+        expect(strip.scrollLeft).toBe(71);
+
         const horizontalOnly = new WheelEvent("wheel", {deltaX: 12, deltaY: 0, cancelable: true});
         strip.dispatchEvent(horizontalOnly);
         expect(horizontalOnly.defaultPrevented).toBe(false);
-        expect(strip.scrollLeft).toBe(66);
+        expect(strip.scrollLeft).toBe(71);
 
         dispose();
         const after = new WheelEvent("wheel", {deltaY: 20, cancelable: true});
         strip.dispatchEvent(after);
         expect(after.defaultPrevented).toBe(false);
-        expect(strip.scrollLeft).toBe(66);
+        expect(strip.scrollLeft).toBe(71);
     });
 });
