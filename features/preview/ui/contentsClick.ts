@@ -2,6 +2,7 @@ import type {KeyboardEvent, MouseEvent} from "react";
 
 import {isBlockedHidden} from "@/core/block";
 import {dcinsideHref} from "@/core/http/urls";
+import {kotlinBridge} from "@/kotlin/bridge";
 
 import {openDcconInfo} from "./DcconInfoPopup";
 import {usePreviewStore} from "./previewStore";
@@ -10,7 +11,7 @@ import {usePreviewStore} from "./previewStore";
  * 받다가 깨진 이미지. lazy로 미뤘거나 받는 중인 이미지는 크게 보기의 <img>가 직접 받으므로 치지 않는다.
  * src가 없는 이미지는 complete이고 naturalWidth가 0이라 깨진 것으로 친다.
  */
-const isBroken = (image: HTMLImageElement): boolean => image.complete && image.naturalWidth === 0;
+const isBroken = kotlinBridge.isBrokenMedia;
 
 /**
  * 크게 볼 수 있는 본문 이미지. 디시콘, 가린 이미지(관리자 가림, blockImage), 깨진 이미지와 링크로 감싼 이미지(링크 미리보기 카드 썸네일 등, 누르면 링크로 연다)는 뺀다.
@@ -68,26 +69,9 @@ export const clickContents = (ev: MouseEvent<HTMLElement>, imageViewer: boolean)
  * 깨진 이미지는 clickContents처럼 크게 보지 않고, 원본 보기가 있으면 그것만 연다. 이미지가 나중에 깨지면 Frame이 그 이미지만 이것으로 다시 맞춘다.
  * 손가락 커서도 이 버튼 표시를 따른다 (overlay.css).
  */
-export const markMedia = (media: HTMLElement, imageViewer: boolean): void => {
-    const label = media.matches(".written_dccon") ? "디시콘 정보"
-        : media.closest("a") ? undefined
-        : imageViewer && !(media instanceof HTMLImageElement && isBroken(media)) ? "이미지 크게 보기"
-        : media.dataset.pop ? "원본 보기" : undefined;
-    if (label) {
-        media.tabIndex = 0;
-        media.setAttribute("role", "button");
-        // aria-label은 alt를 가리므로 디시콘 이름 등 alt를 앞에 남긴다.
-        const alt = media.getAttribute("alt")?.trim();
-        media.setAttribute("aria-label", alt ? `${alt} (${label})` : label);
-    } else {
-        // 크게 보기를 끄면 열 것이 없어지는 이미지가 있다.
-        for (const name of ["tabindex", "role", "aria-label"]) media.removeAttribute(name);
-    }
-};
-
-export const markPressable = (root: HTMLElement, imageViewer: boolean): void => {
-    for (const media of root.querySelectorAll<HTMLElement>(".written_dccon, img")) markMedia(media, imageViewer);
-};
+/** 미리보기 본문 미디어 버튼 표시 로직은 Kotlin/JS 구현을 사용한다. */
+export const markMedia = kotlinBridge.markPreviewMedia;
+export const markPressable = kotlinBridge.markPreviewPressable;
 
 /** markPressable로 버튼이 된 미디어에서 Enter, Space를 누르면 클릭을 보내 clickContents, openDcconInfo가 그대로 받는다. */
 export const pressContents = (ev: KeyboardEvent<HTMLElement>): void => {
