@@ -22,6 +22,8 @@ fun main() {
     api.decodeD = { value: String -> decodeD(value) }
     api.composeExtra = { isRegex: Boolean, gallery: String?, mode: String? -> composeExtra(isRegex, gallery, mode) }
     api.blockKey = { content: String, gallery: String? -> blockKey(content, gallery) }
+    api.normalizeBlockList = { value: dynamic, known: dynamic -> normalizeBlockList(value, known) }
+    api.normalizeDefaults = { value: dynamic -> normalizeDefaults(value) }
     val scope: dynamic = js("globalThis")
     scope.__DCR_KOTLIN__ = api
 }
