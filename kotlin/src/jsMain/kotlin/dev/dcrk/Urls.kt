@@ -20,11 +20,9 @@ private external class BrowserSearchParams {
 
 private const val BASE = "https://gall.dcinside.com/"
 
-private fun parseUrlOrNull(source: String): BrowserUrl? = try {
-    BrowserUrl(source)
-} catch (_: Throwable) {
-    null
-}
+/** 원본과 마찬가지로 잘못된 주소는 예외 대신 null이다. */
+private fun parseUrlOrNull(source: String): BrowserUrl? =
+    js("URL.parse")(source) as BrowserUrl?
 
 /** 원본 core/http/urls.ts의 https + dcinside 하위 도메인 검사. */
 fun dcinsideHref(url: String): String? {
