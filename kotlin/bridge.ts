@@ -1,5 +1,6 @@
 // Gradle에서 생성하는 번들. 프로젝트 코드에서는 Kotlin 함수의 타입만 이 파일이 담당한다.
 import "../generated/kotlin-bridge.js";
+import type {BlockEntry, BlockType, DetectMode} from "@/core/storage/types";
 
 interface KotlinBridge {
     dcinsideHref(url: string): string | null;
@@ -18,6 +19,8 @@ interface KotlinBridge {
     decodeD(value: string): string;
     composeExtra(isRegex: boolean, gallery?: string, mode?: string): string;
     blockKey(content: string, gallery?: string): string;
+    normalizeBlockList(value: unknown, known: BlockEntry[]): BlockEntry[];
+    normalizeDefaults(value: unknown): Record<BlockType, DetectMode>;
 }
 
 export const kotlinBridge = (globalThis as typeof globalThis & {__DCR_KOTLIN__: KotlinBridge}).__DCR_KOTLIN__;
