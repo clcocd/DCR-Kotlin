@@ -46,6 +46,7 @@ fun main() {
     api.isBrokenMedia = { image: dynamic -> isBrokenMedia(image) }
     api.markPreviewMedia = { media: dynamic, imageViewer: Boolean -> markPreviewMedia(media, imageViewer) }
     api.markPreviewPressable = { root: dynamic, imageViewer: Boolean -> markPreviewPressable(root, imageViewer) }
+    api.bindDcconPackageWheel = { container: dynamic -> bindDcconPackageWheel(container) }
     val scope: dynamic = js("globalThis")
     scope.__DCR_KOTLIN__ = api
 }
