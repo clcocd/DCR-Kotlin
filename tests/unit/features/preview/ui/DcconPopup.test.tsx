@@ -31,8 +31,7 @@ const openStrip = async (): Promise<HTMLElement> => {
     await act(() => render(<DcconPopup onSelect={vi.fn()} onClose={vi.fn()}/>, root));
     await vi.waitFor(() => expect(root.querySelector(".pack")).not.toBeNull());
     const strip = root.querySelector<HTMLElement>(".overflow-x-auto")!;
-    // 굴린 곳은 scrollTo에 넘긴 left로 본다. jsdom은 굴리지 않는다.
-    Object.defineProperties(strip, {scrollWidth: {value: 1000}, clientWidth: {value: 500}, scrollTo: {value: vi.fn()}});
+    strip.scrollLeft = 0;
     return strip;
 };
 
@@ -42,29 +41,25 @@ const wheel = (el: Element, init: WheelEventInit): WheelEvent => {
     return ev;
 };
 
-const scrolledTo = (strip: HTMLElement, left: number): void => expect(strip.scrollTo).toHaveBeenLastCalledWith({left, behavior: "smooth"});
-
-it("세로 휠로 패키지 줄을 옆으로 부드럽게 넘기고, 굴러가는 동안 이어진 휠은 굴러갈 곳에 더한다", async () => {
+it("검증된 방식대로 세로 deltaY를 scrollLeft에 직접 더하고 기본 스크롤을 막는다", async () => {
     const strip = await openStrip();
-    const ev = wheel(strip, {deltaY: 100});
-    expect(ev.defaultPrevented).toBe(true);
-    scrolledTo(strip, 100);
+    expect(wheel(strip, {deltaY: 100}).defaultPrevented).toBe(true);
+    expect(strip.scrollLeft).toBe(100);
 
     wheel(strip, {deltaY: 100});
-    scrolledTo(strip, 200);
-    wheel(strip, {deltaY: 1000});
-    scrolledTo(strip, 500);
+    expect(strip.scrollLeft).toBe(200);
 
     strip.scrollLeft = 300;
-    strip.dispatchEvent(new Event("scrollend"));
     wheel(strip, {deltaY: -100});
-    scrolledTo(strip, 200);
+    expect(strip.scrollLeft).toBe(200);
 });
 
-it("Shift, Ctrl, 가로 휠은 브라우저에 맡긴다", async () => {
+it("Shift, Ctrl, 가로 휠이 섞여도 세로 deltaY가 있으면 가로로 넘긴다", async () => {
     const strip = await openStrip();
     for (const init of [{deltaY: 100, shiftKey: true}, {deltaY: 100, ctrlKey: true}, {deltaX: 100, deltaY: 10}]) {
-        expect(wheel(strip, init).defaultPrevented).toBe(false);
+        expect(wheel(strip, init).defaultPrevented).toBe(true);
     }
-    expect(strip.scrollTo).not.toHaveBeenCalled();
+    expect(strip.scrollLeft).toBe(210);
+    expect(wheel(strip, {deltaX: 100, deltaY: 0}).defaultPrevented).toBe(false);
+    expect(strip.scrollLeft).toBe(210);
 });
