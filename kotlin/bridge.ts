@@ -24,6 +24,8 @@ interface KotlinBridge {
     sameComments(a: object[], b: object[]): boolean;
     preprocessCommentMemo(memo: string): string;
     extractVoice(memo: string): {memo: string; voice?: {src: string; iframe: boolean}} | null;
+    hasModifier(ctrl: boolean, alt: boolean, meta: boolean, shift: boolean): boolean;
+    pressedKey(code: string, key: string): string;
 }
 
 export const kotlinBridge = (globalThis as typeof globalThis & {__DCR_KOTLIN__: KotlinBridge}).__DCR_KOTLIN__;
