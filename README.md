@@ -12,9 +12,9 @@ DCRefresher Reborn을 Kotlin/JS 중심으로 이식하는 **개인용 독립 저
 
 ## 현 상태
 
-**원본 6.2.2 소스 가져오기 및 Kotlin/JS 첫 모듈·Chrome MV3 빌드 CI 검증 완료** 상태입니다. Kotlin 갤러리 종류 판정 코드가 포함된 JavaScript가 확장 ZIP에 들어가는 것을 GitHub Actions에서 검증했습니다. **전체 Kotlin 포팅 및 개인 패치의 기능별 이식은 아직 미완료**입니다. 패키지 빌드 성공을 실사이트 동작 검증으로 간주하지 않습니다.
+**원본 6.2.2를 바탕으로 Kotlin/JS 기능을 단계적으로 이식 중**입니다. 2026-11-20 전수 감사 시점의 `main`에는 Kotlin 소스 18개와 아직 TypeScript/TSX인 소스 249개가 있습니다. Kotlin/JS 컴파일, 기존 단위 테스트, WXT Chrome MV3 확장 빌드는 CI에서 통과했지만 **전체 Kotlin 포팅·기능 동등성·개인 패치 이식은 미완료**입니다. 개발 빌드에서 ZIP/Release를 생성하지 않으며, 빌드 성공을 실사이트 동작 검증으로 간주하지 않습니다.
 
-이식 기준과 단계별 검증 항목은 [개발 계획](docs/MIGRATION.md)을 참고합니다.
+개발 기준: [이식 계획](docs/MIGRATION.md) · [전체 감사 현황](docs/KOTLIN-AUDIT.md) · [최종 패치 채택/제외 기준](docs/PATCH-DECISIONS.md).
 
 ## 원본 및 라이선스
 
