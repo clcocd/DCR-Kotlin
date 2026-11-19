@@ -4,7 +4,7 @@ import {storage, type StorageItemKey} from "wxt/utils/storage";
 import {onBfcacheRestore} from "@/utils/dom";
 import {saveOrReload} from "@/utils/error";
 import {once} from "@/utils/once";
-import {isRecord} from "@/utils/record";
+import {kotlinBridge} from "@/kotlin/bridge";
 import {objectKeys} from "@/utils/typed";
 
 /** storage.watch를 signal이 끝날 때 푼다 - 파이어폭스 재주입이 남긴 죽은 감시를 막는다. */
@@ -65,12 +65,9 @@ export const storageSync = <K extends StorageItemKey>(keys: readonly K[], onChan
     return {load, start, save};
 };
 
-/** 객체 키를 정렬해 직렬화한다. 크롬 저장소는 키를 정렬해 돌려주므로, 그대로 비교하면 이 탭이 쓴 값이 돌아올 때 다른 값이 된다. */
-const canonical = (value: unknown): string =>
-    JSON.stringify(value, (_key, item: unknown) => (isRecord(item) ? Object.fromEntries(Object.keys(item).sort().map((key) => [key, item[key]])) : item));
-
-/** 항목 수. 수가 다르면 직렬화해 볼 것도 없이 다른 값이다 (목록이 수천 개면 canonical이 탭마다 몇 ms 걸린다). */
-const sizeOf = (value: unknown): number | undefined => (Array.isArray(value) ? value.length : isRecord(value) ? Object.keys(value).length : undefined);
+/** 저장소 목록의 동일성 비교는 Kotlin/JS에서 수행한다. */
+const canonical = kotlinBridge.canonicalStorageValue;
+const sizeOf = kotlinBridge.storageSizeOf;
 
 /** 유형마다 키 하나에 저장하는 목록(차단, 메모)을 스토어와 양방향으로 맞춘다. 값이 같으면 스토어를 건드리지 않는다. */
 export const typedListSync = <T extends string, V>(options: {
