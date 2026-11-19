@@ -49,6 +49,9 @@ interface KotlinBridge {
     normalizeModuleSetting(schema: SettingSchema, value: unknown): SettingValue;
     moduleEnablesOf(stored: unknown): Record<string, unknown>;
     moduleSettingsOf(def: {settings?: Record<string, SettingSchema>}, stored: unknown): Record<string, SettingValue>;
+    isJsRecord(value: unknown): boolean;
+    canonicalStorageValue(value: unknown): string | undefined;
+    storageSizeOf(value: unknown): number | undefined;
 }
 
 export const kotlinBridge = (globalThis as typeof globalThis & {__DCR_KOTLIN__: KotlinBridge}).__DCR_KOTLIN__;
