@@ -28,15 +28,15 @@ jobs:
       - name: Kotlin/JS 테스트 및 브라우저 번들 생성
         run: gradle --no-daemon -p kotlin jsNodeTest jsBrowserDistribution
 
-      - name: Kotlin 번들을 WXT public 파일에 배치
+      - name: Kotlin 번들을 WXT 소스 모듈로 연결
         shell: bash
         run: |
           set -euo pipefail
           find kotlin/build -type f -name 'dcr-kotlin.js' -print
           bundle=$(find kotlin/build -type f -path '*/productionExecutable/dcr-kotlin.js' -print -quit)
           test -n "$bundle"
-          mkdir -p public
-          cp "$bundle" public/kotlin-bridge.js
+          mkdir -p generated
+          cp "$bundle" generated/kotlin-bridge.js
 
       - uses: actions/setup-node@v4
         with:
@@ -62,14 +62,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          test -s .output/chrome-mv3/kotlin-bridge.js
-          node --input-type=module -e '
-            import fs from "node:fs";
-            const manifest = JSON.parse(fs.readFileSync(".output/chrome-mv3/manifest.json", "utf8"));
-            if (!manifest.content_scripts?.some(s => s.js?.includes("kotlin-bridge.js"))) {
-              throw Error("Kotlin content script missing from manifest");
-            }
-          '
+          test -s generated/kotlin-bridge.js
+          test -s .output/chrome-mv3/manifest.json
+          # Kotlin API가 WXT의 실행 번들에 실제로 포함됐는지 검증한다.
+          grep -R -F -q '__DCR_KOTLIN__' .output/chrome-mv3
           find .output -maxdepth 2 -name '*.zip' -type f -print
           test -n "$(find .output -maxdepth 2 -name '*.zip' -type f -print -quit)"
 
