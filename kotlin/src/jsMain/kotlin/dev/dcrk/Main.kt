@@ -56,6 +56,8 @@ fun main() {
     api.storageSizeOf = { value: dynamic -> storageSizeOf(value) }
     api.defineContentModule = { meta: dynamic, impl: dynamic -> defineContentModule(meta, impl) }
     api.defineBackgroundModule = { meta: dynamic, impl: dynamic -> defineBackgroundModuleKotlin(meta, impl) }
+    api.fontsModuleImpl = { fontsModuleImplementation() }
+    api.stealthModuleImpl = { showToast: (String) -> Unit -> stealthModuleImplementation(showToast) }
     val scope: dynamic = js("globalThis")
     scope.__DCR_KOTLIN__ = api
 }
