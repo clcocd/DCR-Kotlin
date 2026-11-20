@@ -212,7 +212,6 @@ fun main() {
     api.createPreviewStateService = ::createPreviewStateService
     api.createPreviewPostService = ::createPreviewPostService
     api.createPreviewHistoryController = ::createPreviewHistoryController
-    api.createMiniController = ::createMiniController
     api.createModuleRegistry = ::createModuleRegistry
     api.blockLabel = ::blockLabel
     api.emptyBlockEntries = ::emptyBlockEntries
@@ -223,10 +222,6 @@ fun main() {
     api.ownMemo = ::ownMemo
     api.lookupMemo = ::lookupMemo
     api.createStorageSync = ::createStorageSync
-    api.setupManage = ::setupManage
-    api.removeManageViewTools = ::removeManageViewTools
-    api.renderManageViewTools = ::renderManageViewTools
-    api.listenManageBackground = ::listenManageBackground
     api.writerSearchUrl = ::writerSearchUrl
     api.keepWriterFilter = ::keepWriterFilter
     api.addWriterTypes = ::addWriterTypes
@@ -240,7 +235,6 @@ fun main() {
     api.setupWrite = ::setupWrite
     api.listenWriteBackground = ::listenWriteBackground
     api.createImageSearch = ::createImageSearch
-    api.createMiniPreview = ::createMiniPreview
     api.createPreviewError = ::createPreviewError
     api.createPreviewClock = ::createPreviewClock
     api.createPreviewFrame = ::createPreviewFrame

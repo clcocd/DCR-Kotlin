@@ -71,7 +71,6 @@ fun createPreviewFrame(s: dynamic): () -> dynamic {
     return frame@{
         val visible = store { state: dynamic -> state.visible } as Boolean
         val fading = store { state: dynamic -> state.fading } as Boolean
-        val admin = store { state: dynamic -> state.adminVisible } as Boolean
         val post = store { state: dynamic -> state.post }
         val error = store { state: dynamic -> state.error }
         val archived = store { state: dynamic -> state.archived } == true
@@ -173,14 +172,12 @@ fun createPreviewFrame(s: dynamic): () -> dynamic {
             } else null))
         val writeComment = if (post == null || archived) null else if (allowReply) ui.h(s.WriteComment)
         else ui.tag("p", "px-8 pt-3 pb-6 text-muted-foreground", "멤버만 댓글을 쓸 수 있습니다.")
-        val width = if (admin) "min(${settings.previewWidth}px, 90vw, max(480px, calc(100vw - 2 * (150px + 12px))))"
-        else "min(${settings.previewWidth}px, 90vw)"
+        val width = "min(${settings.previewWidth}px, 90vw)"
         ui.h(s.PreviewDialogRoot, props("fading" to fading, "busy" to busy, "blur" to settings.toggleBackgroundBlur,
             "onWheel" to gesture.onWheel, "scroller" to scroller, "after" to if (hint != 0) skipHint(hint) else undefinedValue()),
             ui.h("div", props("className" to PREVIEW_FRAME_CLASS,
                 "data-blur-reveal" to if (block?.blurReveal == true) true else undefinedValue(),
                 "data-block-revealed" to if (revealed) true else undefinedValue(), "style" to props("width" to width)),
-                ui.h(react.Fragment, props("key" to postKey), postHeader, ui.h(s.Separator), postBody, commentsBody, writeComment), jumps),
-            if (visible && admin) ui.h(s.AdminPanel) else null)
+                ui.h(react.Fragment, props("key" to postKey), postHeader, ui.h(s.Separator), postBody, commentsBody, writeComment), jumps))
     }
 }

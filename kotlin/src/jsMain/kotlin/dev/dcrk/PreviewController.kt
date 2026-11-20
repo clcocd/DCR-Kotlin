@@ -16,13 +16,10 @@ private class PreviewController(private val ctx: dynamic, private val s: dynamic
     private val ui = s.uiStore.getState()
     private var abort: dynamic = null
     private var refreshTimer = 0
-    private var confirmPress = createDoublePress(1000.0)
-    private var managing = false
     private var blocking = false
     private val posts = s.createPostLoader(ctx)
     private val pull = s.createCommentsPull(ctx, { abort?.signal })
     private val nav = s.createPreviewHistory(ctx)
-    private val mini = s.createMini(ctx, posts.getPost, posts.processContents)
 
     private fun errorOf(error: Throwable): dynamic {
         val original = error.asDynamic()
@@ -129,7 +126,6 @@ private class PreviewController(private val ctx: dynamic, private val s: dynamic
     }
 
     private fun open(pre: dynamic, commentsOnly: Boolean = false, skipHistory: Boolean = false, dir: Int = 0) {
-        mini.onMiniLeave()
         val old = store.getState()
         var historySkip = skipHistory
         if (old.visible == true && old.preData != null && previewPostKey(old.preData) == previewPostKey(pre)) {
@@ -142,11 +138,9 @@ private class PreviewController(private val ctx: dynamic, private val s: dynamic
         abort?.abort()
         abort = js("new AbortController()")
         window.clearTimeout(refreshTimer)
-        confirmPress = createDoublePress(1000.0)
 
         store.getState().open(pre, props("commentsOnly" to commentsOnly,
-            "imageBlocked" to (ctx.settings.blockImage == true && s.isTextPost(pre) == true),
-            "adminVisible" to (ctx.settings.toggleAdminPanel == true && s.isGalleryManager() == true)))
+            "imageBlocked" to (ctx.settings.blockImage == true && s.isTextPost(pre) == true)))
         val signal = store.getState().signalId
         if (!historySkip && old.visible != true) nav.remember(props("title" to doc.title, "url" to window.location.href, "state" to history.state))
         if (ctx.settings.colorPreviewLink == true) {
@@ -181,38 +175,6 @@ private class PreviewController(private val ctx: dynamic, private val s: dynamic
         jsPromise { load(pre, signal, dir) }
     }
 
-    private fun manage(kind: String): Promise<dynamic> = jsPromise manage@{
-        val state = store.getState()
-        val target = state.preData
-        if (target == null || managing) return@manage undefinedValue()
-        managing = true
-        val failure = "처리하지 못했습니다. 잠시 후 다시 시도해 주세요."
-        try {
-            when (kind) {
-                "notice", "recommend" -> {
-                    val on = target[kind] == true
-                    val request = if (kind == "notice") s.setNotice(target, !on) else s.setRecommend(target, !on)
-                    val ok = awaitJs(s.notifyManage(request, "${s.labels[kind][if (on) 1 else 0]}했습니다.", failure))
-                    if (truthy(ok) && sameSignal(state.signalId)) {
-                        val next = setField(target, kind, !on)
-                        store.setState(props("preData" to next))
-                        val entry = s.ownPreviewEntry(history.state)
-                        if (entry?.preData?.id === target.id) nav.replaceEntry(setField(entry, "preData", next))
-                    }
-                }
-                "delete" -> {
-                    val ok = awaitJs(s.notifyManage(s.deletePost(target), "게시글을 삭제했습니다.", failure))
-                    if (truthy(ok) && sameSignal(state.signalId)) close()
-                }
-                "bump" -> awaitJs(s.notifyManage(s.bump(target), "게시글을 끌올했습니다.", failure))
-            }
-        } finally {
-            managing = false
-        }
-        s.refresh()?.reload()
-        undefinedValue()
-    }
-
     private fun block(target: dynamic, options: dynamic, comments: dynamic): Promise<dynamic> = jsPromise block@{
         if (blocking) return@block false
         blocking = true
@@ -233,28 +195,6 @@ private class PreviewController(private val ctx: dynamic, private val s: dynamic
         }
     }
 
-    private fun keyDown(event: dynamic) {
-        val state = store.getState()
-        if (ctx.settings.useKeyPress != true || state.visible != true || truthy(state.viewer)) return
-        if (event.ctrlKey == true || event.altKey == true || event.metaKey == true || event.repeat == true) return
-        val key = s.pressedKey(event) as String
-        val delete = key === ctx.settings.deleteKey
-        if ((!delete && key !== ctx.settings.blockKey) || s.isTyping(event) == true || s.isGalleryManager() != true) return
-        if (!confirmPress(key)) {
-            val action = if (delete) "게시글을 삭제" else "작성자를 차단"
-            ui.showToast("한 번 더 ${key.uppercase()} 키를 누르면 ${action}합니다.")
-            return
-        }
-        event.preventDefault()
-        val pre = store.getState().preData
-        if (delete) manage("delete")
-        else if (pre != null) {
-            val options = ctx.settings
-            block(pre, props("avoidHour" to options.blockPresetDay, "avoidReason" to "0", "avoidReasonTxt" to options.blockPresetReason,
-                "delChk" to options.blockPresetDelete, "userTypeChk" to options.blockPresetUserType), null)
-        }
-    }
-
     fun install(): dynamic {
         val onPop: (dynamic) -> Unit = { event ->
             val state = s.ownPreviewEntry(event.state)
@@ -268,13 +208,11 @@ private class PreviewController(private val ctx: dynamic, private val s: dynamic
             if (ctx.settings.disableCache != true && !truthy(s.cachedPost(pre))) posts.requestPost(pre)
         }
         val openRow: (dynamic, Boolean?) -> Unit = { pre, comments -> open(pre, comments == true) }
-        s.bindRows(ctx, props("open" to openRow, "prefetch" to prefetch, "mini" to mini))
+        s.bindRows(ctx, props("open" to openRow, "prefetch" to prefetch))
         val events = props("signal" to ctx.signal)
-        window.addEventListener("keydown", ::keyDown, events)
         window.addEventListener("popstate", onPop, events)
         nav.reopenFromEntry { pre: dynamic -> open(pre, skipHistory = true) }
         ctx.addCleanup {
-            mini.onMiniLeave()
             close()
             store.setState(s.noHooks)
         }
@@ -284,9 +222,8 @@ private class PreviewController(private val ctx: dynamic, private val s: dynamic
             undefinedValue()
         } }
         val closeNow: () -> Unit = { dismiss() }
-        val applyManage: (String) -> Unit = { kind -> manage(kind) }
         store.setState(props("requestOpen" to start, "requestClose" to closeNow, "requestRefresh" to refresh,
-            "requestReload" to ::reload, "requestManage" to applyManage, "requestBlock" to ::block))
+            "requestReload" to ::reload, "requestBlock" to ::block))
         return props("archiveArticle" to { ctx.settings.archiveArticle }, "isOpen" to { store.getState().visible })
     }
 }

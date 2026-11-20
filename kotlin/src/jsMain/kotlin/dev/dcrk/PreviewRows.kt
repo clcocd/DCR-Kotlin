@@ -70,10 +70,8 @@ internal fun bindPreviewRows(ctx: dynamic, handlers: dynamic, s: dynamic) {
     val doc = previewRowsDocument
     val window = previewRowsWindow
     val store = s.store
-    val mini = handlers.mini
     var pressStart = 0.0
     var preventOpen = false
-    var hovered: dynamic = null
 
     fun resolve(event: dynamic): dynamic {
         val target = elementTarget(event.target) ?: return null
@@ -123,26 +121,7 @@ internal fun bindPreviewRows(ctx: dynamic, handlers: dynamic, s: dynamic) {
     doc.addEventListener("contextmenu", menu, options)
     doc.addEventListener("click", click, options)
 
-    fun wordOf(target: dynamic): dynamic = elementTarget(target)?.closest(WORD)
-    val moveOptions = props("signal" to ctx.signal)
-    val over: (dynamic) -> Unit = { event ->
-        val word = wordOf(event.target)
-        if (word !== hovered) {
-            if (hovered != null) mini.onMiniLeaveSoon()
-            hovered = word
-            if (word != null) mini.onMiniEnter(word, event)
-        }
-    }
-    val out: (dynamic) -> Unit = { event ->
-        if (hovered != null && wordOf(event.relatedTarget) !== hovered) {
-            hovered = null
-            mini.onMiniLeaveSoon()
-        }
-    }
-    val move: (dynamic) -> Unit = { event -> if (hovered != null) mini.onMiniMove(event) }
-    doc.addEventListener("mouseover", over, moveOptions)
-    doc.addEventListener("mouseout", out, moveOptions)
-    doc.addEventListener("mousemove", move, moveOptions)
+
 }
 
 internal fun bindPreviewListKeys(ctx: dynamic, open: (dynamic) -> Unit, s: dynamic) {

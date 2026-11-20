@@ -315,15 +315,6 @@ interface KotlinBridge {
         back(): SavedHistory | null;
         reopenFromEntry(open: (preData: GalleryPreData) => void): void;
     };
-    createMiniController(ctx: PreviewContext,
-        getPost: (preData: GalleryPreData) => Promise<{post: PostInfo}>,
-        process: (preData: GalleryPreData, post: PostInfo, stripMedia?: boolean) => Promise<PostInfo>,
-        services: object): {
-        onMiniEnter(element: HTMLElement, event: MouseEvent): void;
-        onMiniMove(event: MouseEvent): void;
-        onMiniLeave(soon?: boolean): void;
-        onMiniLeaveSoon(): void;
-    };
     createSettingsTransfer(services: Record<string, unknown>): {
         write(data: Record<string, unknown>, mode: "replace" | "merge"): Promise<number | undefined>;
         merge(current: Record<string, unknown>, backup: Record<string, unknown>): Record<string, unknown>;
@@ -348,7 +339,7 @@ interface KotlinBridge {
     mountOverlayWhenNeeded(ctx: ContentScriptContext, services: Record<string, unknown>): void;
     createContentRoot(services: Record<string, unknown>): () => React.ReactNode;
     createPreviewHost(react: typeof React, frame: React.ComponentType,
-        popups: React.ComponentType, mini: React.ComponentType): () => React.ReactNode;
+        popups: React.ComponentType): () => React.ReactNode;
     setupUserInfo(ctx: {signal: AbortSignal; settings: ModuleSettings["userinfo"]}, services: Record<string, unknown>): Promise<{checkNewPosts(elements: HTMLElement[]): void}>;
     setupPreview(ctx: Pick<ModuleContext, "signal" | "addCleanup"> & {settings: ModuleSettings["preview"]},
         services: Record<string, unknown>): {archiveArticle(): boolean; isOpen(): boolean};
@@ -376,10 +367,6 @@ interface KotlinBridge {
         sync<K extends StorageItemKey>(keys: readonly K[], onChange: (key: K, value: unknown) => void): StorageSync;
         lists<T extends string, V>(options: ListSyncOptions<T, V>): StorageSync & {update(type: T, change: (value: V) => V): Promise<void>};
     };
-    setupManage(ctx: Pick<ModuleContext, "signal" | "onRevoke"> & {settings: ModuleSettings["manage"]}, services: Record<string, unknown>): void;
-    removeManageViewTools(): void;
-    renderManageViewTools(show: {imageOrigin: boolean; titleSearch: boolean}, services: Record<string, unknown>): void;
-    listenManageBackground(services: Record<string, unknown>): void;
     writerSearchUrl(filter: WriterFilter | null, nick?: string): string;
     keepWriterFilter(element: Element, filter: WriterFilter): void;
     addWriterTypes(filter: WriterFilter | null, search: (filter: WriterFilter) => void, signal: AbortSignal): void;
@@ -398,7 +385,6 @@ interface KotlinBridge {
     setupWrite(ctx: Pick<ModuleContext, "signal" | "onRevoke"> & {settings: ModuleSettings["write"]}, services: Record<string, unknown>): void;
     listenWriteBackground(services: Record<string, unknown>): void;
     createImageSearch(services: Record<string, unknown>): {listen(): void; apply(state: {enabled: boolean; settings: object}): Promise<void>};
-    createMiniPreview(services: Record<string, unknown>): () => React.ReactNode;
     createPreviewError(services: Record<string, unknown>): (props: unknown) => React.ReactNode;
     createPreviewClock(services: Record<string, unknown>): {
         TimeStamp(props: {date: string; size?: "1" | "2"}): React.ReactNode;

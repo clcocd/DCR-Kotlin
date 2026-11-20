@@ -2,7 +2,6 @@ package dev.dcrk
 
 import kotlin.js.Date
 import kotlin.js.undefined
-import kotlin.math.max
 
 private val previewWindow: dynamic get() = js("window")
 private val previewDocument: dynamic get() = js("document")
@@ -143,62 +142,3 @@ internal fun createPreviewHistoryController(ctx: dynamic, services: dynamic): dy
         "replaceEntry" to ::replace, "back" to { saved }, "reopenFromEntry" to ::reopen)
 }
 
-internal fun createMiniController(ctx: dynamic, getPost: dynamic, process: dynamic, services: dynamic): dynamic {
-    val store = services.usePreviewStore
-    var timer: dynamic = 0
-    var target: dynamic = null
-    var showing: dynamic = null
-    var pointerX = 0.0
-    var pointerY = 0.0
-    fun show(element: dynamic) = jsPromise {
-        val pre = services.buildPreData(element) ?: return@jsPromise
-        val post = try {
-            val loaded = awaitJs(getPost(pre))
-            awaitJs(process(pre, loaded.post, ctx.settings.tooltipMediaHide))
-        } catch (_: Throwable) { null }
-        if (post == null || target !== element || store.getState().visible == true) return@jsPromise
-        val x = pointerX
-        val y = pointerY
-        val interactive = ctx.settings.tooltipInteraction == true
-        val position = if (interactive) services.miniPosition(x - 6, y - 66) else services.miniPosition(x, y)
-        if (interactive && (position.x as Double) <= x) position.x = max(0.0, x - (services.miniWidth as Double) - 10)
-        services.hoverMini()
-        showing = element
-        val blocked = post.textBlocked != null && services.useUiStore.getState().blockRevealed != true
-        store.setState(props("mini" to js("Object").assign(props(), position, props(
-            "title" to services.postTitle(post),
-            "contents" to if (blocked) services.blockedText else post.contents ?: "",
-            "blockMedia" to (ctx.settings.blockImage == true && services.isTextPost(pre) == true),
-            "interactive" to interactive, "gallery" to pre.gallery
-        ))))
-    }
-    fun enter(element: dynamic, event: dynamic) {
-        if (ctx.settings.tooltipMode != true || store.getState().visible == true || services.isBlurHidden(element) == true) return
-        services.keepMini()
-        if (element !== showing && store.getState().mini != null) store.setState(props("mini" to null))
-        pointerX = event.clientX as Double
-        pointerY = event.clientY as Double
-        target = element
-        previewWindow.clearTimeout(timer)
-        timer = previewWindow.setTimeout({ show(element) }, ctx.settings.tooltipDelay)
-    }
-    fun move(event: dynamic) {
-        pointerX = event.clientX as Double
-        pointerY = event.clientY as Double
-        if (store.getState().mini?.interactive != true) store.getState().moveMini(pointerX, pointerY)
-    }
-    fun leave(soon: dynamic) {
-        previewWindow.clearTimeout(timer)
-        target = null
-        val mini = store.getState().mini
-        if (soon == true && mini?.interactive == true) {
-            services.closeMiniSoon()
-            return
-        }
-        services.keepMini()
-        services.hoverMini()
-        if (mini != null) store.setState(props("mini" to null))
-    }
-    return props("onMiniEnter" to ::enter, "onMiniMove" to ::move, "onMiniLeave" to ::leave,
-        "onMiniLeaveSoon" to { leave(true) })
-}
