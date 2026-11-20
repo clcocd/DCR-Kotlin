@@ -1,0 +1,25 @@
+name: Diagnose flaky keyboard and draft E2E
+on:
+  push:
+    branches: [verify/flaky-keyboard-draft]
+permissions:
+  contents: read
+jobs:
+  repeat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - name: Build Chrome
+        run: bun run build
+      - name: Install Chromium
+        run: bunx playwright install --with-deps chromium
+      - name: Repeat two intermittently flaky cases
+        shell: bash
+        run: |
+          bunx playwright test --project=chromium \
+            --grep="J/K로 글을 고르고|쓰던 댓글은 글마다 남아" \
+            --repeat-each=10 --workers=4 --reporter=list
