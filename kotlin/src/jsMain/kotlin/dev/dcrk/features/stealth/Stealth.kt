@@ -99,3 +99,20 @@ fun stealthShortcut(toggle: () -> Unit, isRevealed: () -> Boolean, showToast: (S
     toggle()
     showToast(if (isRevealed()) "이미지를 보이게 했습니다." else "이미지를 숨겼습니다.")
 }
+
+/** 스텔스 단축키와 페이지 토글의 실제 동작도 Kotlin에서 정의한다. */
+fun createStealthControls(showToast: (String) -> Unit): dynamic {
+    val pause: (dynamic) -> Unit = { api ->
+        stealthShortcut({ api.toggle() }, { api.isRevealed() as Boolean }, showToast)
+    }
+    val isOn: (dynamic) -> Boolean = { api -> api.isRevealed() as Boolean }
+    val toggle: (dynamic) -> Unit = { api -> api.toggle() }
+    return props(
+        "shortcuts" to props("stealthPause" to pause),
+        "pageToggles" to props("reveal" to props(
+            "desc" to "스텔스로 숨긴 이미지를 보입니다",
+            "isOn" to isOn,
+            "toggle" to toggle
+        ))
+    )
+}

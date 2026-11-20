@@ -475,7 +475,14 @@ interface KotlinBridge {
     setupFonts(ctx: FontsContext): void;
     setupLayout(ctx: LayoutContext, options: Record<string, {selector: string}>, viewPage: boolean, queryString: (name: string) => string | null): void;
     setupStealth(ctx: ModuleContext<{}>): {isRevealed: () => boolean; toggle: () => void};
-    stealthShortcut(toggle: () => void, isRevealed: () => boolean, showToast: (message: string) => void): void;
+    createStealthControls(showToast: (message: string) => void): {
+        shortcuts: {stealthPause: (api: ReturnType<KotlinBridge["setupStealth"]>) => void};
+        pageToggles: {reveal: {
+            desc: string;
+            isOn: (api: ReturnType<KotlinBridge["setupStealth"]>) => boolean;
+            toggle: (api: ReturnType<KotlinBridge["setupStealth"]>) => void;
+        }};
+    };
     setTitleCount(count: number): void;
     createUnseenCounter(ctx: RefreshContext, selector: string, noticeIcon: string, blurredRows: string, readPostNo: typeof rowPostNo): {
         count(rows: HTMLElement[]): void;

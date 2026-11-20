@@ -296,7 +296,7 @@ fun main() {
     api.setupFonts = ::setupFonts
     api.setupLayout = ::setupLayout
     api.setupStealth = ::setupStealth
-    api.stealthShortcut = ::stealthShortcut
+    api.createStealthControls = ::createStealthControls
     api.createUnseenCounter = ::createUnseenCounter
     api.setTitleCount = { count: Int -> setTitleCount(count) }
     api.textWithoutScripts = { element: dynamic -> textWithoutScripts(element) }
