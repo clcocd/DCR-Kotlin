@@ -20,7 +20,7 @@ export const settings = {
     },
     forceCompact: {type: "check", default: false},
     useCompactModeOnView: {type: "check", default: true},
-    ...(Object.fromEntries(HIDE_KEYS.map((key) => [key, {type: "check", default: false}])) as
+    ...(kotlinBridge.layoutHideSettings(HIDE_KEYS) as
         Record<(typeof HIDE_KEYS)[number], Extract<SettingSchema, { type: "check" }>>),
     pushToRight: {type: "check", default: false}
 } satisfies SettingsSchema;

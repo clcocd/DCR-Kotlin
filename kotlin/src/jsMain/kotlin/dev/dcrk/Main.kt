@@ -40,6 +40,11 @@ fun main() {
     api.imageSearchEngines = ::imageSearchEngines
     api.layoutHideOptions = ::layoutHideOptions
     api.userInfoRuntimeOptions = ::userInfoRuntimeOptions
+    api.imageSearchSettings = ::imageSearchSettings
+    api.layoutHideSettings = ::layoutHideSettings
+    api.userInfoColorSettings = ::userInfoColorSettings
+    api.defaultFonts = DEFAULT_FONTS
+    api.fontExtensionPageVars = ::fontExtensionPageVars
     api.optionFormatTime = ::optionFormatTime
     api.optionFormatBytes = ::optionFormatBytes
     api.optionDownloadJson = ::optionDownloadJson

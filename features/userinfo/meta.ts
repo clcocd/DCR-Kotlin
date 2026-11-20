@@ -20,7 +20,7 @@ export const settings = {
     checkRatio: {type: "check", default: false},
     alarmRatio: {type: "range", default: 0, min: 0, max: 5000, step: 10, unit: "개"},
     lowActivityAction: {type: "option", default: "tag", items: LOW_ACTIVITY_ACTIONS},
-    ...(Object.fromEntries(Object.entries(BADGE_COLORS).map(([key, color]) => [`${key}Color`, {type: "color", default: color}])) as
+    ...(kotlinBridge.userInfoColorSettings(BADGE_COLORS) as
         Record<`${BadgeColor}Color`, Extract<SettingSchema, { type: "color" }>>),
     badgeOrder: {
         type: "order",

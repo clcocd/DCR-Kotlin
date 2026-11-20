@@ -11,6 +11,6 @@ export const ENGINE_IDS = objectKeys(ENGINES);
 export default defineModuleMeta({
     id: "imagesearch",
     // 메뉴는 background.ts가 만든다. 페이지에 할 일이 없어 index.ts가 없다.
-    settings: Object.fromEntries(ENGINE_IDS.map((id) => [id, {type: "check", default: id === "saucenao"}])) as
+    settings: kotlinBridge.imageSearchSettings(ENGINE_IDS) as
         Record<(typeof ENGINE_IDS)[number], Extract<SettingSchema, { type: "check" }>>
 });
