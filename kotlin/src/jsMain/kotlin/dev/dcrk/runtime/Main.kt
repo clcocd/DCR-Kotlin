@@ -66,6 +66,7 @@ fun main() {
     api.createContentRoot = ::createContentRoot
     api.createPreviewHost = ::createPreviewHost
     api.setupUserInfo = ::setupUserInfo
+    api.previewMeta = ::previewMeta
     api.setupPreview = ::setupPreview
     api.assembleFeatureInfo = ::assembleFeatureInfo
     api.featureLoaders = ::featureLoaders

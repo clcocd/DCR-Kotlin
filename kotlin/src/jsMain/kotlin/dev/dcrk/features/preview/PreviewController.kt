@@ -5,6 +5,13 @@ import kotlin.math.max
 import kotlin.math.min
 import kotlin.math.pow
 
+/** 6.2.2 미리보기의 URL 범위 및 기존 v5 호환 설정명을 보존한다. */
+internal fun previewMeta(urls: Array<dynamic>): dynamic = props(
+    "id" to "preview",
+    "urls" to urls,
+    "settings" to staticFeatureSettings("preview")
+)
+
 private const val COMMENTS_REUSE = 10_000
 
 private class PreviewController(private val ctx: dynamic, private val s: dynamic) {
