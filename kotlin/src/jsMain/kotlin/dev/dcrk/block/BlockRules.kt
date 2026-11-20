@@ -1,4 +1,6 @@
-package dev.dcrk
+package dev.dcrk.block
+
+import dev.dcrk.*
 
 internal fun createBlockRules(s: dynamic): dynamic {
     fun scan(lists: dynamic, type: String, text: String, gallery: dynamic, report: ((dynamic, String) -> Unit)? = null): Boolean =

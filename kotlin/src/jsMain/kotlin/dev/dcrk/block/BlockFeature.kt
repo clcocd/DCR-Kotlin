@@ -1,4 +1,6 @@
-package dev.dcrk
+package dev.dcrk.block
+
+import dev.dcrk.*
 
 private val hiddenClasses = arrayOf("refresherBlocked", "refresherBlur", "refresherDuplicate")
 private val blurKeys = arrayOf("blurReveal", "blurStrength")

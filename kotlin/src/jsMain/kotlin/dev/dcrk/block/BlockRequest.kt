@@ -1,4 +1,6 @@
-package dev.dcrk
+package dev.dcrk.block
+
+import dev.dcrk.*
 
 import kotlin.js.Promise
 

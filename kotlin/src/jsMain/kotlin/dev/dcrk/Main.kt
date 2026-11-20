@@ -1,5 +1,7 @@
 package dev.dcrk
 
+import dev.dcrk.block.*
+
 import dev.dcrk.input.createDoublePress
 import dev.dcrk.input.hasModifier
 import dev.dcrk.input.pressedKey
