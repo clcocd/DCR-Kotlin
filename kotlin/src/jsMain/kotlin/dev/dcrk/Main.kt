@@ -1,5 +1,10 @@
 package dev.dcrk
 
+import dev.dcrk.input.createDoublePress
+import dev.dcrk.input.hasModifier
+import dev.dcrk.input.pressedKey
+import dev.dcrk.util.hash53
+
 import dev.dcrk.http.dcBody
 
 import dev.dcrk.standardui.*

@@ -1,5 +1,7 @@
 package dev.dcrk
 
+import dev.dcrk.util.hash53
+
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull

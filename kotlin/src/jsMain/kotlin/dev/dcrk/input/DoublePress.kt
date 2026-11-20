@@ -1,4 +1,4 @@
-package dev.dcrk
+package dev.dcrk.input
 
 /**
  * 같은 키를 제한 시간 안에 두 번 누르면 true를 반환한다.

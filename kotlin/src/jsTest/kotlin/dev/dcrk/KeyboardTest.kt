@@ -1,5 +1,8 @@
 package dev.dcrk
 
+import dev.dcrk.input.hasModifier
+import dev.dcrk.input.pressedKey
+
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

@@ -1,4 +1,4 @@
-package dev.dcrk
+package dev.dcrk.input
 
 /** 원본 utils/event.ts의 조합키 판정. */
 fun hasModifier(ctrl: Boolean, alt: Boolean, meta: Boolean, shift: Boolean): Boolean =

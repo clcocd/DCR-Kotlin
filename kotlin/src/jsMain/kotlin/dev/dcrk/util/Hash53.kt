@@ -1,4 +1,4 @@
-package dev.dcrk
+package dev.dcrk.util
 
 /** 원본 utils/hash.ts의 cyrb53. Kotlin Int 연산에서 32비트 오버플로를 보존한다. */
 fun hash53(text: String): Double {
