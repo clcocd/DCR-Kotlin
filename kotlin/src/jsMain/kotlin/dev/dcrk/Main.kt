@@ -70,6 +70,11 @@ fun main() {
     api.moduleKeyModule = ::moduleKeyModule
     api.isBlockListKey = ::isBlockListKey
     api.createStorageDefinitions = ::createStorageDefinitions
+    api.storageMetadata = storageMetadata()
+    api.typedObjectKeys = ::typedObjectKeys
+    api.typedObjectEntries = ::typedObjectEntries
+    api.typedObjectFromEntries = ::typedObjectFromEntries
+    api.typedArrayIncludes = ::typedArrayIncludes
     api.ownPreviewEntry = ::ownPreviewEntry
     api.ownPreviewDepth = ::ownPreviewDepth
     api.isRecord = ::record
