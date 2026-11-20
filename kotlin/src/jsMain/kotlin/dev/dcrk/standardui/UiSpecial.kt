@@ -1,4 +1,6 @@
-package dev.dcrk
+package dev.dcrk.standardui
+
+import dev.dcrk.*
 
 internal fun createUiSlider(s: dynamic): (dynamic) -> dynamic {
     val ui = ReactUi(s.react)

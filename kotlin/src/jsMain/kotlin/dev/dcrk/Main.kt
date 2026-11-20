@@ -1,5 +1,7 @@
 package dev.dcrk
 
+import dev.dcrk.standardui.*
+
 /**
  * WXT가 불러온 JavaScript 번들의 실행 컨텍스트에 함수들을 공개한다.
  * Kotlin 코드를 각 브라우저 영역(content/background/popup)에서 각각 import한다.

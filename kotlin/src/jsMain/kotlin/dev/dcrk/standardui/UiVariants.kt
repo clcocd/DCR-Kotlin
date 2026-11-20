@@ -1,4 +1,6 @@
-package dev.dcrk
+package dev.dcrk.standardui
+
+import dev.dcrk.*
 
 internal fun createUiVariants(name: String, cva: dynamic): dynamic =
     when (name) {

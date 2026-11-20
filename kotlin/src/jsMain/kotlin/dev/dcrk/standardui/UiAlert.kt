@@ -1,4 +1,6 @@
-package dev.dcrk
+package dev.dcrk.standardui
+
+import dev.dcrk.*
 
 internal fun createUiAlert(s: dynamic): dynamic {
     val ui = ReactUi(s.react)
