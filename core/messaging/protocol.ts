@@ -1,10 +1,11 @@
 import {defineExtensionMessaging} from "@webext-core/messaging";
+import {kotlinBridge} from "@/kotlin/bridge";
 
 import type {GallogActivity} from "@/core/gallog";
 import type {TurnstileConfig} from "@/core/preview/types";
 
 /** 콘텐츠 스크립트→페이지(MAIN world) CustomEvent. 파이어폭스는 객체를 못 읽어 detail은 원시값뿐이다. */
-export const LIST_REPLACED_EVENT = "refresher:list-replaced";
+export const LIST_REPLACED_EVENT = kotlinBridge.runtimeConstants.messaging.listReplacedEvent;
 
 /** 팝업 '현재 페이지'의 토글 하나. 이름, 아이콘은 팝업이 모듈 정보에서 따로 찾는다. */
 export interface PageToggleState {
@@ -29,9 +30,9 @@ export type CommentRcKey = "new" | "new3";
 export type GrecaptchaRequest = { action: "comment_submit" | "comment_delete_submit"; rcKey: CommentRcKey } | { action: "insert_icon" };
 
 /** 미리보기의 Turnstile 확인 창에서 위젯을 그릴 자리. 페이지(MAIN world)가 찾는다. */
-export const TURNSTILE_HOST = "data-refresher-turnstile";
+export const TURNSTILE_HOST = kotlinBridge.runtimeConstants.messaging.turnstileHost;
 /** 확인 창이 닫힐 때 TURNSTILE_HOST에 보내는 이벤트. 기다리던 페이지 쪽이 그만둔다. */
-export const TURNSTILE_CANCEL_EVENT = "refresher-turnstile-cancel";
+export const TURNSTILE_CANCEL_EVENT = kotlinBridge.runtimeConstants.messaging.turnstileCancelEvent;
 
 /** refresher:turnstileToken의 결과. 디시 ts_cmt_fields가 보내는 cf-turnstile-response, ts_state, ts_token_ms가 된다. */
 export interface TurnstileResult {

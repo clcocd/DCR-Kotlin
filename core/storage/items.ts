@@ -18,18 +18,16 @@ export const DEFAULT_DETECT_MODE: Record<BlockType, DetectMode> = kotlinBridge.s
 
 export const {rawStorageKey: rawKey, blockListKey, memoMapKey, moduleSettingsKey, moduleDataKey,
     settingsKeyModule, moduleKeyModule, isBlockListKey} = kotlinBridge;
-export const BLOCK_DEFAULTS_KEY = "local:refresher:block:defaults";
-export const MODULES_KEY = "local:refresher:modules";
+export const BLOCK_DEFAULTS_KEY = kotlinBridge.runtimeConstants.storage.blockDefaultsKey;
+export const MODULES_KEY = kotlinBridge.runtimeConstants.storage.modulesKey;
 
 /** 목록, 설정 쓰기의 Web Locks 이름. 스토어와 설정 옮기기가 같은 이름을 써야 직렬되므로 한곳에 둔다. */
-export const LIST_LOCKS = {blocks: "refresher:blocks", memos: "refresher:memos", moduleSettings: "refresher:module-settings"} as const;
+export const LIST_LOCKS = kotlinBridge.runtimeConstants.storage.listLocks;
 
-export const DB_META_KEY = "local:refresher:db:meta";
+export const DB_META_KEY = kotlinBridge.runtimeConstants.storage.dbMetaKey;
 
 /** IP 데이터는 큰 JSON 문자열이므로 저장소 항목 대신 키로 다룬다. */
-export const DB_KEYS = {
-    ip: "local:refresher:db:ip"
-} as const;
+export const DB_KEYS = kotlinBridge.runtimeConstants.storage.dbKeys;
 
 interface StorageDefinitions {
     blockDefaultsStorage(): WxtStorageItem<Record<BlockType, DetectMode>, {}>;

@@ -49,6 +49,27 @@ internal fun runtimeConstants(): dynamic {
             "table" to "<table class=\"gall_list",
             "notice" to "em[class*=icon_notice]"
         ),
+        "ui" to props(
+            "focusRing" to "cursor-pointer rounded-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50",
+            "modalOverlaySelector" to "[data-slot=dialog-overlay], [data-slot=alert-dialog-overlay]",
+            "saveFailed" to "저장하지 못했습니다. 페이지를 새로고침한 뒤 다시 시도해 주세요."
+        ),
+        "messaging" to props(
+            "listReplacedEvent" to "refresher:list-replaced",
+            "turnstileHost" to "data-refresher-turnstile",
+            "turnstileCancelEvent" to "refresher-turnstile-cancel"
+        ),
+        "storage" to props(
+            "blockDefaultsKey" to "local:refresher:block:defaults",
+            "modulesKey" to "local:refresher:modules",
+            "listLocks" to props(
+                "blocks" to "refresher:blocks",
+                "memos" to "refresher:memos",
+                "moduleSettings" to "refresher:module-settings"
+            ),
+            "dbMetaKey" to "local:refresher:db:meta",
+            "dbKeys" to props("ip" to "local:refresher:db:ip")
+        ),
         "defaultBadgeView" to props(
             "order" to arrayOf("UID", "MEMO", "RATIO"),
             "fixedUid" to true, "halfFixedUid" to true, "ipFilter" to "none"
