@@ -271,6 +271,7 @@ fun main() {
     api.createPreviewCache = ::createPreviewCache
     api.uploadOptionsKey = UPLOAD_OPTIONS_KEY
     api.hookUploads = ::hookUploads
+    api.writeMeta = ::writeMeta
     api.setupWrite = ::setupWrite
     api.listenWriteBackground = ::listenWriteBackground
     api.createImageSearch = ::createImageSearch

@@ -1,5 +1,13 @@
 package dev.dcrk
 
+/** 원본 글쓰기/수정·이미지 업로드 페이지와 기본 비활성화 설정을 보존한다. */
+internal fun writeMeta(urls: Array<dynamic>): dynamic = props(
+    "id" to "write",
+    "urls" to urls,
+    "defaultEnable" to false,
+    "settings" to staticFeatureSettings("write")
+)
+
 internal const val UPLOAD_OPTIONS_KEY = "refresherUpload"
 private const val EDITED_KEY = "refresherEdited"
 private var hookRequested = false
