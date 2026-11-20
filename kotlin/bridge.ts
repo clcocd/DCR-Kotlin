@@ -59,6 +59,10 @@ interface KotlinBridge {
     layoutModuleImpl(
         hideOptions: Record<string, {selector: string}>, isViewPage: boolean, isDcconShop: boolean, isNoticePage: () => boolean
     ): unknown;
+    writeModuleImpl(
+        selectors: {uploadOptionsKey: string; submit: string; leave: string; posted: string; subject: string; editor: string; auto: string},
+        isWritePage: () => boolean, hookUploads: () => Promise<unknown>
+    ): unknown;
 }
 
 export const kotlinBridge = (globalThis as typeof globalThis & {__DCR_KOTLIN__: KotlinBridge}).__DCR_KOTLIN__;
