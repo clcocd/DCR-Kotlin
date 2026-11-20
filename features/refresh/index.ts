@@ -11,7 +11,7 @@ import {createListLoader} from "./loader";
 import meta from "./meta";
 import {createUnseenCounter} from "./title";
 
-export default defineModule(meta, {
+export default defineModule<typeof meta, ReturnType<typeof kotlinBridge.setupRefresh>>(meta, {
     setup: (ctx) => kotlinBridge.setupRefresh(ctx, {
         createListLoader,
         createUnseenCounter,
