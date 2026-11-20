@@ -6,7 +6,8 @@ internal external class BrowserUrl(source: String) {
     val href: String
     val protocol: String
     val hostname: String
-    val pathname: String
+    var pathname: String
+    var host: String
     val searchParams: BrowserSearchParams
 }
 
