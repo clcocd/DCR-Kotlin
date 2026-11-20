@@ -79,6 +79,16 @@ fun main() {
         gallery: String?, postNo: String? ->
         manageViewImplementation(numberedSource, searchPosts, searchUrl, toast, gallery, postNo)
     }
+    api.writerSearchUrl = { filter: dynamic, nick: String?, params: dynamic ->
+        writerSearchUrlKotlin(filter, nick, params)
+    }
+    api.keepWriterFilter = { paging: dynamic, filter: dynamic, params: dynamic ->
+        keepWriterFilterKotlin(paging, filter, params)
+    }
+    api.addWriterTypes = { filter: dynamic, search: (dynamic) -> Unit, signal: dynamic ->
+        addWriterTypesKotlin(filter, search, signal)
+    }
+    api.removeWriterTypes = { removeWriterTypesKotlin() }
     val scope: dynamic = js("globalThis")
     scope.__DCR_KOTLIN__ = api
 }
