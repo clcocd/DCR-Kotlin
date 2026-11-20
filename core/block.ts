@@ -7,16 +7,16 @@ type BlockLists = Pick<ReturnType<typeof useBlocksStore.getState>, "entries" | "
 type BlockValues = Partial<Record<BlockType, string | null | undefined>>;
 
 /** 확장이 흐리게 가린 행 (차단 블러, userinfo의 깡계 흐림). 흐린 행은 보이므로 checkVisibility로 가릴 수 없다. */
-export const BLURRED_ROW_SELECTOR = ".refresherBlur, .refresherLowActivityBlur";
+export const BLURRED_ROW_SELECTOR = kotlinBridge.runtimeConstants.block.blurred;
 
 /** 확장이 가린 행 (차단, 깡계). 클래스는 assets/styles/content.css가 그린다. */
-export const HIDDEN_ROW_SELECTOR = `.refresherBlocked, .refresherLowActivityHide, ${BLURRED_ROW_SELECTOR}`;
+export const HIDDEN_ROW_SELECTOR = kotlinBridge.runtimeConstants.block.hidden;
 
 /** userinfo가 깡계 상태를 바꿨을 때 보내는 이벤트. 차단 모듈이 같은 댓글을 다시 접는다. */
-export const ROWS_HIDDEN_EVENT = "refresher:rowsHidden";
+export const ROWS_HIDDEN_EVENT = kotlinBridge.runtimeConstants.block.rowsHiddenEvent;
 
 /** 본문 차단 안내 문구 (페이지, 미리보기 공용). */
-export const BLOCKED_TEXT = "게시글 내용이 차단되었습니다.";
+export const BLOCKED_TEXT = kotlinBridge.runtimeConstants.block.blockedText;
 
 interface BlockRules {
     dcconCode(element: HTMLElement): string | undefined;

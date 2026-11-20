@@ -13,6 +13,6 @@ export interface BadgeView {
 }
 
 /** 유저 정보 모듈이 꺼져 있을 때의 값. 기본 순서이고 IP 정보(userinfo가 붙이는 배지)는 없다. */
-export const DEFAULT_BADGE_VIEW: BadgeView = {order: ["UID", "MEMO", "RATIO"], fixedUid: true, halfFixedUid: true, ipFilter: "none"};
+export const DEFAULT_BADGE_VIEW: BadgeView = kotlinBridge.runtimeConstants.defaultBadgeView;
 
 export const {badgeViewOf, showsUid} = kotlinBridge;

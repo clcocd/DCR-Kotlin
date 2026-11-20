@@ -90,6 +90,20 @@ interface RefreshLoaderHelpers {
 }
 
 interface KotlinBridge {
+    readonly runtimeConstants: {
+        urls: {
+            base: string; vote: string; comments: string; comments_submit: string; dccon_comments_submit: string;
+            txtcon_submit: string; comment_remove: string;
+            dccon: {lists: string; detail: string; buy: string; image: string; shop: string};
+            database: {version: string; ip: string};
+        };
+        writerParams: {readonly uid: "rf_uid"; readonly ip: "rf_ip"};
+        list: {list: string; paging: string; writerRow: string; listRow: string};
+        block: {blurred: string; hidden: string; rowsHiddenEvent: string; blockedText: string};
+        write: {submit: string; editor: string; subject: string; auto: string; leave: string; posted: string};
+        refresh: {table: string; notice: string};
+        defaultBadgeView: BadgeView;
+    };
     readonly dAlphabet: string;
     readonly iconSiteKey: string;
     readonly commentSiteKeys: Record<"new" | "new3", string>;

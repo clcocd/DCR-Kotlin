@@ -72,6 +72,7 @@ fun main() {
     api.isBlockListKey = ::isBlockListKey
     api.createStorageDefinitions = ::createStorageDefinitions
     api.storageMetadata = storageMetadata()
+    api.runtimeConstants = runtimeConstants()
     api.typedObjectKeys = ::typedObjectKeys
     api.typedObjectEntries = ::typedObjectEntries
     api.typedObjectFromEntries = ::typedObjectFromEntries
