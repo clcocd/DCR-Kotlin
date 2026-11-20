@@ -29,7 +29,7 @@ import type {sha256} from "@/utils/hash";
 import type {hasModifier, isTyping} from "@/utils/event";
 import type {Ctx as RefreshContext} from "@/features/refresh/meta";
 import type {Ctx as LayoutContext} from "@/features/layout/meta";
-import type {AnyModule, AnyModuleIcons, AnyModuleLabels, ModuleInfo, DefinedModule, ModuleDefinition, ModuleImpl, AnyModuleMeta, ModuleApis, ModuleContext, ModuleSettings, SettingSchema} from "@/core/module/types";
+import type {AnyModule, AnyModuleIcons, AnyModuleLabels, ModuleInfo, DefinedModule, ModuleDefinition, ModuleImpl, AnyModuleMeta, ModuleApis, ModuleContext, ModuleSettings, SettingSchema, LabelsOf} from "@/core/module/types";
 import type {ManageResult} from "@/core/preview/manage";
 import type {CacheEntry} from "@/core/preview/cache";
 import type {DcinsideComment, GalleryPreData, PostInfo} from "@/core/preview/types";
@@ -89,7 +89,19 @@ interface RefreshLoaderHelpers {
     writerSelector: typeof writerSelector;
 }
 
+type FeatureLabelMap = {
+    block: LabelsOf<typeof import("@/features/block/meta").default>;
+    fonts: LabelsOf<typeof import("@/features/fonts/meta").default>;
+    layout: LabelsOf<typeof import("@/features/layout/meta").default>;
+    preview: LabelsOf<typeof import("@/features/preview/meta").default>;
+    refresh: LabelsOf<typeof import("@/features/refresh/meta").default>;
+    search: LabelsOf<typeof import("@/features/search/meta").default>;
+    stealth: LabelsOf<typeof import("@/features/stealth/meta").default>;
+    write: LabelsOf<typeof import("@/features/write/meta").default>;
+};
+
 interface KotlinBridge {
+    moduleLabels<Id extends keyof FeatureLabelMap>(id: Id): FeatureLabelMap[Id];
     createBlockDefaultsWatcher(
         store: {
             getState(): {defaults: Record<BlockType, DetectMode>};

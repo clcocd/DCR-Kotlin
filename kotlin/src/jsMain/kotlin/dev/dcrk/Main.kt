@@ -34,6 +34,7 @@ fun main() {
     api.createSettingsTransfer = ::createSettingsTransfer
     api.pinDefaultMode = ::pinDefaultMode
     api.createAboutTab = ::createAboutTab
+    api.moduleLabels = ::moduleLabels
     api.optionFormatTime = ::optionFormatTime
     api.optionFormatBytes = ::optionFormatBytes
     api.optionDownloadJson = ::optionDownloadJson
