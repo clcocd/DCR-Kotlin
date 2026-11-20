@@ -24,7 +24,6 @@ import {CommentList, CommentOrder, CommentSummary, threadParents} from "./Commen
 import {clickContents, markMedia, markPressable, pressContents} from "./contentsClick";
 import {CountDown} from "./CountDown";
 import {ErrorBlock} from "./ErrorBlock";
-import {AdminPanel} from "./Popups";
 import {postTitle, usePreviewStore} from "./previewStore";
 import {PreviewDialogRoot} from "./PreviewDialogRoot";
 import {usePreviewMedia} from "./usePreviewMedia";
@@ -39,6 +38,6 @@ export const Frame = kotlinBridge.createPreviewFrame({
     useContentModuleSettings, useRunningModuleSettings, useUiStore, smoothScroll, hasModifier, isTyping,
     keyOfPost, adjacentPreData, TimeStamp, UserCard, CommentList, CommentOrder, CommentSummary,
     threadParents, clickContents, markMedia, markPressable, pressContents, CountDown, ErrorBlock,
-    AdminPanel, postTitle, usePreviewStore, PreviewDialogRoot, usePreviewMedia, useScrollLock,
+    postTitle, usePreviewStore, PreviewDialogRoot, usePreviewMedia, useScrollLock,
     useWheelGesture, Votes, WriteComment
 });

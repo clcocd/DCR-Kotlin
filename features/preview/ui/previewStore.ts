@@ -18,12 +18,7 @@ export interface ErrorState {
     secret?: boolean;
 }
 
-export type ManageKind = "notice" | "recommend" | "delete" | "bump";
-
 export type CommentOrderValue = "oldest" | "newest" | "replies";
-
-/** 공지, 개념글 [등록, 해제] 동작. 관리 패널의 확인 문구와 결과 알림이 같이 쓴다. */
-export const MANAGE_LABELS = {notice: ["공지로 등록", "공지를 해제"], recommend: ["개념글로 등록", "개념글을 해제"]} as const;
 
 type Reply = { commentNo: string | null; replyNo: string | null };
 
@@ -33,9 +28,6 @@ export interface ViewerImage {
     alt: string;
     pop?: string;
 }
-
-/** blockMedia: 전체 미리보기와 같은 클래스로 이미지를 가린다. interactive: 마우스로 카드를 조작할 수 있다. */
-type MiniState = { x: number; y: number; title: string; contents: string; blockMedia: boolean; interactive: boolean; gallery: string };
 
 /** 게시글을 새로 열 때마다 초기화되는 상태. */
 interface PostState {
@@ -60,7 +52,6 @@ interface PostState {
     /** 본문 이미지 차단 (blockImage). */
     imageBlocked: boolean;
 
-    adminVisible: boolean;
     /** 차단 창. post는 글쓴이, comments는 고른 댓글(selectedComments)의 작성자를 차단한다. */
     blockPopup: false | "post" | "comments";
     /** 관리자가 체크한 댓글 번호. 디시 댓글 목록의 체크박스처럼 골라 한 번에 지우거나 차단한다. */
@@ -81,7 +72,6 @@ interface Hooks {
     requestRefresh: (report?: boolean) => Promise<void>;
     /** 본문을 캐시 없이 다시 받고 댓글도 다시 받는다. */
     requestReload: () => Promise<void>;
-    requestManage: (kind: ManageKind) => void;
     /** 차단하고 성공 여부를 돌려준다. comments가 있으면 그 댓글 작성자를 차단한다. 글도 지웠으면 창을 닫는다. */
     requestBlock: (preData: GalleryPreData, options: BlockOptions, comments?: string[]) => Promise<boolean>;
 }
@@ -98,7 +88,6 @@ interface PreviewState extends PostState, Hooks {
 
     captcha: { url: string; resolve: (code: string) => void } | null;
     turnstile: TurnstilePrompt | null;
-    mini: MiniState | null;
 
     /** 정보 창(DcconInfoPopup)을 띄운 디시콘 코드. null이면 닫혀 있다. */
     dcconInfo: string | null;
@@ -112,7 +101,6 @@ interface PreviewState extends PostState, Hooks {
     toggleSelected: (no: string) => void;
     openCaptcha: (url: string) => Promise<string>;
     openTurnstile: (config: TurnstileConfig) => Promise<TurnstileResult | undefined>;
-    moveMini: (clientX: number, clientY: number) => void;
 }
 
 /** 확인을 눌러야 하는 Turnstile 창 (TurnstilePopup). 닫으면 undefined로 끝낸다. */
@@ -124,16 +112,10 @@ export interface TurnstilePrompt {
 interface PreviewStateService {
     init: StateCreator<PreviewState>;
     attach(store: StoreApi<PreviewState>): void;
-    miniWidth: number;
-    miniHeight: number;
-    miniPosition(x: number, y: number): {x: number; y: number};
     noReply: Reply;
     noFresh: ReadonlySet<string>;
     noHooks: Hooks;
     toggled(set: ReadonlySet<string>, no: string, on?: boolean): Set<string>;
-    closeMiniSoon(): void;
-    keepMini(): void;
-    hoverMini(hovered?: boolean): void;
     parseDate(value: string): Date;
     postTitle(post: PostInfo): string;
     previewGallery(): string | undefined;
@@ -142,8 +124,8 @@ interface PreviewStateService {
 
 const state = kotlinBridge.createPreviewStateService<PreviewStateService>({needOverlayWhen, postKey, setEntry});
 export const {
-    miniWidth: MINI_WIDTH, miniHeight: MINI_HEIGHT, noReply: NO_REPLY, noFresh: NO_FRESH, noHooks: NO_HOOKS,
-    miniPosition, toggled, closeMiniSoon, keepMini, hoverMini, parseDate, postTitle, previewGallery, refreshCommentsOf
+    noReply: NO_REPLY, noFresh: NO_FRESH, noHooks: NO_HOOKS,
+    toggled, parseDate, postTitle, previewGallery, refreshCommentsOf
 } = state;
 
 export const usePreviewStore = create<PreviewState>(state.init);

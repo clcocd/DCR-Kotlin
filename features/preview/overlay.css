@@ -120,8 +120,8 @@
     }
 }
 
-/* 미니 미리보기 본문도 같은 크기, 디시콘 높이 (fonts 모듈의 본문 폰트 크기). */
-:is(.refresher-preview-contents, .refresher-mini-contents) {
+/* 미리보기 본문 폰트 크기와 디시콘 높이. */
+.refresher-preview-contents {
     font-size: var(--refresher-preview-font-size, 15px);
     /* 디시 본문(.writing_view_box)과 같다. */
     line-height: 1.5;
@@ -323,18 +323,6 @@
 
 .dark :is(.refresher-frame[data-blur-reveal] .refresher-html .written_dccon[data-blocked="blur"]:is(:hover, :focus-visible), .refresher-frame[data-block-revealed] .refresher-html .written_dccon[data-blocked]) {
     filter: invert(1);
-}
-
-/* ===== 미니 미리보기 ===== */
-
-/* 미니 미리보기의 스크롤바(Mini.tsx) - 다크 모드에서는 상자가 뒤집히므로(.refresher-html) 미리 뒤집는다. 내용이 더 있다는 유일한 표시다. */
-.dark .refresher-mini-contents {
-    scrollbar-color: rgb(from var(--border) calc(255 - r) calc(255 - g) calc(255 - b)) transparent;
-}
-
-/* 본문에 든 차단 디시콘 (blockedDccons.ts). */
-.refresher-mini-contents .written_dccon[data-blocked] {
-    display: none;
 }
 
 /* 미리보기 위에 띄운 다이얼로그는 배경을 다시 깔지 않는다 - 미리보기 배경과 겹쳐 두 겹으로 어두워진다. */
