@@ -1,5 +1,13 @@
 package dev.dcrk
 
+/** 검색 모듈의 URL 제한과 기본 비활성화 및 설정 스키마를 Kotlin에서 관리한다. */
+internal fun searchMeta(urls: Array<dynamic>): dynamic = props(
+    "id" to "search",
+    "urls" to urls,
+    "defaultEnable" to false,
+    "settings" to staticFeatureSettings("search")
+)
+
 private const val RESULT_ROW = ":scope > tr:is([data-no], [data-cmt])"
 private const val ADDED_ROW = "refresherSearchAdded"
 private const val REUSE_TTL = 60_000
