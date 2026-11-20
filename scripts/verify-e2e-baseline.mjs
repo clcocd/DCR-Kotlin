@@ -31,7 +31,8 @@ const total = (stats.expected ?? 0) + (stats.unexpected ?? 0) + (stats.flaky ?? 
 const unexpected = anomalies.filter(({key, title}) => baseline.get(key) !== title);
 const mismatchedCounts = (stats.unexpected ?? 0) !== anomalies.filter(({status}) => status === "unexpected").length
     || (stats.flaky ?? 0) !== anomalies.filter(({status}) => status === "flaky").length;
-const invalid = total < 108 || (stats.skipped ?? 0) !== 0 || mismatchedCounts || (report.errors?.length ?? 0) > 0;
+// 관리 모듈 2건과 미니 미리보기 3건을 제거했으므로 최소 검사 수는 103건이다.
+const invalid = total < 103 || (stats.skipped ?? 0) !== 0 || mismatchedCounts || (report.errors?.length ?? 0) > 0;
 
 const text = [
     "## Chromium E2E — 순정 6.2.2 실패 기준선 대비",
