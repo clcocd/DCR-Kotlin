@@ -6,9 +6,10 @@ DCRefresher Reborn 6.2.2(커밋 `19fdd7a`)를 기준으로 Kotlin/JS로 이식�
 
 ## 로컬 빌드
 
-JDK 21, Gradle 8.14.3, Node.js 26, Bun이 필요합니다. Windows에서는 Git Bash 또는 WSL을 사용합니다.
+JDK 21, Node.js 26, Bun이 필요합니다. Gradle은 저장소의 Wrapper(8.14.3)를 사용합니다. Windows에서는 Git Bash 또는 WSL을 사용합니다.
 
 ```sh
+./gradlew :kotlin:jsNodeTest
 bun run build:kotlin
 bun ci
 bun run build
