@@ -29,16 +29,5 @@ export default defineModule(meta, {
         writerFilter
     }),
 
-    shortcuts: {
-        refreshLists: (api) => void api.refreshLists(),
-        refreshPause: (api) => api.togglePause()
-    },
-
-    pageToggles: {
-        pause: {
-            desc: "이 페이지의 자동 새로고침을 멈춥니다",
-            isOn: (api) => api.isPaused(),
-            toggle: (api) => api.togglePause()
-        }
-    }
+    ...kotlinBridge.createRefreshControls()
 });

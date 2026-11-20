@@ -23,6 +23,7 @@ fun main() {
     api.previewEntry = { state: dynamic -> previewEntry(state) }
     api.createRefreshLoader = ::createRefreshLoader
     api.setupRefresh = ::setupRefresh
+    api.createRefreshControls = ::createRefreshControls
     api.refreshCountCells = COUNT_CELLS
     api.refreshCountText = refreshCountText
     api.clearNewPost = ::clearNewPost
@@ -225,6 +226,7 @@ fun main() {
     api.createCommentsPull = ::createCommentsPull
     api.createCommentProcessing = ::createCommentProcessing
     api.setupBlock = ::setupBlock
+    api.createBlockControls = ::createBlockControls
     api.createPreviewStateService = ::createPreviewStateService
     api.createPreviewPostService = ::createPreviewPostService
     api.createPreviewHistoryController = ::createPreviewHistoryController
