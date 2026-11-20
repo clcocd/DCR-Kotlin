@@ -81,6 +81,13 @@ interface KotlinBridge {
                     action?: {label: string; run: () => void}) => void,
         gallery: string | null, postNo: string | null
     ): {remove(): void; render(show: {imageOrigin: boolean; titleSearch: boolean}): void};
+    writerSearchUrl(filter: {kind: "uid" | "ip"; value: string} | null, nick: string | undefined,
+                    paramNames: Record<"uid" | "ip", string>): string;
+    keepWriterFilter(paging: Element, filter: {kind: "uid" | "ip"; value: string},
+                     paramNames: Record<"uid" | "ip", string>): void;
+    addWriterTypes(filter: {kind: "uid" | "ip"; value: string} | null,
+                   search: (filter: {kind: "uid" | "ip"; value: string}) => void, signal: AbortSignal): void;
+    removeWriterTypes(): void;
 }
 
 export const kotlinBridge = (globalThis as typeof globalThis & {__DCR_KOTLIN__: KotlinBridge}).__DCR_KOTLIN__;
