@@ -1,5 +1,7 @@
 package dev.dcrk
 
+import dev.dcrk.http.dcBody
+
 import dev.dcrk.standardui.*
 
 /**
@@ -77,6 +79,7 @@ fun main() {
     api.createModuleHooks = ::createModuleHooks
     api.formBody = ::formBody
     api.csrfBody = ::csrfBody
+    api.dcBody = ::dcBody
     api.sha256 = ::sha256
     api.once = ::once
     api.focusOnMount = ::focusOnMount
