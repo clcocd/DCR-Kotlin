@@ -327,6 +327,7 @@ fun main() {
     api.fontFamilyOf = { customFonts: String -> fontFamilyOf(customFonts) }
     api.setupFonts = ::setupFonts
     api.setupLayout = ::setupLayout
+    api.stealthMeta = ::stealthMeta
     api.setupStealth = ::setupStealth
     api.createStealthControls = ::createStealthControls
     api.createUnseenCounter = ::createUnseenCounter

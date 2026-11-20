@@ -664,6 +664,12 @@ interface KotlinBridge {
     fontFamilyOf(customFonts: string): string;
     setupFonts(ctx: FontsContext): void;
     setupLayout(ctx: LayoutContext, options: Record<string, {selector: string}>, viewPage: boolean, queryString: (name: string) => string | null): void;
+    stealthMeta(): {
+        id: "stealth";
+        defaultEnable: false;
+        toggles: readonly ["reveal"];
+        commands: {stealthPause: {key: "Alt+P"}};
+    };
     setupStealth(ctx: ModuleContext<{}>): {isRevealed: () => boolean; toggle: () => void};
     createStealthControls(showToast: (message: string) => void): {
         shortcuts: {stealthPause: (api: ReturnType<KotlinBridge["setupStealth"]>) => void};

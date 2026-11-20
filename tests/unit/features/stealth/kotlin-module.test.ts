@@ -2,6 +2,7 @@
 import {afterEach, expect, it, vi} from "vitest";
 
 import stealth from "@/features/stealth/index";
+import meta from "@/features/stealth/meta";
 import {useUiStore} from "@/stores/ui";
 import {runModule} from "../module";
 
@@ -28,4 +29,13 @@ it("스텔스 단축키·팝업 토글은 Kotlin API 상태를 사용한다", as
     } finally {
         running.stop();
     }
+});
+
+it("6.2.2 스텔스 기능 ID·기본 활성화·단축키·토글 메타데이터를 유지한다", () => {
+    expect(meta).toEqual({
+        id: "stealth",
+        defaultEnable: false,
+        toggles: ["reveal"],
+        commands: {stealthPause: {key: "Alt+P"}}
+    });
 });
