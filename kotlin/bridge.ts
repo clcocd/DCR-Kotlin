@@ -305,6 +305,14 @@ interface KotlinBridge {
         hiddenCount(): number;
         toggleReveal(): void;
     };
+    createBlockControls(): {
+        shortcuts: {blockReveal: (api: ReturnType<KotlinBridge["setupBlock"]>) => void};
+        pageToggles: {reveal: {
+            desc: (api: ReturnType<KotlinBridge["setupBlock"]>) => string;
+            isOn: (api: ReturnType<KotlinBridge["setupBlock"]>) => boolean;
+            toggle: (api: ReturnType<KotlinBridge["setupBlock"]>) => void;
+        }};
+    };
     createPreviewStateService<T>(services: object): T;
     createPreviewPostService(services: object): {
         textBlockOf(preData: GalleryPreData, post: PostInfo): PostInfo["textBlocked"];
@@ -448,6 +456,17 @@ interface KotlinBridge {
         isPaused(): boolean;
         reload(): Promise<void>;
         catchUp(): void;
+    };
+    createRefreshControls(): {
+        shortcuts: {
+            refreshLists: (api: ReturnType<KotlinBridge["setupRefresh"]>) => void;
+            refreshPause: (api: ReturnType<KotlinBridge["setupRefresh"]>) => void;
+        };
+        pageToggles: {pause: {
+            desc: string;
+            isOn: (api: ReturnType<KotlinBridge["setupRefresh"]>) => boolean;
+            toggle: (api: ReturnType<KotlinBridge["setupRefresh"]>) => void;
+        }};
     };
     readonly refreshCountCells: string;
     readonly refreshCountText: RegExp;

@@ -21,14 +21,5 @@ export default defineModule(meta, {
             rowsHiddenEvent: ROWS_HIDDEN_EVENT, filterSkip: FILTER_SKIP_ATTR
         });
     },
-    shortcuts: {
-        blockReveal: (api) => api.toggleReveal()
-    },
-    pageToggles: {
-        reveal: {
-            desc: (api) => `가린 ${api.hiddenCount()}개를 흐리게 보입니다`,
-            isOn: (api) => api.isRevealed(),
-            toggle: (api) => api.toggleReveal()
-        }
-    }
+    ...kotlinBridge.createBlockControls()
 });
