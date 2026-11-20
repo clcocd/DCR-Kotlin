@@ -3,6 +3,8 @@ import {afterEach, beforeEach, expect, it, vi} from "vitest";
 
 import {historyDoc} from "@/core/preview/history";
 import search from "@/features/search/index";
+import searchMeta from "@/features/search/meta";
+import {LIST_PAGE, VIEW_PAGE} from "@/core/pages";
 import type {SelectedUser} from "@/stores/ui";
 
 import {type Running, runModule} from "../module";
@@ -199,4 +201,15 @@ it("미리보기가 글 주소를 쌓은 동안 목록을 갈아끼워도 이어
     } finally {
         history.replaceState(null, "", "/board/lists/?id=test&s_type=search_subject_memo&s_keyword=abc");
     }
+});
+
+it("Kotlin 검색 메타가 순정 URL 제한과 최대 검색 횟수를 유지한다", () => {
+    expect(searchMeta.id).toBe("search");
+    expect(searchMeta.defaultEnable).toBe(false);
+    expect(searchMeta.urls).toEqual([LIST_PAGE, VIEW_PAGE]);
+    expect(searchMeta.urls?.[0]).toBe(LIST_PAGE);
+    expect(searchMeta.urls?.[1]).toBe(VIEW_PAGE);
+    expect(searchMeta.settings?.maxSearches).toEqual({
+        type: "range", default: 10, min: 1, max: 30, step: 1, unit: "회"
+    });
 });

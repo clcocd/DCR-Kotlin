@@ -574,6 +574,12 @@ interface KotlinBridge {
     addWriterTypes(filter: WriterFilter | null, search: (filter: WriterFilter) => void, signal: AbortSignal): void;
     removeWriterTypes(): void;
     listenSearchBackground(services: Record<string, unknown>): void;
+    searchMeta(urls: RegExp[]): {
+        id: "search";
+        urls: RegExp[];
+        defaultEnable: false;
+        settings: StaticFeatureSettingsMap["search"];
+    };
     setupSearch(ctx: Pick<ModuleContext, "signal" | "onRevoke"> & {settings: ModuleSettings["search"]},
         services: Record<string, unknown>): {searchUserPosts(user: SelectedUser, by: "nick" | "identity"): void};
     previewPostKey(preData: Pick<GalleryPreData, "gallery" | "id" | "link">): string;

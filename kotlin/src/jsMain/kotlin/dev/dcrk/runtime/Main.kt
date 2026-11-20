@@ -265,6 +265,7 @@ fun main() {
     api.addWriterTypes = ::addWriterTypes
     api.removeWriterTypes = ::removeWriterTypes
     api.listenSearchBackground = ::listenSearchBackground
+    api.searchMeta = ::searchMeta
     api.setupSearch = ::setupSearch
     api.previewPostKey = ::previewPostKey
     api.createPreviewCache = ::createPreviewCache
