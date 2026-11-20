@@ -63,6 +63,16 @@ interface KotlinBridge {
         selectors: {uploadOptionsKey: string; submit: string; leave: string; posted: string; subject: string; editor: string; auto: string},
         isWritePage: () => boolean, hookUploads: () => Promise<unknown>
     ): unknown;
+    manageModuleImpl(
+        selectors: {checkboxRow: string; gifVideo: string; listRow: string},
+        onDomReady: (callback: () => void, signal: AbortSignal) => void,
+        renderViewTools: (settings: Record<string, boolean>) => void,
+        removeViewTools: () => void,
+        isManager: () => boolean,
+        postNo: (row: Element) => string | undefined,
+        deleteAndNotify: (id: string, gallery: string, link: string) => Promise<boolean>,
+        gallery: string, documentHref: string
+    ): unknown;
 }
 
 export const kotlinBridge = (globalThis as typeof globalThis & {__DCR_KOTLIN__: KotlinBridge}).__DCR_KOTLIN__;
