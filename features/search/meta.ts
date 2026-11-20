@@ -1,4 +1,5 @@
 import {defineModuleMeta} from "@/core/module/define";
+import {kotlinBridge} from "@/kotlin/bridge";
 import {LIST_PAGE, VIEW_PAGE} from "@/core/pages";
 
 export default defineModuleMeta({
@@ -7,7 +8,5 @@ export default defineModuleMeta({
     urls: [LIST_PAGE, VIEW_PAGE],
     defaultEnable: false,
 
-    settings: {
-        maxSearches: {type: "range", default: 10, min: 1, max: 30, step: 1, unit: "회"}
-    }
+    settings: kotlinBridge.staticFeatureSettings("search")
 });

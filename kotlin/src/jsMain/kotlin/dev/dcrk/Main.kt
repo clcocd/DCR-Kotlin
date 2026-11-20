@@ -35,6 +35,7 @@ fun main() {
     api.pinDefaultMode = ::pinDefaultMode
     api.createAboutTab = ::createAboutTab
     api.moduleLabels = ::moduleLabels
+    api.staticFeatureSettings = ::staticFeatureSettings
     api.imageSearchLabels = ::imageSearchLabels
     api.userInfoLabels = ::userInfoLabels
     api.imageSearchEngines = ::imageSearchEngines
