@@ -26,7 +26,7 @@ export default defineModule(meta, {
         store: usePreviewStore, uiStore: useUiStore, isAbortError, messageOf,
         isHttpError: (error: unknown) => error instanceof HTTPError, adultError: ADULT_ERROR, secretError: SECRET_ERROR,
         getEntry, historyDoc, ownPreviewDepth, ownPreviewEntry, refresh: () => getModuleApi("refresh"),
-        blockCommenters, blockUser, fetchComments, notifyManage,
+        blockCommenters, fetchComments, notifyManage,
         bindListKeys, createCommentsPull, createPostLoader, cachedPost, createPreviewHistory, bindRows,
         adjacentPreData, isTextPost, noFresh: NO_FRESH, noHooks: NO_HOOKS
     })
