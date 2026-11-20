@@ -1,5 +1,9 @@
 package dev.dcrk
 
+/** WXT 이미지 검색 모듈의 원본 ID와 엔진 기본값을 Kotlin에서 관리한다. */
+internal fun imageSearchMeta(ids: Array<String>): dynamic =
+    props("id" to "imagesearch", "settings" to imageSearchSettings(ids))
+
 private const val MENU_PREFIX = "imagesearch:"
 
 fun createImageSearch(s: dynamic): dynamic {

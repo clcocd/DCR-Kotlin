@@ -42,6 +42,7 @@ fun main() {
     api.layoutHideOptions = ::layoutHideOptions
     api.userInfoRuntimeOptions = ::userInfoRuntimeOptions
     api.imageSearchSettings = ::imageSearchSettings
+    api.imageSearchMeta = ::imageSearchMeta
     api.layoutSettings = ::layoutSettings
     api.userInfoSettings = ::userInfoSettings
     api.defaultFonts = DEFAULT_FONTS

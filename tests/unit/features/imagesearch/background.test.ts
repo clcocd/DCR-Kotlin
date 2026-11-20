@@ -4,6 +4,7 @@ import {fakeBrowser} from "wxt/testing/fake-browser";
 
 import {settingsOf} from "@/core/module/settings";
 import background from "@/features/imagesearch/background";
+import meta, {ENGINE_IDS} from "@/features/imagesearch/meta";
 
 /** fake-browser에 없는 contextMenus를 메뉴 id 집합으로 흉내 낸다. 브라우저처럼 같은 id는 두 번 만들 수 없고 없는 id는 지울 수 없다. */
 const fakeMenus = () => {
@@ -41,5 +42,15 @@ describe("imagesearch 배경 apply", () => {
 
         expect([...menus]).toEqual(["other"]);
         expect(fakeBrowser.contextMenus.create).toHaveBeenCalledOnce();
+    });
+});
+
+describe("Kotlin 이미지 검색 모듈 메타데이터", () => {
+    it("원본 엔진 순서와 SauceNAO 기본 활성화를 유지한다", () => {
+        expect(meta.id).toBe("imagesearch");
+        expect(Object.keys(meta.settings)).toEqual(ENGINE_IDS);
+        for (const id of ENGINE_IDS) {
+            expect(meta.settings[id]).toEqual({type: "check", default: id === "saucenao"});
+        }
     });
 });

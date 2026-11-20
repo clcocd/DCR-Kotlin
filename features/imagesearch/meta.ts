@@ -1,5 +1,4 @@
 import {defineModuleMeta} from "@/core/module/define";
-import type {SettingSchema} from "@/core/module/types";
 import {objectKeys} from "@/utils/typed";
 import {kotlinBridge} from "@/kotlin/bridge";
 
@@ -8,9 +7,5 @@ export const ENGINES = kotlinBridge.imageSearchEngines() satisfies Record<string
 
 export const ENGINE_IDS = objectKeys(ENGINES);
 
-export default defineModuleMeta({
-    id: "imagesearch",
-    // 메뉴는 background.ts가 만든다. 페이지에 할 일이 없어 index.ts가 없다.
-    settings: kotlinBridge.imageSearchSettings(ENGINE_IDS) as
-        Record<(typeof ENGINE_IDS)[number], Extract<SettingSchema, { type: "check" }>>
-});
+// 메뉴 등록과 실행은 Kotlin, WXT 메타 타입 연결만 TypeScript에 남긴다.
+export default defineModuleMeta(kotlinBridge.imageSearchMeta(ENGINE_IDS));
