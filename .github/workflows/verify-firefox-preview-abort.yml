@@ -17,5 +17,5 @@ jobs:
         run: bun run build:firefox
       - name: Install Firefox browser
         run: bunx playwright install --with-deps firefox
-      - name: Verify canceling preview never logs AbortError
-        run: bunx playwright test --project=firefox --grep="받는 중에 넘기거나 닫아 끊은 요청은 콘솔에 오류를 남기지 않는다" --repeat-each=5 --workers=2 --reporter=list
+      - name: Full Firefox fixture E2E vs original 6.2.2
+        run: bunx playwright test --project=firefox --reporter=list
