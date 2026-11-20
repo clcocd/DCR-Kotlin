@@ -2,24 +2,16 @@ import type {IpCategory, IpInfoFilter} from "@/core/database";
 import {defineModuleMeta} from "@/core/module/define";
 import type {ModuleContext, SettingSchema, SettingsSchema} from "@/core/module/types";
 import {BOARD_PAGE} from "@/core/pages";
+import {kotlinBridge} from "@/kotlin/bridge";
 
 /** 배지 색 기본값. 키마다 `${key}Color` 설정이 생긴다 (IP는 분류가 키). */
-export const BADGE_COLORS = {
-    uid: "#999999",
-    ratio: "#999999",
-    ratioAlarm: "#ff0000",
-    korea: "#6495ed",
-    japan: "#e5484d",
-    china: "#f76b15",
-    foreign: "#12a594",
-    vpn: "#8e4ec6"
-} satisfies Record<IpCategory | "uid" | "ratio" | "ratioAlarm", string>;
+const runtimeOptions = kotlinBridge.userInfoRuntimeOptions();
+export const BADGE_COLORS = runtimeOptions.badgeColors satisfies Record<IpCategory | "uid" | "ratio" | "ratioAlarm", string>;
 
 export type BadgeColor = keyof typeof BADGE_COLORS;
 
-const IP_INFO_FILTERS: Record<IpInfoFilter, string> = {all: "전체", foreign: "해외, VPN만", vpn: "VPN만", none: "표시 안 함"};
-
-const LOW_ACTIVITY_ACTIONS = {none: "배지 색만", tag: "[깡계] 표시", blur: "흐리게", hide: "숨기기"};
+const IP_INFO_FILTERS: Record<IpInfoFilter, string> = runtimeOptions.ipInfoFilters;
+const LOW_ACTIVITY_ACTIONS = runtimeOptions.lowActivityActions;
 
 export const settings = {
     showFixedNickUID: {type: "check", default: true},

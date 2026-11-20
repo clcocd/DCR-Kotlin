@@ -1,17 +1,10 @@
 import {defineModuleMeta} from "@/core/module/define";
 import type {SettingSchema} from "@/core/module/types";
 import {objectKeys} from "@/utils/typed";
+import {kotlinBridge} from "@/kotlin/bridge";
 
 /** 이미지 주소를 붙이면 바로 검색되는 GET 주소 (url 뒤에 encodeURIComponent(이미지 주소)). */
-export const ENGINES = {
-    saucenao: {name: "SauceNAO", url: "https://saucenao.com/search.php?url="},
-    googleLens: {name: "Google Lens", url: "https://lens.google.com/uploadbyurl?url="},
-    yandex: {name: "Yandex", url: "https://yandex.com/images/search?rpt=imageview&url="},
-    ascii2d: {name: "ascii2d", url: "https://ascii2d.net/search/url/"},
-    tineye: {name: "TinEye", url: "https://tineye.com/search?url="},
-    iqdb: {name: "IQDB", url: "https://iqdb.org/?url="},
-    tracemoe: {name: "trace.moe", url: "https://trace.moe/?url="}
-} satisfies Record<string, { name: string; url: string }>;
+export const ENGINES = kotlinBridge.imageSearchEngines() satisfies Record<string, {name: string; url: string}>;
 
 export const ENGINE_IDS = objectKeys(ENGINES);
 
