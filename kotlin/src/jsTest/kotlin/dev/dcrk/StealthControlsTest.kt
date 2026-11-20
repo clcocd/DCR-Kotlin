@@ -25,6 +25,7 @@ class StealthControlsTest {
 
         popup.toggle(api)
         assertFalse(popup.isOn(api) as Boolean)
+        popup.toggle(api)
         controls.shortcuts.stealthPause(api)
         assertFalse(popup.isOn(api) as Boolean)
         assertEquals("이미지를 숨겼습니다.", messages.last())
