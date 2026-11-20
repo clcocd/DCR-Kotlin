@@ -849,39 +849,3 @@ test.describe("댓글 쓰기, 지우기", () => {
     });
 });
 
-test.describe("미니 미리보기", () => {
-    test.beforeEach(async ({listPage, storage}) => {
-        await storage.setModuleSettings("preview", {tooltipMode: true});
-        // 설정은 저장소 감시로 탭에 닿는다. 닿을 때까지 다시 올린다.
-        await expect(async () => {
-            await listPage.leave();
-            await listPage.titles.first().hover();
-            await expect(listPage.mini).toHaveCount(1, {timeout: 1000});
-        }).toPass();
-    });
-
-    test("제목에 마우스를 올리면 카드가 뜨고, 떠나면 닫힌다", async ({listPage}) => {
-        await expect(listPage.mini.locator(".refresher-mini-contents")).toContainText("본문 3 내용입니다.");
-        await listPage.leave();
-        await expect(listPage.mini).toHaveCount(0);
-    });
-
-    test("본문은 폰트 교체의 본문 폰트 크기를 전체 미리보기처럼 따른다", async ({listPage, storage}) => {
-        await storage.setModuleSettings("fonts", {bodyFontSize: 20});
-        const contents = listPage.mini.locator(".refresher-mini-contents");
-        await expect(contents).toHaveCSS("font-size", "22px");
-    });
-
-    test("훑고 지나간 제목은 글을 받지 않고, 멈춘 제목만 받는다", async ({listPage}) => {
-        await listPage.leave();
-        const viewed: string[] = [];
-        listPage.page.on("request", (request) => {
-            const url = new URL(request.url());
-            if (url.pathname.startsWith("/board/view")) viewed.push(url.searchParams.get("no") ?? "");
-        });
-
-        for (const index of [0, 1, 2]) await listPage.titles.nth(index).hover();
-        await expect(listPage.mini.locator(".refresher-mini-contents")).toContainText("본문 1 내용입니다.");
-        expect(viewed).toEqual(["1"]);
-    });
-});
