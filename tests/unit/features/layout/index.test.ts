@@ -2,7 +2,7 @@
 import {afterEach, expect, it, vi} from "vitest";
 
 import layout from "@/features/layout/index";
-import {HIDE_OPTIONS} from "@/features/layout/meta";
+import {HIDE_KEYS, HIDE_OPTIONS, settings} from "@/features/layout/meta";
 
 import {type Running, runModule} from "../module";
 
@@ -64,4 +64,19 @@ it("글 보기에서는 게시글 보기 컴팩트 모드를 켰을 때만 컴�
     expect(html.classList.contains("refresherCompact")).toBe(false);
     running.change({useCompactModeOnView: true});
     expect(html.classList.contains("refresherCompact")).toBe(true);
+});
+
+it("6.2.2 레이아웃 설정 스키마·순서를 Kotlin에서 그대로 만든다", () => {
+    expect(Object.keys(settings)).toEqual([
+        "activePixel", "forceCompact", "useCompactModeOnView", ...HIDE_KEYS, "pushToRight"
+    ]);
+    expect(settings.activePixel).toEqual({
+        type: "range", default: 900, min: 100, max: 3840, step: 1, unit: "px"
+    });
+    expect(settings.forceCompact).toEqual({type: "check", default: false});
+    expect(settings.useCompactModeOnView).toEqual({type: "check", default: true});
+    expect(settings.pushToRight).toEqual({type: "check", default: false});
+    for (const key of HIDE_KEYS) {
+        expect(settings[key]).toEqual({type: "check", default: false});
+    }
 });

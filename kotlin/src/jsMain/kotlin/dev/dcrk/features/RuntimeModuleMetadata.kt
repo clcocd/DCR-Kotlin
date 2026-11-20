@@ -89,9 +89,17 @@ internal fun imageSearchSettings(ids: Array<String>): dynamic {
     return settings
 }
 
-internal fun layoutHideSettings(ids: Array<String>): dynamic {
-    val settings: dynamic = props()
+/** 레이아웃 모듈의 6.2.2 설정 순서·범위를 그대로 생성한다. */
+internal fun layoutSettings(ids: Array<String>): dynamic {
+    val settings: dynamic = props(
+        "activePixel" to props(
+            "type" to "range", "default" to 900, "min" to 100, "max" to 3840, "step" to 1, "unit" to "px"
+        ),
+        "forceCompact" to props("type" to "check", "default" to false),
+        "useCompactModeOnView" to props("type" to "check", "default" to true)
+    )
     for (id in ids) settings[id] = props("type" to "check", "default" to false)
+    settings.pushToRight = props("type" to "check", "default" to false)
     return settings
 }
 
