@@ -34,7 +34,7 @@ import type {ManageResult} from "@/core/preview/manage";
 import type {CacheEntry} from "@/core/preview/cache";
 import type {DcinsideComment, GalleryPreData, PostInfo} from "@/core/preview/types";
 import type {ownPreviewEntry, PreviewEntry, SavedHistory} from "@/core/preview/history";
-import type {BanList, BlockEntry, BlockType, DetectMode, MemoEntry, MemoType, SettingValue} from "@/core/storage/types";
+import type {BlockEntry, BlockType, DetectMode, MemoEntry, MemoType, SettingValue} from "@/core/storage/types";
 
 export interface ReplaceListOptions {
     navigated: boolean;
