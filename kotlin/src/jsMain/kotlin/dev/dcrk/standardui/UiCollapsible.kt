@@ -1,4 +1,6 @@
-package dev.dcrk
+package dev.dcrk.standardui
+
+import dev.dcrk.*
 
 internal fun createUiCollapsible(s: dynamic): dynamic {
     val ui = ReactUi(s.react)
