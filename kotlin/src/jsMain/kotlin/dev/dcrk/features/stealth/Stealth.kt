@@ -1,5 +1,13 @@
 package dev.dcrk
 
+/** 원본 6.2.2 스텔스 기능 메타데이터. 단축키·토글 ID를 유지한다. */
+internal fun stealthMeta(): dynamic = props(
+    "id" to "stealth",
+    "defaultEnable" to false,
+    "toggles" to arrayOf("reveal"),
+    "commands" to props("stealthPause" to props("key" to "Alt+P"))
+)
+
 private const val STEALTH_CLASS = "stlth"
 private const val CONTROL_BUTTON = ".stealth_control_button"
 

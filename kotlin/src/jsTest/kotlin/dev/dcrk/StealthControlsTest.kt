@@ -30,4 +30,13 @@ class StealthControlsTest {
         assertFalse(popup.isOn(api) as Boolean)
         assertEquals("이미지를 숨겼습니다.", messages.last())
     }
+    @Test
+    fun metaPreservesOriginalModuleIdAndCommand() {
+        val meta = stealthMeta()
+        assertEquals("stealth", meta.id as String)
+        assertFalse(meta.defaultEnable as Boolean)
+        assertEquals("reveal", (meta.toggles as Array<String>)[0])
+        assertEquals("Alt+P", meta.commands.stealthPause.key as String)
+    }
+
 }

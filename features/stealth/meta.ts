@@ -1,10 +1,4 @@
 import {defineModuleMeta} from "@/core/module/define";
+import {kotlinBridge} from "@/kotlin/bridge";
 
-export default defineModuleMeta({
-    id: "stealth",
-    defaultEnable: false,
-    toggles: ["reveal"],
-    commands: {
-        stealthPause: {key: "Alt+P"}
-    }
-});
+export default defineModuleMeta(kotlinBridge.stealthMeta());
