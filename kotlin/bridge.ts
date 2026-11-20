@@ -102,6 +102,11 @@ type FeatureLabelMap = {
 
 interface KotlinBridge {
     moduleLabels<Id extends keyof FeatureLabelMap>(id: Id): FeatureLabelMap[Id];
+    imageSearchLabels(
+        engineIds: readonly string[],
+        engines: Record<string, {name: string; url: string}>
+    ): LabelsOf<typeof import("@/features/imagesearch/meta").default>;
+    userInfoLabels(): LabelsOf<typeof import("@/features/userinfo/meta").default>;
     createBlockDefaultsWatcher(
         store: {
             getState(): {defaults: Record<BlockType, DetectMode>};

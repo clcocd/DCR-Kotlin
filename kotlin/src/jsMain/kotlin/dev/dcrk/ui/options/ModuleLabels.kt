@@ -339,3 +339,90 @@ private fun writeLabels(): dynamic {
         )
     )
 }
+
+
+/** 엔진별 이름과 표시 순서는 WXT 설정 메타에서 받아 원본 Object.fromEntries 동작을 유지한다. */
+internal fun imageSearchLabels(engineIds: Array<String>, engines: dynamic): dynamic {
+    val engineGroup = props(
+        "name" to "검색 엔진",
+        "desc" to "이미지 우클릭 메뉴에 넣을 검색 엔진입니다. 메뉴가 둘 이상이면 확장 이름 아래로 묶입니다."
+    )
+    val settings: dynamic = props()
+    for (id in engineIds) {
+        val name = engines[id].name as String
+        settings[id] = props("group" to engineGroup, "name" to name, "desc" to "${name}에서 검색합니다.")
+    }
+    return props(
+        "name" to "이미지 검색",
+        "description" to "디시 이미지를 우클릭해 검색 엔진에서 찾습니다.",
+        "settings" to settings
+    )
+}
+
+/** 동적으로 추가되는 배지 색 설정의 원래 표시 순서와 공유 그룹 참조를 보존한다. */
+internal fun userInfoLabels(): dynamic {
+    val lowActivityGroup = props(
+        "name" to "깡계",
+        "desc" to "글댓합이 기준 이하인 유저를 깡계로 봅니다. 글댓비 표시가 켜져 있고 글댓비를 받아 둔 유저만 해당합니다. 기준이 0이면 꺼집니다."
+    )
+    val badgeColorGroup = props(
+        "name" to "배지 색",
+        "desc" to "유저 정보 배지의 글자 색입니다. IP는 국가별로 칠하고, VPN이면 국가보다 우선합니다."
+    )
+    val settings: dynamic = props(
+        "showFixedNickUID" to props(
+            "name" to "고정닉 아이디 표시",
+            "desc" to "고정닉 유저의 아이디를 표시합니다."
+        ),
+        "showHalfFixedNickUID" to props(
+            "name" to "반고정닉 아이디 표시",
+            "desc" to "반고정닉 유저의 아이디를 표시합니다."
+        ),
+        "ipInfoFilter" to props(
+            "name" to "IP 정보 표시",
+            "desc" to "IP의 통신사, 조직과 국가를 표시할 대상입니다. VPN은 국가와 상관없이 해외, VPN에 들어갑니다. " +
+                "표시되는 정보는 공개 IP 데이터로 추정한 값이라 실제와 다를 수 있습니다."
+        ),
+        "checkRatio" to props(
+            "name" to "글댓비 표시",
+            "desc" to "작성자의 글/댓글 수를 표시합니다. 자동 새로고침으로 새로 올라온 글과 미리보기로 연 글의 작성자만 조회합니다. " +
+                "조회한 값(미리보기, 유저 버블로 본 작성자 포함)은 저장해 두고 목록에 계속 표시하며 깡계 처리에도 씁니다. 1시간이 지난 값은 그 유저의 새 글이 올라오면 다시 조회합니다."
+        ),
+        "alarmRatio" to props(
+            "group" to lowActivityGroup,
+            "name" to "기준",
+            "desc" to "글댓합이 이 값 이하면 깡계로 봅니다. (0이면 끔)"
+        ),
+        "lowActivityAction" to props(
+            "group" to lowActivityGroup,
+            "name" to "처리",
+            "desc" to "깡계 유저의 글, 댓글을 어떻게 보여 줄지 정합니다."
+        )
+    )
+    val badgeNames = linkedMapOf(
+        "uid" to "아이디/IP",
+        "ratio" to "글댓비",
+        "ratioAlarm" to "깡계",
+        "korea" to "IP 한국",
+        "japan" to "IP 일본",
+        "china" to "IP 중국",
+        "foreign" to "IP 그 외 해외",
+        "vpn" to "IP VPN"
+    )
+    for ((key, name) in badgeNames) {
+        settings["${key}Color"] = props(
+            "group" to badgeColorGroup,
+            "name" to name,
+            "desc" to "${name} 배지의 글자 색입니다."
+        )
+    }
+    settings.badgeOrder = props(
+        "name" to "정보 배치 순서",
+        "desc" to "유저 정보 배지의 표시 순서를 정합니다."
+    )
+    return props(
+        "name" to "유저 정보",
+        "description" to "유저의 IP, 아이디 정보, 메모를 표시합니다.",
+        "settings" to settings
+    )
+}

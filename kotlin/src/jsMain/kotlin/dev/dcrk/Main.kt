@@ -35,6 +35,8 @@ fun main() {
     api.pinDefaultMode = ::pinDefaultMode
     api.createAboutTab = ::createAboutTab
     api.moduleLabels = ::moduleLabels
+    api.imageSearchLabels = ::imageSearchLabels
+    api.userInfoLabels = ::userInfoLabels
     api.optionFormatTime = ::optionFormatTime
     api.optionFormatBytes = ::optionFormatBytes
     api.optionDownloadJson = ::optionDownloadJson
