@@ -245,6 +245,7 @@ fun main() {
     api.createCommentsPull = ::createCommentsPull
     api.createCommentProcessing = ::createCommentProcessing
     api.setupBlock = ::setupBlock
+    api.blockMeta = ::blockMeta
     api.createBlockControls = ::createBlockControls
     api.createPreviewStateService = ::createPreviewStateService
     api.createPreviewPostService = ::createPreviewPostService

@@ -2,6 +2,15 @@ package dev.dcrk.block
 
 import dev.dcrk.*
 
+/** 원본 6.2.2 차단 모듈 메타: URL 범위·팝업 토글·단축키 보존. */
+internal fun blockMeta(urls: Array<dynamic>): dynamic = props(
+    "id" to "block",
+    "urls" to urls,
+    "settings" to staticFeatureSettings("block"),
+    "toggles" to arrayOf("reveal"),
+    "commands" to props("blockReveal" to props())
+)
+
 private val hiddenClasses = arrayOf("refresherBlocked", "refresherBlur", "refresherDuplicate")
 private val blurKeys = arrayOf("blurReveal", "blurStrength")
 private val writerTypes = arrayOf("NICK", "ID", "IP", "TITLE", "TAB", "COMMENT")

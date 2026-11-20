@@ -3,14 +3,9 @@ import {kotlinBridge} from "@/kotlin/bridge";
 import type {ModuleContext, SettingsSchema} from "@/core/module/types";
 import {BOARD_PAGE} from "@/core/pages";
 
-export const settings = kotlinBridge.staticFeatureSettings("block") satisfies SettingsSchema;
+const metadata = kotlinBridge.blockMeta([BOARD_PAGE]);
+export const settings = metadata.settings satisfies SettingsSchema;
 
 export type Ctx = ModuleContext<typeof settings>;
 
-export default defineModuleMeta({
-    id: "block",
-    urls: [BOARD_PAGE],
-    settings,
-    toggles: ["reveal"],
-    commands: {blockReveal: {}}
-});
+export default defineModuleMeta(metadata);
