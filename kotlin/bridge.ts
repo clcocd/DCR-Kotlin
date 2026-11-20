@@ -90,6 +90,16 @@ interface RefreshLoaderHelpers {
 }
 
 interface KotlinBridge {
+    storageMetadata: {
+        typeNames: Record<"NICK" | "ID" | "IP" | "TITLE" | "TEXT" | "COMMENT" | "DCCON" | "TAB", string>;
+        detectModeNames: Record<"SAME" | "CONTAIN" | "NOT_SAME" | "NOT_CONTAIN", string>;
+        memoTypeNames: Record<"UID" | "NICK" | "IP", string>;
+        defaultDetectMode: Record<BlockType, DetectMode>;
+    };
+    typedObjectKeys(value: object): string[];
+    typedObjectEntries(value: object): [string, unknown][];
+    typedObjectFromEntries(entries: Iterable<readonly [PropertyKey, unknown]>): Record<string, unknown>;
+    typedArrayIncludes(array: readonly unknown[], item: unknown): boolean;
     assembleFeatureInfo(modules: Record<string, AnyModuleMeta>, icons: Record<string, AnyModuleIcons>, labels: Record<string, AnyModuleLabels>,
         fallbackIcon: AnyModuleIcons["module"]): ModuleInfo[];
     featureLoaders(modules: Record<string, () => Promise<AnyModule>>): Record<string, () => Promise<AnyModule>>;

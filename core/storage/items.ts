@@ -6,44 +6,15 @@ import {objectKeys} from "@/utils/typed";
 import type {BlockType, DatabaseMeta, DetectMode, SettingValue} from "./types";
 
 /** 차단 유형 → 이름. 유형, 모드 목록과 타입(core/storage/types.ts)은 이름표의 키 순서를 따른다. */
-export const TYPE_NAMES = {
-    NICK: "닉네임",
-    ID: "아이디",
-    IP: "IP",
-    TITLE: "제목",
-    TEXT: "내용",
-    COMMENT: "댓글",
-    DCCON: "디시콘",
-    TAB: "말머리"
-};
-
-export const DETECT_MODE_NAMES = {
-    SAME: "일치",
-    CONTAIN: "포함",
-    NOT_SAME: "불일치",
-    NOT_CONTAIN: "불포함"
-};
-
-export const MEMO_TYPE_NAMES = {
-    UID: "아이디",
-    NICK: "닉네임",
-    IP: "IP"
-};
+export const TYPE_NAMES = kotlinBridge.storageMetadata.typeNames;
+export const DETECT_MODE_NAMES = kotlinBridge.storageMetadata.detectModeNames;
+export const MEMO_TYPE_NAMES = kotlinBridge.storageMetadata.memoTypeNames;
 
 export const BLOCK_TYPES = objectKeys(TYPE_NAMES);
 export const DETECT_MODES = objectKeys(DETECT_MODE_NAMES);
 export const MEMO_TYPES = objectKeys(MEMO_TYPE_NAMES);
 
-export const DEFAULT_DETECT_MODE: Record<BlockType, DetectMode> = {
-    NICK: "SAME",
-    ID: "SAME",
-    IP: "SAME",
-    TITLE: "CONTAIN",
-    TEXT: "CONTAIN",
-    COMMENT: "CONTAIN",
-    DCCON: "SAME",
-    TAB: "SAME"
-};
+export const DEFAULT_DETECT_MODE: Record<BlockType, DetectMode> = kotlinBridge.storageMetadata.defaultDetectMode;
 
 export const {rawStorageKey: rawKey, blockListKey, memoMapKey, moduleSettingsKey, moduleDataKey,
     settingsKeyModule, moduleKeyModule, isBlockListKey} = kotlinBridge;
