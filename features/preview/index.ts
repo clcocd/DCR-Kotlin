@@ -11,7 +11,7 @@ import {notifyManage} from "@/stores/notify";
 import {getEntry} from "@/core/preview/cache";
 import {historyDoc, ownPreviewDepth, ownPreviewEntry} from "@/core/preview/history";
 import {ADULT_ERROR, SECRET_ERROR} from "@/core/preview/parser";
-import {blockCommenters, blockUser, fetchComments} from "@/core/preview/request";
+import {blockCommenters, fetchComments} from "@/core/preview/request";
 import {bindListKeys} from "./keyboard";
 import meta from "./meta";
 import {createCommentsPull} from "./commentsPull";
