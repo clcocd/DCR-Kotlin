@@ -2,7 +2,7 @@ package dev.dcrk
 
 /** 브라우저가 제공하는 URL API를 Kotlin/JS에서 직접 사용한다. */
 @JsName("URL")
-private external class BrowserUrl(source: String) {
+internal external class BrowserUrl(source: String) {
     val href: String
     val protocol: String
     val hostname: String
@@ -10,7 +10,7 @@ private external class BrowserUrl(source: String) {
     val searchParams: BrowserSearchParams
 }
 
-private external class BrowserSearchParams {
+internal external class BrowserSearchParams {
     fun delete(name: String)
     fun delete(name: String, value: String)
     fun set(name: String, value: String)
