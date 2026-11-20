@@ -1,5 +1,7 @@
 package dev.dcrk
 
+import dev.dcrk.block.*
+
 private val firstCode = Regex("""^\^\(((?:\\x[0-9a-f]{2})?\w+)[|)]""")
 private val factoredCode = Regex("""^\^\(\?:((?:\\x[0-9a-f]{2})?\w+)\(\?:((?:\\x[0-9a-f]{2})?\w+)\|""")
 private val initialHex = Regex("""^\\x([0-9a-f]{2})""")

@@ -1,5 +1,7 @@
 package dev.dcrk
 
+import dev.dcrk.block.*
+
 import kotlin.js.Promise
 import kotlin.js.jsTypeOf
 
