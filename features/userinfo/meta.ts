@@ -1,6 +1,6 @@
-import type {IpCategory, IpInfoFilter} from "@/core/database";
+import type {IpCategory} from "@/core/database";
 import {defineModuleMeta} from "@/core/module/define";
-import type {ModuleContext, SettingSchema, SettingsSchema} from "@/core/module/types";
+import type {ModuleContext, SettingsSchema} from "@/core/module/types";
 import {BOARD_PAGE} from "@/core/pages";
 import {kotlinBridge} from "@/kotlin/bridge";
 
@@ -10,24 +10,9 @@ export const BADGE_COLORS = runtimeOptions.badgeColors satisfies Record<IpCatego
 
 export type BadgeColor = keyof typeof BADGE_COLORS;
 
-const IP_INFO_FILTERS: Record<IpInfoFilter, string> = runtimeOptions.ipInfoFilters;
-const LOW_ACTIVITY_ACTIONS = runtimeOptions.lowActivityActions;
-
-export const settings = {
-    showFixedNickUID: {type: "check", default: true},
-    showHalfFixedNickUID: {type: "check", default: true},
-    ipInfoFilter: {type: "option", default: "all", items: IP_INFO_FILTERS},
-    checkRatio: {type: "check", default: false},
-    alarmRatio: {type: "range", default: 0, min: 0, max: 5000, step: 10, unit: "개"},
-    lowActivityAction: {type: "option", default: "tag", items: LOW_ACTIVITY_ACTIONS},
-    ...(kotlinBridge.userInfoColorSettings(BADGE_COLORS) as
-        Record<`${BadgeColor}Color`, Extract<SettingSchema, { type: "color" }>>),
-    badgeOrder: {
-        type: "order",
-        items: {UID: "아이디/IP", MEMO: "메모", RATIO: "글댓비"},
-        default: ["UID", "MEMO", "RATIO"]
-    }
-} satisfies SettingsSchema;
+export const settings = kotlinBridge.userInfoSettings(
+    BADGE_COLORS, runtimeOptions.ipInfoFilters, runtimeOptions.lowActivityActions
+) satisfies SettingsSchema;
 
 export type Ctx = ModuleContext<typeof settings>;
 

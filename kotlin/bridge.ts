@@ -170,7 +170,22 @@ interface KotlinBridge {
         useCompactModeOnView: {type: "check"; default: boolean};
         pushToRight: {type: "check"; default: boolean};
     } & Record<Key, {type: "check"; default: boolean}>;
-    userInfoColorSettings(colors: Record<string, string>): Record<string, {type: "color"; default: string}>;
+    userInfoSettings<Color extends string>(
+        colors: Record<Color, string>,
+        filters: Record<"all" | "foreign" | "vpn" | "none", string>,
+        actions: Record<"none" | "tag" | "blur" | "hide", string>
+    ): {
+        showFixedNickUID: CheckSetting;
+        showHalfFixedNickUID: CheckSetting;
+        ipInfoFilter: {type: "option"; default: "all"; items: Record<"all" | "foreign" | "vpn" | "none", string>};
+        checkRatio: CheckSetting;
+        alarmRatio: RangeSetting;
+        lowActivityAction: {type: "option"; default: "tag"; items: Record<"none" | "tag" | "blur" | "hide", string>};
+        badgeOrder: {
+            type: "order"; items: Record<"UID" | "MEMO" | "RATIO", string>;
+            default: readonly ["UID", "MEMO", "RATIO"]
+        };
+    } & Record<`${Color}Color`, {type: "color"; default: string}>;
     readonly defaultFonts: string;
     fontExtensionPageVars(settings: {customFonts: string}): {"--refresher-font": string};
     imageSearchEngines(): Record<"saucenao" | "googleLens" | "yandex" | "ascii2d" | "tineye" | "iqdb" | "tracemoe", {name: string; url: string}>;

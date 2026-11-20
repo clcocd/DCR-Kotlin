@@ -43,7 +43,7 @@ fun main() {
     api.userInfoRuntimeOptions = ::userInfoRuntimeOptions
     api.imageSearchSettings = ::imageSearchSettings
     api.layoutSettings = ::layoutSettings
-    api.userInfoColorSettings = ::userInfoColorSettings
+    api.userInfoSettings = ::userInfoSettings
     api.defaultFonts = DEFAULT_FONTS
     api.fontExtensionPageVars = ::fontExtensionPageVars
     api.optionFormatTime = ::optionFormatTime
