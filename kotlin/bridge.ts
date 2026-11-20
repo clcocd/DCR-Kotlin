@@ -101,6 +101,13 @@ type FeatureLabelMap = {
 };
 
 interface KotlinBridge {
+    imageSearchEngines(): Record<"saucenao" | "googleLens" | "yandex" | "ascii2d" | "tineye" | "iqdb" | "tracemoe", {name: string; url: string}>;
+    layoutHideOptions(): Record<"hideGalleryView" | "hideUselessView" | "hideGalleryImage" | "removeNotice" | "removeDCNotice" | "removeGamemeca" | "removeAi", {selector: string}>;
+    userInfoRuntimeOptions(): {
+        badgeColors: Record<"uid" | "ratio" | "ratioAlarm" | "korea" | "japan" | "china" | "foreign" | "vpn", string>;
+        ipInfoFilters: Record<"all" | "foreign" | "vpn" | "none", string>;
+        lowActivityActions: Record<"none" | "tag" | "blur" | "hide", string>;
+    };
     moduleLabels<Id extends keyof FeatureLabelMap>(id: Id): FeatureLabelMap[Id];
     imageSearchLabels(
         engineIds: readonly string[],

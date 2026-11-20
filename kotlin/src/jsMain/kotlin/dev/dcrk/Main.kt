@@ -37,6 +37,9 @@ fun main() {
     api.moduleLabels = ::moduleLabels
     api.imageSearchLabels = ::imageSearchLabels
     api.userInfoLabels = ::userInfoLabels
+    api.imageSearchEngines = ::imageSearchEngines
+    api.layoutHideOptions = ::layoutHideOptions
+    api.userInfoRuntimeOptions = ::userInfoRuntimeOptions
     api.optionFormatTime = ::optionFormatTime
     api.optionFormatBytes = ::optionFormatBytes
     api.optionDownloadJson = ::optionDownloadJson
