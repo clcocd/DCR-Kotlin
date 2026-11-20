@@ -13,6 +13,14 @@ fun emptyBlockEntries(): dynamic = props(
     "NICK" to emptyArray<dynamic>(), "TAB" to emptyArray<dynamic>(), "TEXT" to emptyArray<dynamic>(), "TITLE" to emptyArray<dynamic>(),
 )
 
+/** 같은 기본 모드를 다시 받았을 때 스토어를 갱신하지 않아 전체 차단 재판정을 막는다. */
+internal fun createBlockDefaultsWatcher(store: dynamic, normalize: dynamic, shallow: dynamic): (dynamic) -> Unit = { value ->
+    val defaults = normalize(value)
+    if (shallow(defaults, store.getState().defaults) != true) {
+        store.setState(props("defaults" to defaults))
+    }
+}
+
 fun createBlockState(set: dynamic, get: () -> dynamic, s: dynamic): dynamic {
     fun update(type: String, change: (dynamic) -> dynamic): dynamic = s.lists().update(type, change)
     fun key(entry: dynamic): String = blockKey(entry.content as String, entry.gallery as String?)

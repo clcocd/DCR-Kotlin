@@ -90,6 +90,14 @@ interface RefreshLoaderHelpers {
 }
 
 interface KotlinBridge {
+    createBlockDefaultsWatcher(
+        store: {
+            getState(): {defaults: Record<BlockType, DetectMode>};
+            setState(value: {defaults: Record<BlockType, DetectMode>}): void;
+        },
+        normalize: (value: unknown) => Record<BlockType, DetectMode>,
+        equal: (a: Record<BlockType, DetectMode>, b: Record<BlockType, DetectMode>) => boolean
+    ): (value: unknown) => void;
     currentPageContext(viewPage: RegExp): {
         documentUrl: URL;
         isViewPage: boolean;
