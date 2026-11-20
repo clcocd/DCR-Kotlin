@@ -66,10 +66,10 @@ interface KotlinBridge {
     manageModuleImpl(
         selectors: {checkboxRow: string; gifVideo: string; listRow: string},
         onDomReady: (callback: () => void, signal: AbortSignal) => void,
-        renderViewTools: (settings: Record<string, boolean>) => void,
+        renderViewTools: (settings: {imageOrigin: boolean; titleSearch: boolean}) => void,
         removeViewTools: () => void,
         isManager: () => boolean,
-        postNo: (row: Element) => string | undefined,
+        postNo: (row: HTMLElement) => string | undefined,
         deleteAndNotify: (id: string, gallery: string, link: string) => Promise<boolean>,
         gallery: string, documentHref: string
     ): unknown;
