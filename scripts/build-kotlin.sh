@@ -4,6 +4,6 @@ cd "$(dirname "$0")/.."
 
 ./gradlew --no-daemon :kotlin:jsProductionExecutableCompileSync "$@"
 mkdir -p generated
-mapfile -t bundle < <(find . -path '*/build/compileSync/*' -type f -name '*.mjs' | sort)
-[[ ${#bundle[@]} -eq 1 ]] || { printf 'Kotlin JS bundles: %s\n' "${bundle[*]}" >&2; exit 1; }
-cp "${bundle[0]}" generated/dcr-kotlin.mjs
+output=kotlin/build/compileSync/js/main/productionExecutable/kotlin
+cp "$output"/*.mjs generated/
+mv generated/dcr-kotlin-kotlin.mjs generated/dcr-kotlin.mjs
