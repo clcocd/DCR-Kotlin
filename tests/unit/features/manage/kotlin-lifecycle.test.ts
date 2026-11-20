@@ -53,7 +53,9 @@ it("Shift+마우스 드래그로 체크하고 Ctrl+댓글 체크박스로 대댓
 
     const comment = document.querySelector<HTMLInputElement>("#comment_li_22 .article_chkbox")!;
     const reply = document.querySelector<HTMLInputElement>("#reply_list_22 .article_chkbox")!;
-    comment.checked = true;
+    // 실제 checkbox click은 리스너 실행 전에 checked를 반전시킨다.
+    comment.checked = false;
     comment.dispatchEvent(new MouseEvent("click", {bubbles: true, ctrlKey: true}));
+    expect(comment.checked).toBe(true);
     expect(reply.checked).toBe(true);
 });
