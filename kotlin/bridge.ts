@@ -590,6 +590,12 @@ interface KotlinBridge {
     };
     readonly uploadOptionsKey: string;
     hookUploads(limit: (concurrency: number) => object): void;
+    writeMeta(urls: RegExp[]): {
+        id: "write";
+        urls: RegExp[];
+        defaultEnable: false;
+        settings: StaticFeatureSettingsMap["write"];
+    };
     setupWrite(ctx: Pick<ModuleContext, "signal" | "onRevoke"> & {settings: ModuleSettings["write"]}, services: Record<string, unknown>): void;
     listenWriteBackground(services: Record<string, unknown>): void;
     createImageSearch(services: Record<string, unknown>): {listen(): void; apply(state: {enabled: boolean; settings: object}): Promise<void>};
