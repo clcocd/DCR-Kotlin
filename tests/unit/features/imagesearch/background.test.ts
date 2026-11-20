@@ -48,9 +48,10 @@ describe("imagesearch 배경 apply", () => {
 describe("Kotlin 이미지 검색 모듈 메타데이터", () => {
     it("원본 엔진 순서와 SauceNAO 기본 활성화를 유지한다", () => {
         expect(meta.id).toBe("imagesearch");
-        expect(Object.keys(meta.settings)).toEqual(ENGINE_IDS);
+        const settings = meta.settings!;
+        expect(Object.keys(settings)).toEqual(ENGINE_IDS);
         for (const id of ENGINE_IDS) {
-            expect(meta.settings[id]).toEqual({type: "check", default: id === "saucenao"});
+            expect(settings[id]).toEqual({type: "check", default: id === "saucenao"});
         }
     });
 });
