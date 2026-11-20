@@ -1,6 +1,6 @@
 package dev.dcrk
 
-private const val DEFAULT_FONTS = "Noto Sans CJK KR, NanumGothic"
+internal const val DEFAULT_FONTS = "Noto Sans CJK KR, NanumGothic"
 
 private val genericFamilies = setOf(
     "serif", "sans-serif", "monospace", "cursive", "fantasy", "system-ui",

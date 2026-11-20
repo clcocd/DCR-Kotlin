@@ -80,3 +80,30 @@ internal fun userInfoRuntimeOptions(): dynamic = props(
         "hide" to "숨기기"
     )
 )
+
+
+/** 원본 메타에서 JS Object.fromEntries가 만든 기본값 스키마를 Kotlin에서 생성한다. */
+internal fun imageSearchSettings(ids: Array<String>): dynamic {
+    val settings: dynamic = props()
+    for (id in ids) settings[id] = props("type" to "check", "default" to (id == "saucenao"))
+    return settings
+}
+
+internal fun layoutHideSettings(ids: Array<String>): dynamic {
+    val settings: dynamic = props()
+    for (id in ids) settings[id] = props("type" to "check", "default" to false)
+    return settings
+}
+
+internal fun userInfoColorSettings(colors: dynamic): dynamic {
+    val settings: dynamic = props()
+    for (entry in entriesOf(colors)) {
+        val key = entry[0] as String
+        val color = entry[1] as String
+        settings["${key}Color"] = props("type" to "color", "default" to color)
+    }
+    return settings
+}
+
+internal fun fontExtensionPageVars(settings: dynamic): dynamic =
+    props("--refresher-font" to fontFamilyOf(settings.customFonts as String))
