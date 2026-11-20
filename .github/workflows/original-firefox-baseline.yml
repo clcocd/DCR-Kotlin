@@ -1,0 +1,28 @@
+name: Original 6.2.2 Firefox E2E baseline
+on:
+  push:
+    branches: [verify/original-firefox-6-2-2]
+permissions:
+  contents: read
+jobs:
+  firefox-original:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout original 6.2.2 import
+        uses: actions/checkout@v4
+        with:
+          ref: c1b857b1bf0a0ca3eddfbdebfb2885868cf691c2
+          persist-credentials: false
+      - uses: oven-sh/setup-bun@v2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '26'
+      - name: Install original dependencies
+        run: bun ci
+      - name: Build original Firefox MV3
+        run: bun run build:firefox
+      - name: Install Firefox browser
+        run: bunx playwright install --with-deps firefox
+      - name: Firefox baseline on original source
+        run: bunx playwright test --project=firefox --reporter=list
