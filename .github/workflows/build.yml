@@ -21,7 +21,7 @@ jobs:
       - uses: ./.github/actions/setup
 
       - name: Kotlin/JS 단위 테스트
-        run: gradle --no-daemon -p kotlin jsNodeTest
+        run: ./gradlew --no-daemon :kotlin:jsNodeTest
 
       - name: TypeScript 타입 검사
         run: bun run compile

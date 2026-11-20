@@ -2,13 +2,14 @@
 
 DCRefresher Reborn 6.2.2(커밋 `19fdd7a`)를 기준으로 Kotlin/JS로 이식한 개인용 독립 저장소입니다. [Kotlin/JS 소스](kotlin/src/jsMain/kotlin/dev/dcrk)
 
-팝업·옵션과 공용 UI, 글 목록·미리보기·댓글, 작성자 검색과 메모, 디시콘, 관리 도구, 저장소 동기화·백업, IP·밴 DB 생성과 조회를 Kotlin/JS에서 실행합니다. TypeScript는 WXT 진입점, 브라우저·라이브러리 연결, 설정과 타입 선언, 테스트에 사용합니다.
+팝업·옵션과 공용 UI, 글 목록·미리보기·댓글, 작성자 검색과 메모, 디시콘, 저장소 동기화·백업, IP DB 생성과 조회를 Kotlin/JS에서 실행합니다. TypeScript는 WXT 진입점, 브라우저·라이브러리 연결, 설정과 타입 선언, 테스트에 사용합니다.
 
 ## 로컬 빌드
 
-JDK 21, Gradle 8.14.3, Node.js 26, Bun이 필요합니다. Windows에서는 Git Bash 또는 WSL을 사용합니다.
+JDK 21, Node.js 26, Bun이 필요합니다. Gradle은 저장소의 Wrapper(8.14.3)를 사용합니다. Windows에서는 Git Bash 또는 WSL을 사용합니다.
 
 ```sh
+./gradlew :kotlin:jsNodeTest
 bun run build:kotlin
 bun ci
 bun run build

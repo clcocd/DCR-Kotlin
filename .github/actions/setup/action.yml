@@ -16,8 +16,6 @@ runs:
                 java-version: '21'
 
         -   uses: gradle/actions/setup-gradle@v4
-            with:
-                gradle-version: '8.14.3'
 
         -   name: Generate Kotlin/JS bundle
             shell: bash

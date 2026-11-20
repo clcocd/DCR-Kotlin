@@ -1,8 +1,9 @@
 pluginManagement {
     repositories {
-        mavenCentral()
         gradlePluginPortal()
+        mavenCentral()
     }
 }
 
 rootProject.name = "dcr-kotlin"
+include(":kotlin")
