@@ -113,5 +113,24 @@ internal fun userInfoColorSettings(colors: dynamic): dynamic {
     return settings
 }
 
+/** 원본 6.2.2 유저 정보 설정을 배지 색 순서까지 보존해 생성한다. */
+internal fun userInfoSettings(colors: dynamic, filters: dynamic, actions: dynamic): dynamic {
+    val settings: dynamic = props(
+        "showFixedNickUID" to props("type" to "check", "default" to true),
+        "showHalfFixedNickUID" to props("type" to "check", "default" to true),
+        "ipInfoFilter" to props("type" to "option", "default" to "all", "items" to filters),
+        "checkRatio" to props("type" to "check", "default" to false),
+        "alarmRatio" to props("type" to "range", "default" to 0, "min" to 0, "max" to 5000, "step" to 10, "unit" to "개"),
+        "lowActivityAction" to props("type" to "option", "default" to "tag", "items" to actions)
+    )
+    for (entry in entriesOf(userInfoColorSettings(colors))) settings[entry[0] as String] = entry[1]
+    settings.badgeOrder = props(
+        "type" to "order",
+        "items" to props("UID" to "아이디/IP", "MEMO" to "메모", "RATIO" to "글댓비"),
+        "default" to arrayOf("UID", "MEMO", "RATIO")
+    )
+    return settings
+}
+
 internal fun fontExtensionPageVars(settings: dynamic): dynamic =
     props("--refresher-font" to fontFamilyOf(settings.customFonts as String))

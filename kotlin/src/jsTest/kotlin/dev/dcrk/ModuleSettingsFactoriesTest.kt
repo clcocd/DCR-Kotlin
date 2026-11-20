@@ -31,4 +31,23 @@ class ModuleSettingsFactoriesTest {
         val vars = fontExtensionPageVars(props("customFonts" to fonts))
         assertEquals(fontFamilyOf(fonts), vars["--refresher-font"] as String)
     }
+    @Test
+    fun userInfoSchemaMatchesOriginalOrderAndDefaults() {
+        val options = userInfoRuntimeOptions()
+        val settings = userInfoSettings(options.badgeColors, options.ipInfoFilters, options.lowActivityActions)
+        val keys = js("Object.keys")(settings) as Array<String>
+        assertEquals(
+            "showFixedNickUID,showHalfFixedNickUID,ipInfoFilter,checkRatio,alarmRatio,lowActivityAction,uidColor,ratioColor,ratioAlarmColor,koreaColor,japanColor,chinaColor,foreignColor,vpnColor,badgeOrder",
+            keys.joinToString(",")
+        )
+        val stringify: dynamic = js("JSON.stringify")
+        assertEquals("""{"type":"range","default":0,"min":0,"max":5000,"step":10,"unit":"개"}""", stringify(settings.alarmRatio) as String)
+        assertEquals("all", settings.ipInfoFilter.default as String)
+        assertEquals("tag", settings.lowActivityAction.default as String)
+        assertEquals("""["UID","MEMO","RATIO"]""", stringify(settings.badgeOrder.default) as String)
+        assertEquals(false, settings.checkRatio.default as Boolean)
+        assertEquals(true, settings.showFixedNickUID.default as Boolean)
+        assertEquals(true, settings.showHalfFixedNickUID.default as Boolean)
+    }
+
 }

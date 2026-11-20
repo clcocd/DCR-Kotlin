@@ -8,6 +8,7 @@ import type {IpCategory} from "@/core/database";
 import {FILTER_SKIP_ATTR} from "@/core/filtering";
 import type {GallogActivity, RatioInfo} from "@/core/gallog";
 import userinfo from "@/features/userinfo/index";
+import {BADGE_COLORS, settings} from "@/features/userinfo/meta";
 import {useMemosStore} from "@/stores/memos";
 import {useUiStore} from "@/stores/ui";
 
@@ -412,5 +413,26 @@ describe("미리보기 공유, 끄기", () => {
         await start();
         document.querySelector(".ub-writer em")!.dispatchEvent(new MouseEvent("contextmenu", {bubbles: true, cancelable: true}));
         expect(useUiStore.getState().selected).toEqual({nick: "닉", uid: "member", ip: ""});
+    });
+});
+
+describe("Kotlin 유저 정보 설정 스키마", () => {
+    it("원본 6.2.2의 순서·기본값·범위를 유지한다", () => {
+        expect(Object.keys(settings)).toEqual([
+            "showFixedNickUID", "showHalfFixedNickUID", "ipInfoFilter", "checkRatio",
+            "alarmRatio", "lowActivityAction", ...Object.keys(BADGE_COLORS).map((key) => `${key}Color`), "badgeOrder"
+        ]);
+        expect(settings.ipInfoFilter).toMatchObject({type: "option", default: "all"});
+        expect(settings.checkRatio).toEqual({type: "check", default: false});
+        expect(settings.alarmRatio).toEqual({type: "range", default: 0, min: 0, max: 5000, step: 10, unit: "개"});
+        expect(settings.lowActivityAction).toMatchObject({type: "option", default: "tag"});
+        expect(settings.badgeOrder).toEqual({
+            type: "order",
+            items: {UID: "아이디/IP", MEMO: "메모", RATIO: "글댓비"},
+            default: ["UID", "MEMO", "RATIO"]
+        });
+        for (const [key, color] of Object.entries(BADGE_COLORS)) {
+            expect(settings[`${key}Color` as keyof typeof settings]).toEqual({type: "color", default: color});
+        }
     });
 });
