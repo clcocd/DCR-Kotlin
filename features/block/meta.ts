@@ -7,10 +7,4 @@ export const settings = kotlinBridge.staticFeatureSettings("block") satisfies Se
 
 export type Ctx = ModuleContext<typeof settings>;
 
-export default defineModuleMeta({
-    id: "block",
-    urls: [BOARD_PAGE],
-    settings,
-    toggles: ["reveal"],
-    commands: {blockReveal: {}}
-});
+export default defineModuleMeta(kotlinBridge.blockMeta([BOARD_PAGE], settings));

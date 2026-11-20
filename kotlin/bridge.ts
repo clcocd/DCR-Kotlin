@@ -484,6 +484,13 @@ interface KotlinBridge {
         hiddenCount(): number;
         toggleReveal(): void;
     };
+    blockMeta<S extends Record<string, unknown>>(urls: readonly RegExp[], settings: S): {
+        id: "block";
+        urls: RegExp[];
+        settings: S;
+        toggles: readonly ["reveal"];
+        commands: {blockReveal: Record<string, never>};
+    };
     createBlockControls(): {
         shortcuts: {blockReveal: (api: ReturnType<KotlinBridge["setupBlock"]>) => void};
         pageToggles: {reveal: {
