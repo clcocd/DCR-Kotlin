@@ -13,7 +13,7 @@ export const pressedKey = (ev: Pick<KeyboardEvent, "code" | "key">): string =>
     kotlinBridge.pressedKey(ev.code, ev.key);
 
 /** 모달 다이얼로그(components/ui/dialog.tsx, alert-dialog.tsx)의 배경. 떠 있으면 그 다이얼로그가 키를 받는다. */
-export const MODAL_OVERLAY_SELECTOR = "[data-slot=dialog-overlay], [data-slot=alert-dialog-overlay]";
+export const MODAL_OVERLAY_SELECTOR = kotlinBridge.runtimeConstants.ui.modalOverlaySelector;
 
 /** 단축키를 무시할지. 입력칸에 타이핑 중이거나 모달 다이얼로그가 떠 있으면 true. */
 export const isTyping = kotlinBridge.createTyping(overlay, MODAL_OVERLAY_SELECTOR);

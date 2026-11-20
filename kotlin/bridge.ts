@@ -196,6 +196,27 @@ interface KotlinBridge {
         pageGallery: string | null;
     };
     readonly runtimeConstants: {
+        ui: {
+            readonly focusRing: "cursor-pointer rounded-sm outline-none focus-visible:ring-3 focus-visible:ring-ring/50";
+            readonly modalOverlaySelector: "[data-slot=dialog-overlay], [data-slot=alert-dialog-overlay]";
+            readonly saveFailed: "저장하지 못했습니다. 페이지를 새로고침한 뒤 다시 시도해 주세요.";
+        };
+        messaging: {
+            readonly listReplacedEvent: "refresher:list-replaced";
+            readonly turnstileHost: "data-refresher-turnstile";
+            readonly turnstileCancelEvent: "refresher-turnstile-cancel";
+        };
+        storage: {
+            readonly blockDefaultsKey: "local:refresher:block:defaults";
+            readonly modulesKey: "local:refresher:modules";
+            readonly listLocks: {
+                readonly blocks: "refresher:blocks";
+                readonly memos: "refresher:memos";
+                readonly moduleSettings: "refresher:module-settings";
+            };
+            readonly dbMetaKey: "local:refresher:db:meta";
+            readonly dbKeys: {readonly ip: "local:refresher:db:ip"};
+        };
         urls: {
             base: string; vote: string; comments: string; comments_submit: string; dccon_comments_submit: string;
             txtcon_submit: string; comment_remove: string;
