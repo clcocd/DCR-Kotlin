@@ -30,9 +30,7 @@ export interface WriterFilter {
 export const writerFilter = (href?: string): WriterFilter | null => kotlinBridge.writerFilter(href, WRITER_PARAMS);
 export const queryString = kotlinBridge.queryString;
 
-export const documentUrl = kotlinBridge.loadedDocumentUrl();
-export const isViewPage = VIEW_PAGE.test(documentUrl.pathname);
-export const pagePostNo = isViewPage ? documentUrl.searchParams.get("no") : null;
-export const pageGallery = documentUrl.searchParams.get("id");
+export const {documentUrl, isViewPage, pagePostNo, pageGallery} =
+    kotlinBridge.currentPageContext(VIEW_PAGE);
 
 export const rowPostNo = (row: HTMLElement): string | undefined => kotlinBridge.rowPostNo(row, pageGallery);

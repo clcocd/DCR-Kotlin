@@ -108,6 +108,7 @@ fun main() {
     api.badgeViewOf = ::badgeViewOf
     api.showsUid = ::showsUid
     api.loadedDocumentUrl = ::loadedDocumentUrl
+    api.currentPageContext = ::currentPageContext
     api.writerFilter = ::writerFilter
     api.queryString = ::queryString
     api.rowPostNo = ::rowPostNo
