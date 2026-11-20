@@ -636,6 +636,16 @@ interface KotlinBridge {
         reload(): Promise<void>;
         catchUp(): void;
     };
+    refreshMeta<S extends Record<string, unknown>>(urls: readonly RegExp[], settings: S): {
+        id: "refresh";
+        urls: RegExp[];
+        settings: S;
+        toggles: readonly ["pause"];
+        commands: {
+            refreshLists: {key: "Alt+R"};
+            refreshPause: {key: "Alt+S"};
+        };
+    };
     createRefreshControls(): {
         shortcuts: {
             refreshLists: (api: ReturnType<KotlinBridge["setupRefresh"]>) => void;

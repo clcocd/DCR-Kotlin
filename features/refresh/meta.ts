@@ -7,13 +7,4 @@ export const settings = kotlinBridge.staticFeatureSettings("refresh") satisfies 
 
 export type Ctx = ModuleContext<typeof settings>;
 
-export default defineModuleMeta({
-    id: "refresh",
-    urls: [BOARD_PAGE],
-    settings,
-    toggles: ["pause"],
-    commands: {
-        refreshLists: {key: "Alt+R"},
-        refreshPause: {key: "Alt+S"}
-    }
-});
+export default defineModuleMeta(kotlinBridge.refreshMeta([BOARD_PAGE], settings));

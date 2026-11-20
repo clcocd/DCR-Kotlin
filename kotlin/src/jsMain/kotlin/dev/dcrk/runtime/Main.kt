@@ -24,6 +24,7 @@ fun main() {
     api.createRefreshLoader = ::createRefreshLoader
     api.setupRefresh = ::setupRefresh
     api.createRefreshControls = ::createRefreshControls
+    api.refreshMeta = ::refreshMeta
     api.refreshCountCells = COUNT_CELLS
     api.refreshCountText = refreshCountText
     api.clearNewPost = ::clearNewPost
