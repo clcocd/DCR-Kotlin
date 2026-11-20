@@ -73,6 +73,12 @@ fun main() {
             selectors, onReady, renderTools, removeTools, isManager, postNo, deleteNotify, gallery, href
         )
     }
+    api.manageViewImpl = {
+        numberedSource: (String) -> Boolean, searchPosts: (String) -> dynamic,
+        searchUrl: (String) -> String, toast: (String, String, dynamic, dynamic) -> Unit,
+        gallery: String?, postNo: String? ->
+        manageViewImplementation(numberedSource, searchPosts, searchUrl, toast, gallery, postNo)
+    }
     val scope: dynamic = js("globalThis")
     scope.__DCR_KOTLIN__ = api
 }
