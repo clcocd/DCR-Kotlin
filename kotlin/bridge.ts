@@ -192,6 +192,11 @@ interface KotlinBridge {
     } & Record<`${Color}Color`, {type: "color"; default: string}>;
     readonly defaultFonts: string;
     fontExtensionPageVars(settings: {customFonts: string}): {"--refresher-font": string};
+    fontsMeta(): {
+        id: "fonts";
+        settings: StaticFeatureSettingsMap["fonts"];
+        extensionPageVars: (settings: {customFonts: string}) => {"--refresher-font": string};
+    };
     imageSearchEngines(): Record<"saucenao" | "googleLens" | "yandex" | "ascii2d" | "tineye" | "iqdb" | "tracemoe", {name: string; url: string}>;
     layoutHideOptions(): Record<"hideGalleryView" | "hideUselessView" | "hideGalleryImage" | "removeNotice" | "removeDCNotice" | "removeGamemeca" | "removeAi", {selector: string}>;
     userInfoRuntimeOptions(): {

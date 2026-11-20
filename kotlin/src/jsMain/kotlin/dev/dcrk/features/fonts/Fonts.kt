@@ -2,6 +2,13 @@ package dev.dcrk
 
 internal const val DEFAULT_FONTS = "Noto Sans CJK KR, NanumGothic"
 
+/** 원본 글꼴 설정과 확장 페이지 CSS 변수를 동일 Kotlin 메타로 제공한다. */
+internal fun fontsMeta(): dynamic = props(
+    "id" to "fonts",
+    "settings" to staticFeatureSettings("fonts"),
+    "extensionPageVars" to ::fontExtensionPageVars
+)
+
 private val genericFamilies = setOf(
     "serif", "sans-serif", "monospace", "cursive", "fantasy", "system-ui",
     "math", "emoji", "fangsong", "ui-serif", "ui-sans-serif",

@@ -27,4 +27,17 @@ class FontsTest {
         assertTrue(dc.contains(":root .btn_cmt_close"))
         assertTrue(dc.contains(":root .write_div { font-size: 13px; }"))
     }
+    @Test
+    fun metadataKeepsOriginalSettingsAndCssVariable() {
+        val meta = fontsMeta()
+        val stringify: dynamic = js("JSON.stringify")
+        assertEquals("fonts", meta.id as String)
+        assertEquals(stringify(staticFeatureSettings("fonts")) as String, stringify(meta.settings) as String)
+        val settings = props("customFonts" to "Pretendard")
+        assertEquals(
+            fontFamilyOf("Pretendard"),
+            meta.extensionPageVars(settings)["--refresher-font"] as String
+        )
+    }
+
 }
