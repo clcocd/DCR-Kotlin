@@ -16,7 +16,7 @@ fun htmlToText(html: String): String {
 }
 
 /** 디시 common.js의 _d() 변환 테이블. */
-private const val dAlphabet = "yL/M=zNa0bcPQdReSfTgUhViWjXkYIZmnpo+qArOBslCt2D3uE4Fv5G6wH178xJ9K"
+internal const val dAlphabet = "yL/M=zNa0bcPQdReSfTgUhViWjXkYIZmnpo+qArOBslCt2D3uE4Fv5G6wH178xJ9K"
 private const val base64Alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="
 
 /**

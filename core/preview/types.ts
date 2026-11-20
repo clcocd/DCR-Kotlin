@@ -1,18 +1,11 @@
-/** 차단 기간(시간 → 라벨). 정수 키라 객체 순서가 오름차순이다. */
-export const BLOCK_DAYS = {"1": "1시간", "6": "6시간", "24": "1일", "168": "7일", "336": "14일", "744": "31일"} as const;
+import {kotlinBridge} from "@/kotlin/bridge";
+
+/** 차단 기간(시간 → 라벨): 원본 키와 표시 순서 유지. */
+export const BLOCK_DAYS = kotlinBridge.blockDays;
 export type BlockDay = keyof typeof BLOCK_DAYS;
 
-/** 차단 사유(avoid_reason 값). "0"(직접 입력)을 뒤에 두려고 배열이다. */
-export const BLOCK_REASONS = [
-    ["1", "음란성"],
-    ["2", "광고"],
-    ["3", "욕설"],
-    ["4", "도배"],
-    ["5", "혐오 콘텐츠"],
-    ["6", "저작권 침해"],
-    ["7", "명예훼손"],
-    ["0", "직접 입력"]
-] as const;
+/** 차단 사유: 직접 입력("0")은 마지막에 둔다. */
+export const BLOCK_REASONS = kotlinBridge.blockReasons;
 export type BlockReason = (typeof BLOCK_REASONS)[number][0];
 
 export interface GalleryPreData {

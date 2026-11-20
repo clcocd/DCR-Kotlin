@@ -90,6 +90,13 @@ interface RefreshLoaderHelpers {
 }
 
 interface KotlinBridge {
+    readonly dAlphabet: string;
+    readonly iconSiteKey: string;
+    readonly commentSiteKeys: Record<"new" | "new3", string>;
+    readonly blockDays: Record<"1" | "6" | "24" | "168" | "336" | "744", string>;
+    readonly blockReasons: readonly (readonly ["0" | "1" | "2" | "3" | "4" | "5" | "6" | "7", string])[];
+    readonly txtconBackgrounds: string[];
+    readonly txtconColors: string[];
     storageMetadata: {
         typeNames: Record<"NICK" | "ID" | "IP" | "TITLE" | "TEXT" | "COMMENT" | "DCCON" | "TAB", string>;
         detectModeNames: Record<"SAME" | "CONTAIN" | "NOT_SAME" | "NOT_CONTAIN", string>;

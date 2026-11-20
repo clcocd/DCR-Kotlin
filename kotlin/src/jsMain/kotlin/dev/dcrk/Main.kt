@@ -289,6 +289,13 @@ fun main() {
     api.resultMessage = { message: String?, detail: String? -> resultMessage(message, detail) }
     api.htmlToText = { html: String -> htmlToText(html) }
     api.decodeD = { value: String -> decodeD(value) }
+    api.dAlphabet = dAlphabet
+    api.iconSiteKey = ICON_SITE_KEY
+    api.commentSiteKeys = commentSiteKeys()
+    api.blockDays = blockDays()
+    api.blockReasons = blockReasons()
+    api.txtconBackgrounds = txtconBackgrounds
+    api.txtconColors = txtconColors
     api.composeExtra = { isRegex: Boolean, gallery: String?, mode: String? -> composeExtra(isRegex, gallery, mode) }
     api.blockKey = { content: String, gallery: String? -> blockKey(content, gallery) }
     api.normalizeBlockList = { value: dynamic, known: dynamic -> normalizeBlockList(value, known) }
