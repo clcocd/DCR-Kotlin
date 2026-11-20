@@ -144,7 +144,6 @@ interface KotlinBridge {
     queryString(name: string): string | null;
     rowPostNo(row: HTMLElement, gallery: string | null): string | undefined;
     buildIpCandidates(asns: Range<Asn>[], countries: Range<string>[], vpns: Range<true>[], kisa: Map<number, string>): Map<number, IpCandidate[]>;
-    normalizeBans(value: unknown): BanList;
     shortenOrg(name: string): string;
     createUiSlider<P>(services: object): (props: P) => React.ReactNode;
     createInputGroupAddon<P>(services: object): (props: P) => React.ReactNode;

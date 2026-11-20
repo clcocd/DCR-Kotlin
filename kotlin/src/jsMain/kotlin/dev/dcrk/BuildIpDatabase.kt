@@ -68,17 +68,8 @@ internal fun buildIpDatabase(s: dynamic): Promise<dynamic> = jsPromise {
     awaitJs(s.write("$out/ip.json", ip))
     awaitJs(s.write("$out/version", version))
 
-    val banFile = s.file("$out/ban.json")
-    val exists = awaitJs(banFile.exists())
-    val bans = if (exists == true) {
-        val value = awaitJs(banFile.json())
-        normalizeBans(value)
-    } else null
-    if (bans != null) awaitJs(s.write(banFile, stringify(bans)))
-
     val max = jsArray(candidates.values()).maxOf { it.length as Int }
     val base = "prefixes=${candidates.size} maxCandidates=$max kisa=${kisaRows.size} vpnRanges=${vpnRows.size} ip=${ip.length}"
-    val banStats = if (bans == null) "" else " banGalleries=${ownKeys(bans).size} banUids=${jsValues(bans).sumOf { it.length as Int }}"
-    console.log(base + banStats)
+    console.log(base)
     undefinedValue()
 }

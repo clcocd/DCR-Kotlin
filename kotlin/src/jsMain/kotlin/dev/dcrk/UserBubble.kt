@@ -119,7 +119,6 @@ internal fun createUserBubble(s: dynamic): dynamic {
         val ip = if (version > 0 && truthy(selected.ip)) s.ipInfoOf(selected.ip) else null
         val userinfo = s.useRunningModuleSettings("userinfo")
         val color = if (ip != null && userinfo != null) userinfo["${ip.category}Color"] else null
-        val bans = if (version > 0 && truthy(selected.uid)) s.banReasonsOf(selected.uid) else null
         val ratio = when (activity) {
             "loading" -> "불러오는 중..."
             "error" -> "불러오지 못함"
@@ -172,7 +171,7 @@ internal fun createUserBubble(s: dynamic): dynamic {
         else ui.h(react.Fragment, null,
             ui.div("flex flex-col", copyRow("닉네임", selected.nick, searchBy("nick")), copyRow("아이디/IP", identity, searchBy("identity")),
                 copyRow("IP 정보", ip?.label, css = if (truthy(color)) null else "text-blue-600 dark:text-blue-400", color = color),
-                copyRow("글/댓글", ratio), copyRow("갱차 갤러리", bans), copyRow("메모", memo?.text, color = memo?.color)),
+                copyRow("글/댓글", ratio), copyRow("메모", memo?.text, color = memo?.color)),
             ui.h(s.Separator),
             ui.div("flex flex-col",
                 menu(props("danger" to true, "onClick" to { block(props("target" to "user")) }), ui.h(s.Ban), " 유저 차단"),

@@ -93,7 +93,6 @@ fun main() {
     api.queryString = ::queryString
     api.rowPostNo = ::rowPostNo
     api.buildIpCandidates = ::buildIpCandidates
-    api.normalizeBans = ::normalizeBans
     api.shortenOrg = ::shortenOrg
     api.createUiSlider = ::createUiSlider
     api.createInputGroupAddon = ::createInputGroupAddon

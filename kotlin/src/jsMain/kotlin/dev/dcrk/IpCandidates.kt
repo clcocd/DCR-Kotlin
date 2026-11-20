@@ -1,6 +1,5 @@
 package dev.dcrk
 
-import kotlin.js.jsTypeOf
 import kotlin.math.floor
 import kotlin.math.min
 
@@ -68,15 +67,3 @@ internal fun buildIpCandidates(asns: Array<dynamic>, countries: Array<dynamic>, 
     return result
 }
 
-internal fun normalizeBans(data: dynamic): dynamic {
-    if (!record(data)) error("ban.json은 갤러리 → 아이디 목록 객체여야 합니다.")
-    val values = ownKeys(data).sorted().map { gallery ->
-        val uids = data[gallery]
-        if (js("Array.isArray")(uids) != true || (uids as Array<dynamic>).any { jsTypeOf(it) != "string" }) {
-            error("ban.json의 \"$gallery\"가 문자열 목록이 아닙니다.")
-        }
-        val sorted = (uids as Array<String>).map(String::trim).filter(String::isNotEmpty).distinct().sorted().toTypedArray()
-        arrayOf<dynamic>(gallery, sorted)
-    }
-    return fromEntries(values.toTypedArray())
-}
