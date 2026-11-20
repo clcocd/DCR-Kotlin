@@ -89,6 +89,12 @@ fun main() {
         addWriterTypesKotlin(filter, search, signal)
     }
     api.removeWriterTypes = { removeWriterTypesKotlin() }
+    api.imageSearchBackgroundImpl = {
+        ids: dynamic, engines: dynamic, patterns: dynamic,
+        register: ((dynamic, dynamic) -> dynamic) -> Unit,
+        removeMenu: (String) -> dynamic, createMenu: (dynamic) -> dynamic, createTab: (dynamic) -> dynamic ->
+        imageSearchBackgroundImplementation(ids, engines, patterns, register, removeMenu, createMenu, createTab)
+    }
     val scope: dynamic = js("globalThis")
     scope.__DCR_KOTLIN__ = api
 }

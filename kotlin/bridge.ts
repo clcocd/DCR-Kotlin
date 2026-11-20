@@ -88,6 +88,18 @@ interface KotlinBridge {
     addWriterTypes(filter: {kind: "uid" | "ip"; value: string} | null,
                    search: (filter: {kind: "uid" | "ip"; value: string}) => void, signal: AbortSignal): void;
     removeWriterTypes(): void;
+    imageSearchBackgroundImpl(
+        engineIds: readonly string[],
+        engines: Record<string, {name: string; url: string}>,
+        urlPatterns: string[],
+        registerClicked: (listener: (
+            info: {menuItemId: string | number; srcUrl?: string},
+            tab?: {id?: number; index: number; windowId: number}
+        ) => Promise<unknown>) => void,
+        removeMenu: (id: string) => Promise<void>,
+        createMenu: (menu: {id: string; title: string; contexts: ["image"]; targetUrlPatterns: string[]}) => unknown,
+        createTab: (details: {url: string; index?: number; openerTabId?: number; windowId?: number}) => Promise<unknown>
+    ): unknown;
 }
 
 export const kotlinBridge = (globalThis as typeof globalThis & {__DCR_KOTLIN__: KotlinBridge}).__DCR_KOTLIN__;
