@@ -159,6 +159,7 @@ fun main() {
     api.createUiTooltip = ::createUiTooltip
     api.listenPreviewBackground = ::listenPreviewBackground
     api.listenListBridge = ::listenListBridge
+    api.hasSenderTab = ::hasSenderTab
     api.tabTarget = ::tabTarget
     api.createNotify = ::createNotify
     api.createErrorUtilities = ::createErrorUtilities

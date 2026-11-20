@@ -36,7 +36,7 @@ export const defineBackgroundModule = <M extends AnyModuleMeta>(meta: M, impl: B
 /** 탭에서 온 메시지의 보낸 쪽. 팝업, 옵션 같은 확장 페이지는 tab이 없다. */
 type TabSender = Browser.runtime.MessageSender & { tab: { id: number } };
 
-export const hasTab = (sender: Browser.runtime.MessageSender): sender is TabSender => sender.tab?.id !== undefined;
+export const hasTab = (sender: Browser.runtime.MessageSender): sender is TabSender => kotlinBridge.hasSenderTab(sender);
 
 /**
  * 메시지를 보낸 문서.

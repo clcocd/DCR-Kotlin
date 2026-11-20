@@ -336,6 +336,7 @@ interface KotlinBridge {
     createUiTooltip<T>(services: object): T;
     listenPreviewBackground(services: object): void;
     listenListBridge(services: object): void;
+    hasSenderTab(sender: Browser.runtime.MessageSender): boolean;
     tabTarget(sender: Browser.runtime.MessageSender & {tab: {id: number}}): Browser.scripting.InjectionTarget;
     createNotify(getState: () => object): {
         reportFailure(error: unknown, label: string, message: string): void;

@@ -2,7 +2,7 @@
 import {describe, expect, it, vi} from "vitest";
 import {storage} from "wxt/utils/storage";
 
-import {type BackgroundModule, startBackgroundModules} from "@/core/module/background";
+import {type BackgroundModule, hasTab, startBackgroundModules} from "@/core/module/background";
 import {MODULES_KEY, moduleSettingsKey} from "@/core/storage/items";
 
 import {setting, tick} from "../../../helpers";
@@ -89,5 +89,16 @@ describe("startBackgroundModules", () => {
         await applyAll();
         expect(badApply).not.toHaveBeenCalled();
         expect(good).toHaveBeenCalledOnce();
+    });
+});
+
+
+describe("hasTab Kotlin bridge", () => {
+    it("accepts a defined tab id and rejects missing tab ids", () => {
+        expect(hasTab({tab: {id: 0}} as Browser.runtime.MessageSender)).toBe(true);
+        expect(hasTab({tab: {id: 12}} as Browser.runtime.MessageSender)).toBe(true);
+        expect(hasTab({} as Browser.runtime.MessageSender)).toBe(false);
+        expect(hasTab({tab: {}} as Browser.runtime.MessageSender)).toBe(false);
+        expect(hasTab({tab: {id: null}} as unknown as Browser.runtime.MessageSender)).toBe(true);
     });
 });

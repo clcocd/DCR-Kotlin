@@ -67,3 +67,6 @@ internal fun listenListBridge(s: dynamic) {
 internal fun tabTarget(sender: dynamic): dynamic =
     if (truthy(sender.documentId)) props("tabId" to sender.tab.id, "documentIds" to arrayOf<dynamic>(sender.documentId))
     else props("tabId" to sender.tab.id, "frameIds" to arrayOf<dynamic>(sender.frameId ?: 0))
+
+internal fun hasSenderTab(sender: dynamic): Boolean =
+    sender.tab != null && jsTypeOf(sender.tab.id) != "undefined"
