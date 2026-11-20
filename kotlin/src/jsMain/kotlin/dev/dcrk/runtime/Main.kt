@@ -48,6 +48,7 @@ fun main() {
     api.userInfoSettings = ::userInfoSettings
     api.defaultFonts = DEFAULT_FONTS
     api.fontExtensionPageVars = ::fontExtensionPageVars
+    api.fontsMeta = ::fontsMeta
     api.optionFormatTime = ::optionFormatTime
     api.optionFormatBytes = ::optionFormatBytes
     api.optionDownloadJson = ::optionDownloadJson
