@@ -18,7 +18,7 @@ describe("배경 메시지 처리기", () => {
         background.main();
 
         const types = onMessage.mock.calls.map(([type]) => type);
-        expect(types).toContain("refresher:searchPosts");
+        expect(types).toContain("refresher:grecaptchaToken");
         expect(types.filter((type, index) => types.indexOf(type) !== index)).toEqual([]);
         expect(log).not.toHaveBeenCalled();
     });
