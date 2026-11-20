@@ -7,7 +7,6 @@ permissions:
   contents: write
 jobs:
   cleanup:
-    if: contains(join(github.event.head_commit.added, ','), '.github/workflows/temporary-branch-cleanup.yml')
     runs-on: ubuntu-latest
     steps:
       - name: Delete precisely selected merged branches
