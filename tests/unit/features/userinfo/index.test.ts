@@ -14,10 +14,9 @@ import {useUiStore} from "@/stores/ui";
 import {stored, tick} from "../../../helpers";
 import {type Running, runModule} from "../module";
 
-// IP, 밴 DB와 갤로그는 저장소, 네트워크 대신 표로 둔다.
+// IP DB와 갤로그는 저장소, 네트워크 대신 표로 둔다.
 const db = vi.hoisted(() => ({
     ips: new Map<string, { label: string; title: string; category: IpCategory }>(),
-    bans: new Map<string, string>(),
     listeners: new Set<() => void>(),
     init: vi.fn(async () => {})
 }));
@@ -25,7 +24,6 @@ vi.mock("@/core/database", async (importOriginal) => ({
     ...await importOriginal<typeof import("@/core/database")>(),
     initDatabase: () => db.init(),
     ipInfoOf: (ip: string) => db.ips.get(ip),
-    banReasonsOf: (uid: string) => db.bans.get(uid),
     onDatabaseChange: (listener: () => void) => {
         db.listeners.add(listener);
         return () => db.listeners.delete(listener);
@@ -93,7 +91,6 @@ const start = async (patch = {}) => (running = await runModule(userinfo, patch))
 
 beforeEach(() => {
     db.ips.clear();
-    db.bans.clear();
     db.listeners.clear();
     gallog.activity.clear();
     gallog.asked.length = 0;
@@ -119,8 +116,8 @@ describe("아이디, IP 배지", () => {
         expect(document.querySelector("tr[data-no='3'] .refresher-user-badges")).toBeNull();
     });
 
-    it("IP 정보를 보이지 않고 갱차도 보지 않으면 IP DB를 읽지 않다가, 설정을 켜면 읽는다", async () => {
-        const {change} = await start({ipInfoFilter: "none", checkPermBan: false});
+    it("IP 정보를 표시하지 않으면 IP DB를 읽지 않다가, 설정을 켜면 읽는다", async () => {
+        const {change} = await start({ipInfoFilter: "none"});
         expect(db.init).not.toHaveBeenCalled();
         change({ipInfoFilter: "all"});
         expect(db.init).toHaveBeenCalledOnce();
@@ -162,7 +159,7 @@ describe("아이디, IP 배지", () => {
     });
 });
 
-describe("메모, 순서, 갱차", () => {
+describe("메모, 순서", () => {
     it("메모를 붙이고 메모가 바뀌면 다시 그린다", async () => {
         mountRows([{no: "1", uid: "member"}]);
         await start();
@@ -180,18 +177,11 @@ describe("메모, 순서, 갱차", () => {
 
     it("배치 순서를 따른다", async () => {
         useMemosStore.setState({memos: {UID: {member: {text: "메모", color: ""}}, NICK: {}, IP: {}}});
-        db.bans.set("member", "어느갤");
         mountRows([{no: "1", uid: "member"}]);
-        await start({badgeOrder: ["PERMBAN", "MEMO", "UID", "RATIO"], checkPermBan: true});
-        expect(badges("1")).toEqual(["[어느갤]", "[메모]", "(member)"]);
+        await start({badgeOrder: ["MEMO", "UID", "RATIO"]});
+        expect(badges("1")).toEqual(["[메모]", "(member)"]);
     });
 
-    it("갱차 조회를 끄면 갱차 배지를 붙이지 않는다", async () => {
-        db.bans.set("member", "어느갤");
-        mountRows([{no: "1", uid: "member"}]);
-        await start();
-        expect(badges("1")).toEqual(["(member)"]);
-    });
 
     it("DB가 갱신되면 다시 그린다", async () => {
         mountRows([{no: "1", ip: "1.2"}]);

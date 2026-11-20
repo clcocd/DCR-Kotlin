@@ -72,7 +72,7 @@ test.describe("옵션 - 설정 탭", () => {
         const order = page.getByRole("group", {name: "정보 배치 순서", exact: true});
         await order.getByRole("button", {name: "메모 위로", exact: true}).focus();
         await page.keyboard.press("Enter");
-        await expect.poll(() => storage.get("refresher:module:userinfo:settings")).toEqual({badgeOrder: ["MEMO", "UID", "RATIO", "PERMBAN"]});
+        await expect.poll(() => storage.get("refresher:module:userinfo:settings")).toEqual({badgeOrder: ["MEMO", "UID", "RATIO"]});
         await expect(order.getByRole("button", {name: "메모 아래로", exact: true})).toBeFocused();
     });
 

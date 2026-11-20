@@ -24,17 +24,12 @@ export interface BlockOptions {
 }
 
 interface ManageRequests {
-    bump(preData: GalleryPreData): Promise<ManageResult>;
-    deletePost(target: Pick<GalleryPreData, "gallery" | "id" | "link">): Promise<ManageResult>;
-    blockUser(preData: GalleryPreData, options: BlockOptions): Promise<ManageResult>;
     blockCommenters(preData: GalleryPreData, commentIds: string[], options: BlockOptions): Promise<ManageResult>;
-    setNotice(preData: GalleryPreData, notice: boolean): Promise<ManageResult>;
-    setRecommend(preData: GalleryPreData, recommend: boolean): Promise<ManageResult>;
     captchaImage(preData: GalleryPreData, type: "comment" | "recommend"): string;
     adminDeleteComments(preData: GalleryPreData, commentIds: string[]): Promise<ManageResult>;
     userDeleteComment(preData: GalleryPreData, postInfo: Pick<PostInfo, "commentId" | "v_cur_t" | "commentDeleteFields">,
         commentId: string, password: string, rcKey: CommentRcKey, grecaptchaToken?: string): Promise<SubmitResult>;
 }
 
-export const {bump, deletePost, blockUser, blockCommenters, setNotice, setRecommend, captchaImage, adminDeleteComments, userDeleteComment} =
+export const {blockCommenters, captchaImage, adminDeleteComments, userDeleteComment} =
     kotlinBridge.createManageRequests<ManageRequests>({ajax, urls, galltypeOf, managerAjaxUrl, dcBody, resultMessage, submitResult});

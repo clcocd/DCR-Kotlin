@@ -20,8 +20,7 @@ export const urls = {
     },
     database: {
         version: "https://dcrefresher.green1052.com/version",
-        ip: "https://dcrefresher.green1052.com/ip.json",
-        ban: "https://dcrefresher.green1052.com/ban.json"
+        ip: "https://dcrefresher.green1052.com/ip.json"
     }
 };
 
@@ -38,7 +37,6 @@ export const galltypeOf = kotlinBridge.galltypeOf;
 export const managerAjaxUrl = kotlinBridge.managerAjaxUrl;
 export const listUrl = kotlinBridge.listUrl;
 export const mergeParamURL = kotlinBridge.mergeParamURL;
-export const postSearchUrl = kotlinBridge.postSearchUrl;
 
 /** 작성자 거르기가 목록 주소에 얹는 쿼리 이름 - 디시 글쓴이 검색은 닉네임만 찾는다. */
 export const WRITER_PARAMS = {uid: "rf_uid", ip: "rf_ip"} as const;

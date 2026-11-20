@@ -13,8 +13,6 @@ internal fun createWriterCard(s: dynamic): (dynamic) -> dynamic {
         val dbVersion = react.useSyncExternalStore(s.onDatabaseChange, s.databaseVersion) as Int
         val ipInfo = if (dbVersion > 0 && !truthy(user.id) && truthy(user.ip)) s.ipInfoOf(user.ip) else null
         val ipColor = if (ipInfo != null) if (settings != null) settings["${ipInfo.category}Color"] else null else null
-        val banColor = if (settings?.checkPermBan == true) settings.permBanColor else null
-        val ban = if (dbVersion > 0 && truthy(user.id) && truthy(banColor)) s.banReasonsOf(user.id) else null
         val uidColor = settings?.uidColor
         val gallery = s.previewStore { state: dynamic -> state.preData?.gallery ?: undefinedValue() }
         val memo = s.useUserMemo(props("uid" to user.id, "ip" to user.ip, "nick" to user.nick), gallery)
@@ -59,8 +57,7 @@ internal fun createWriterCard(s: dynamic): (dynamic) -> dynamic {
         val badges = props(
             "UID" to identity,
             "MEMO" to if (memo != null) badge("[${memo.text}]", if (truthy(memo.color)) memo.color else undefinedValue(), memo.text) else null,
-            "RATIO" to if (ratio != null) badge("[${ratio.article}/${ratio.comment}]", ratioColor, "글/댓글") else null,
-            "PERMBAN" to if (truthy(ban) && truthy(banColor)) badge("[$ban]", banColor, ban) else null
+            "RATIO" to if (ratio != null) badge("[${ratio.article}/${ratio.comment}]", ratioColor, "글/댓글") else null
         )
         val order = (view.order as Array<String>).map { ui.h(react.Fragment, props("key" to it), badges[it]) }.toTypedArray()
         ui.h("div", props("className" to s.cn("refresher-user flex min-w-0 cursor-context-menu items-center gap-1",

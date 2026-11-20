@@ -9,10 +9,7 @@ export class FakeIpDb {
     /** 1.2 대역의 통신사. 유동 행에 [ORG] 배지로 붙는다. */
     readonly org = "테스트통신";
 
-    /** 갤러리 → 갱차된 uid. */
-    readonly bans = {"테스트 갤러리": ["user1"]};
-
-    /** 받은 요청 경로 (/version, /ip.json, /ban.json). */
+    /** 받은 요청 경로 (/version, /ip.json). */
     readonly requests: string[] = [];
 
     readonly handle = (route: Route): Promise<void> => {
@@ -20,8 +17,7 @@ export class FakeIpDb {
         this.requests.push(pathname);
         const body = new Map([
             ["/version", this.version],
-            ["/ip.json", JSON.stringify({version: this.version, ...encodeIpData(new Map([[1 * 256 + 2, [{org: this.org, vpn: false}]]]))})],
-            ["/ban.json", JSON.stringify(this.bans)]
+            ["/ip.json", JSON.stringify({version: this.version, ...encodeIpData(new Map([[1 * 256 + 2, [{org: this.org, vpn: false}]]]))})]
         ]).get(pathname);
         return body === undefined ? route.fulfill({status: 404}) : route.fulfill({body});
     };

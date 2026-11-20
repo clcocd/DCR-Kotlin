@@ -8,13 +8,12 @@ export const BADGE_COLORS = {
     uid: "#999999",
     ratio: "#999999",
     ratioAlarm: "#ff0000",
-    permBan: "#e8645f",
     korea: "#6495ed",
     japan: "#e5484d",
     china: "#f76b15",
     foreign: "#12a594",
     vpn: "#8e4ec6"
-} satisfies Record<IpCategory | "uid" | "permBan" | "ratio" | "ratioAlarm", string>;
+} satisfies Record<IpCategory | "uid" | "ratio" | "ratioAlarm", string>;
 
 export type BadgeColor = keyof typeof BADGE_COLORS;
 
@@ -29,13 +28,12 @@ export const settings = {
     checkRatio: {type: "check", default: false},
     alarmRatio: {type: "range", default: 0, min: 0, max: 5000, step: 10, unit: "개"},
     lowActivityAction: {type: "option", default: "tag", items: LOW_ACTIVITY_ACTIONS},
-    checkPermBan: {type: "check", default: false},
     ...(Object.fromEntries(Object.entries(BADGE_COLORS).map(([key, color]) => [`${key}Color`, {type: "color", default: color}])) as
         Record<`${BadgeColor}Color`, Extract<SettingSchema, { type: "color" }>>),
     badgeOrder: {
         type: "order",
-        items: {UID: "아이디/IP", MEMO: "메모", RATIO: "글댓비", PERMBAN: "갱차"},
-        default: ["UID", "MEMO", "RATIO", "PERMBAN"]
+        items: {UID: "아이디/IP", MEMO: "메모", RATIO: "글댓비"},
+        default: ["UID", "MEMO", "RATIO"]
     }
 } satisfies SettingsSchema;
 

@@ -2,29 +2,6 @@ package dev.dcrk
 
 import kotlin.math.floor
 
-fun createMiniPreview(s: dynamic): () -> dynamic {
-    val ui = ReactUi(s.react)
-    return mini@{
-        val preview = s.usePreviewStore { state: dynamic -> state.mini }
-        val contents = s.react.useRef(null)
-        s.usePreviewMedia(contents, preview?.contents, preview?.gallery, true)
-        if (preview == null) return@mini null
-        val interactive = preview.interactive == true
-        val enter: () -> Unit = { s.hoverMini(true) }
-        val leave: () -> Unit = { s.hoverMini(false) }
-        ui.h("div", props(
-            "className" to s.cn("refresher-mini-preview fixed flex max-w-[calc(100vw-20px)] flex-col overflow-hidden rounded-xl bg-card p-3 text-card-foreground shadow-lg ring-1 ring-foreground/10",
-                if (interactive) "pointer-events-auto" else false),
-            "onPointerEnter" to if (interactive) enter else undefinedValue(), "onPointerLeave" to if (interactive) leave else undefinedValue(),
-            "style" to props("left" to preview.x, "top" to preview.y, "width" to s.width, "maxHeight" to "min(${s.height}px, calc(100vh - 20px))")),
-            ui.tag("h3", "mb-2 shrink-0 truncate text-base font-bold", preview.title),
-            ui.h("div", props("ref" to contents,
-                "className" to s.cn("refresher-html refresher-mini-contents min-h-0 flex-1 overflow-x-hidden overflow-y-auto [scrollbar-color:var(--border)_transparent] [scrollbar-width:thin]",
-                    if (preview.blockMedia == true) "refresher-preview-block-media" else false),
-                "dangerouslySetInnerHTML" to props("__html" to preview.contents))))
-    }
-}
-
 private val networkFailure = Regex("fetch|network|timed out|시간 초과", RegexOption.IGNORE_CASE)
 
 fun createPreviewError(s: dynamic): (dynamic) -> dynamic {

@@ -57,7 +57,6 @@ interface ProtocolMap {
     "refresher:hookUploads"(): void;
 
     /** 탭 → 배경: 디시 통합검색 결과(HTML). search.dcinside.com은 CORS를 열지 않는다. */
-    "refresher:searchPosts"(query: string): string;
 
     /** 탭 → 배경: 갤로그 첫 화면(HTML). CORS 때문에 배경이 받는다. 없는 아이디면 null. */
     "refresher:gallogPage"(id: string): string | null;

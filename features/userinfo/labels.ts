@@ -8,7 +8,6 @@ const BADGE_NAMES = {
     uid: "아이디/IP",
     ratio: "글댓비",
     ratioAlarm: "깡계",
-    permBan: "갱차",
     korea: "IP 한국",
     japan: "IP 일본",
     china: "IP 중국",
@@ -39,7 +38,6 @@ export default {
         },
         alarmRatio: {group: LOW_ACTIVITY_GROUP, name: "기준", desc: "글댓합이 이 값 이하면 깡계로 봅니다. (0이면 끔)"},
         lowActivityAction: {group: LOW_ACTIVITY_GROUP, name: "처리", desc: "깡계 유저의 글, 댓글을 어떻게 보여 줄지 정합니다."},
-        checkPermBan: {name: "갱차 조회", desc: "갱차(갱신 차단)된 갤러리를 배지로 표시합니다. (IP/밴 데이터베이스 기준)"},
         ...(Object.fromEntries(
             Object.entries(BADGE_NAMES).map(([key, name]) => [`${key}Color`, {group: BADGE_COLOR_GROUP, name, desc: `${name} 배지의 글자 색입니다.`}])
         ) as Record<`${BadgeColor}Color`, SettingLabel>),

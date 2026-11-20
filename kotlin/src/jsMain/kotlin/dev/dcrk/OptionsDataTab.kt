@@ -118,7 +118,7 @@ fun createDataTab(services: dynamic): () -> dynamic {
 
         val reset = button(services.Trash2, "데이터 초기화", variant = "destructive") { setConfirm("reset") }
         ui.h("div", null,
-            ui.h(services.Section, props("title" to "IP/밴 데이터베이스", "desc" to "버전: $version",
+            ui.h(services.Section, props("title" to "IP 데이터베이스", "desc" to "버전: $version",
                 "actions" to button(services.RefreshCw, "갱신") { actions.forceUpdate() })),
             ui.h(services.Section, props("title" to "클라우드 백업", "desc" to "브라우저 동기화 저장소에 설정을 백업합니다.", "actions" to autoToggle),
                 ui.tag("p", "mb-3 text-muted-foreground", "수동 백업: ", time(manual), ui.h("br"), "자동 백업: ", time(auto)),

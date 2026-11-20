@@ -7,13 +7,10 @@ import {urls} from "@/core/http/urls";
 import {
     adminDeleteComments,
     blockCommenters,
-    bump,
     fetchComments,
     fetchDcconList,
     fetchDcconPackage,
     fetchPost,
-    setNotice,
-    setRecommend,
     submitComment,
     userDeleteComment,
     viewUrl,
@@ -314,22 +311,6 @@ describe("댓글 관리", () => {
         }
     });
 
-    it("끌올, 공지, 개념글은 갤러리 종류의 관리 주소로 글 번호를 보낸다", async () => {
-        const sent = serve(fetchMock, () => JSON.stringify({result: "success"}));
-        await bump(target());
-        await setNotice(target(), true);
-        await setNotice(target(), false);
-        await setRecommend(target(), true);
-        await setRecommend(target(), false);
-
-        expect(sent.map(({url, body}) => [url.replace(`${urls.base}ajax/mini_manager_board_ajax/`, ""), [...body].slice(2)])).toEqual([
-            ["update_bump", [["id", "a"], ["nos[]", "3"]]],
-            ["set_notice", [["mode", "SET"], ["id", "a"], ["no", "3"]]],
-            ["set_notice", [["mode", "REL"], ["id", "a"], ["no", "3"]]],
-            ["set_recommend", [["mode", "SET"], ["id", "a"], ["nos[]", "3"]]],
-            ["set_recommend", [["mode", "REL"], ["id", "a"], ["nos[]", "3"]]]
-        ]);
-    });
 });
 
 describe("submitComment", () => {

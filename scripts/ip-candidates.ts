@@ -12,4 +12,4 @@ export interface Asn {
     org: string;
 }
 
-export const {buildIpCandidates: buildCandidates, normalizeBans} = kotlinBridge;
+export const {buildIpCandidates: buildCandidates} = kotlinBridge;

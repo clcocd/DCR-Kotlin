@@ -32,12 +32,10 @@ class UrlsTest {
     }
 
     @Test
-    fun safeLinksAndSearchEncoding() {
+    fun safeLinks() {
         assertEquals("https://gall.dcinside.com/", dcinsideHref("https://gall.dcinside.com/"))
         assertNull(dcinsideHref("https://dcinside.com.evil.com/"))
         assertNull(dcinsideHref("javascript:alert(1)"))
-        assertEquals("https://search.dcinside.com/post/sort/latest/q/.61.2F.EA.B0.80",
-            postSearchUrl("a/가"))
     }
 
     @Test

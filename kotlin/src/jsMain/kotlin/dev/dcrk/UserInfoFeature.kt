@@ -78,10 +78,6 @@ private class UserInfoFeature(private val ctx: dynamic, private val s: dynamic) 
                         badges.add(badge("[$label]", if (low) colors.ratioAlarm else colors.ratio, label, "ip refresherUserData"))
                     }
                 }
-                "PERMBAN" -> if (!uid.isNullOrEmpty() && settings.checkPermBan == true) {
-                    val reasons = s.banReasonsOf(uid)
-                    if (truthy(reasons)) badges.add(badge("[$reasons]", colors.permBan, reasons, "ip refresherUserData"))
-                }
             }
         }
         val action = settings.lowActivityAction as String
@@ -130,7 +126,7 @@ private class UserInfoFeature(private val ctx: dynamic, private val s: dynamic) 
         if (cleared) notifyRowsHidden()
     }
 
-    private fun needsDatabase(): Boolean = view.ipFilter != "none" || ctx.settings.checkPermBan == true
+    private fun needsDatabase(): Boolean = view.ipFilter != "none"
 
     private fun applyStored(next: dynamic) {
         val before = ratios

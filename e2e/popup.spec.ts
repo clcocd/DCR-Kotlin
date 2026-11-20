@@ -4,14 +4,14 @@ import {openPopup} from "./pages/extension";
 test.describe("팝업", () => {
     test("모듈 타일을 그리고 누르면 켜고 끈다. 디시 탭이 아니면 페이지 토글 대신 안내를 보인다", async ({context, extensionId, storage}) => {
         const popup = await openPopup(context, extensionId);
-        expect(await popup.tiles.count()).toBeGreaterThanOrEqual(10);
+        expect(await popup.tiles.count()).toBeGreaterThanOrEqual(9);
         await expect(popup.page.getByText("디시인사이드 갤러리에서 열면")).toBeVisible();
 
-        const manage = popup.tile("관리");
-        await expect(manage).toHaveAttribute("aria-pressed", "false");
-        await manage.click();
+        const manage = popup.tile("미리보기");
         await expect(manage).toHaveAttribute("aria-pressed", "true");
-        await expect.poll(() => storage.get("refresher:modules")).toEqual({manage: true});
+        await manage.click();
+        await expect(manage).toHaveAttribute("aria-pressed", "false");
+        await expect.poll(() => storage.get("refresher:modules")).toEqual({preview: false});
     });
 
     test("디시 탭에서 열면 현재 페이지 토글로 그 탭의 자동 새로고침을 멈춘다", async ({context, extensionId, listPage}) => {

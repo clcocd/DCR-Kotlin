@@ -73,9 +73,9 @@ fun createContentRoot(s: dynamic): () -> dynamic {
     }
 }
 
-fun createPreviewHost(react: dynamic, frame: dynamic, popups: dynamic, mini: dynamic): () -> dynamic {
+fun createPreviewHost(react: dynamic, frame: dynamic, popups: dynamic): () -> dynamic {
     val ui = ReactUi(react)
-    return { ui.h(react.Fragment, null, ui.h(frame), ui.h(popups), ui.h(mini)) }
+    return { ui.h(react.Fragment, null, ui.h(frame), ui.h(popups)) }
 }
 
 fun createPreviewDialogRoot(s: dynamic): (dynamic) -> dynamic {

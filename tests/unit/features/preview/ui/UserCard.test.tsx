@@ -8,8 +8,6 @@ import {UserCard} from "@/features/preview/ui/UserCard";
 import userinfo from "@/features/userinfo/meta";
 import {type Ratios, useUiStore} from "@/stores/ui";
 
-// 밴 DB는 저장소 대신 표로 두고 이미 읽은 것(버전 1)으로 본다.
-const bans = vi.hoisted(() => new Map<string, string>());
 // 읽기를 시작하는 구독. 미리보기는 부르지 않아야 한다.
 const subscribeDatabase = vi.hoisted(() => vi.fn(() => () => {}));
 vi.mock("@/core/database", async (importOriginal) => ({
@@ -17,8 +15,7 @@ vi.mock("@/core/database", async (importOriginal) => ({
     databaseVersion: () => 1,
     subscribeDatabase,
     onDatabaseChange: () => () => {},
-    ipInfoOf: () => undefined,
-    banReasonsOf: (uid: string) => bans.get(uid)
+    ipInfoOf: () => undefined
 }));
 
 let container: HTMLElement;
@@ -37,7 +34,6 @@ const renderCard = (): void => {
 };
 
 beforeEach(() => {
-    bans.set("member", "어느갤");
     container = document.createElement("div");
     document.body.append(container);
 });
@@ -45,31 +41,10 @@ beforeEach(() => {
 afterEach(() => {
     act(() => render(null, container));
     container.remove();
-    bans.clear();
     subscribeDatabase.mockClear();
     useUiStore.setState({ratios: null});
     moduleSettingsStore.setState({}, true);
     runningModulesStore.setState({}, true);
-});
-
-describe("UserCard 갱차 배지", () => {
-    it("갱차 조회를 켜면 보인다", () => {
-        setUserinfo({checkPermBan: true});
-        renderCard();
-        expect(badges()).toEqual(["(member)", "[어느갤]"]);
-    });
-
-    it("갱차 조회를 끄면 숨긴다", () => {
-        setUserinfo({checkPermBan: false});
-        renderCard();
-        expect(badges()).toEqual(["(member)"]);
-    });
-
-    it("유저 정보 모듈이 꺼져 있으면 갱차 조회 설정과 상관없이 숨긴다", () => {
-        setUserinfo({checkPermBan: true}, false);
-        renderCard();
-        expect(badges()).toEqual(["(member)"]);
-    });
 });
 
 describe("UserCard DB 읽기", () => {

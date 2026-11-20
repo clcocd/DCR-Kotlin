@@ -31,8 +31,7 @@ vi.mock("@/core/database", () => ({
     databaseVersion: () => 0,
     subscribeDatabase: () => () => {},
     onDatabaseChange: () => () => {},
-    ipInfoOf: () => undefined,
-    banReasonsOf: () => undefined
+    ipInfoOf: () => undefined
 }));
 
 const root = document.createElement("div");

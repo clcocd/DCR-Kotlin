@@ -25,9 +25,9 @@ internal fun createStorageDefinitions(s: dynamic): dynamic {
     fun moduleSettings(id: String): dynamic = definitions.getOrPut(id) { storage.defineItem(moduleSettingsKey(id), props("fallback" to props())) }
     fun moduleData(id: String, fallback: dynamic): dynamic = storage.defineItem(moduleDataKey(id), props("fallback" to fallback))
     val metadata = lazy(s.metaKey as String, props("version" to "", "lastUpdate" to 0))
-    fun write(meta: dynamic, ip: String, ban: String): dynamic =
+    fun write(meta: dynamic, ip: String): dynamic =
         storage.setItems(arrayOf<dynamic>(props("item" to metadata(), "value" to meta),
-            props("key" to s.keys.ip, "value" to ip), props("key" to s.keys.ban, "value" to ban)))
+            props("key" to s.keys.ip, "value" to ip)))
     var device: dynamic = null
     fun getDevice(): dynamic {
         if (device == null) {
