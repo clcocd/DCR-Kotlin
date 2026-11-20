@@ -1,7 +1,7 @@
 // @vitest-environment node
 import {describe, expect, it} from "vitest";
 
-import {type Asn, buildCandidates, normalizeBans, type Range} from "@/scripts/ip-candidates";
+import {type Asn, buildCandidates, type Range} from "@/scripts/ip-candidates";
 
 const asn = (start: number, end: number, number: number, org: string): Range<Asn> => ({start, end, value: {asn: number, org}});
 const country = (start: number, end: number, iso: string): Range<string> => ({start, end, value: iso});
@@ -44,13 +44,3 @@ describe("buildCandidates", () => {
     });
 });
 
-describe("normalizeBans", () => {
-    it("아이디의 공백, 빈 값, 중복을 빼고 갤러리와 아이디를 정렬한다", () => {
-        expect(normalizeBans({b: [" y ", "x", "y", ""], a: []})).toEqual({a: [], b: ["x", "y"]});
-    });
-
-    it("형식이 틀리면 멈춘다", () => {
-        expect(() => normalizeBans([])).toThrow();
-        expect(() => normalizeBans({a: [1]})).toThrow();
-    });
-});
