@@ -164,6 +164,10 @@ type StaticFeatureSettingsMap = {
 interface KotlinBridge {
     staticFeatureSettings<Id extends keyof StaticFeatureSettingsMap>(id: Id): StaticFeatureSettingsMap[Id];
     imageSearchSettings(ids: readonly string[]): Record<string, {type: "check"; default: boolean}>;
+    imageSearchMeta<Key extends string>(ids: readonly Key[]): {
+        id: "imagesearch";
+        settings: Record<Key, {type: "check"; default: boolean}>;
+    };
     layoutSettings<Key extends string>(ids: readonly Key[]): {
         activePixel: {type: "range"; default: number; min: number; max: number; step: number; unit: string};
         forceCompact: {type: "check"; default: boolean};

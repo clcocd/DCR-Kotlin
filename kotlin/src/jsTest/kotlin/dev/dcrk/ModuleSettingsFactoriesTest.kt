@@ -12,6 +12,9 @@ class ModuleSettingsFactoriesTest {
             """{"saucenao":{"type":"check","default":true},"googleLens":{"type":"check","default":false},"yandex":{"type":"check","default":false},"ascii2d":{"type":"check","default":false},"tineye":{"type":"check","default":false},"iqdb":{"type":"check","default":false},"tracemoe":{"type":"check","default":false}}""",
             stringify(imageSearchSettings(imageIds)) as String
         )
+        val imageMeta = imageSearchMeta(imageIds)
+        assertEquals("imagesearch", imageMeta.id as String)
+        assertEquals(stringify(imageSearchSettings(imageIds)) as String, stringify(imageMeta.settings) as String)
         val layoutIds = arrayOf("hideGalleryView", "hideUselessView", "hideGalleryImage", "removeNotice", "removeDCNotice", "removeGamemeca", "removeAi")
         val layout = layoutSettings(layoutIds)
         for (id in layoutIds) {
