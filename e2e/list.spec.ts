@@ -1,4 +1,5 @@
 import {expect, test} from "./fixtures";
+import {openListPage} from "./pages/list";
 
 test.describe("글 목록", () => {
     test("작성자 칸에 유저 정보 배지를, 갤러리 머리에 새로고침 버튼을 붙인다", async ({listPage}) => {
@@ -180,14 +181,14 @@ test.describe("작성자 검색", () => {
         await expect(page.locator(".bottom_paging_box a").first()).toHaveAttribute("href", /rf_uid=user1/);
     });
 
-    test("유저 메뉴의 아이디/IP 검색은 글쓴이 검색에 IP 거르기를 얹고, 닉네임 검색은 닉네임으로만 찾는다", async ({listPage, storage}) => {
+    test("유저 메뉴의 아이디/IP 검색은 글쓴이 검색에 IP 거르기를 얹고, 닉네임 검색은 닉네임으로만 찾는다", async ({page, storage}) => {
         await storage.setModules({search: true});
-        const {page} = listPage;
-        await page.reload();
+        const listPage = await openListPage(page);
         await listPage.writer(2).click({button: "right"});
         await listPage.bubble.getByRole("button", {name: "아이디/IP(으)로 글 검색"}).click();
         await expect(page).toHaveURL(/s_type=search_name&s_keyword=%E3%85%87%E3%85%87&rf_ip=1\.2/);
 
+        await expect(listPage.refreshButton).toBeVisible();
         await listPage.writer(2).click({button: "right"});
         await listPage.bubble.getByRole("button", {name: "닉네임(으)로 글 검색"}).click();
         await expect(page).toHaveURL(/s_type=search_name&s_keyword=%E3%85%87%E3%85%87$/);

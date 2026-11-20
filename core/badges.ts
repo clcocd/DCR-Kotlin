@@ -1,6 +1,5 @@
 import type {IpInfoFilter} from "@/core/database";
-import type {ModuleSettings} from "@/core/module/types";
-import {nickType} from "@/utils/user";
+import {kotlinBridge} from "@/kotlin/bridge";
 
 export type BadgeKey = "UID" | "MEMO" | "RATIO" | "PERMBAN";
 
@@ -16,15 +15,4 @@ export interface BadgeView {
 /** 유저 정보 모듈이 꺼져 있을 때의 값. 기본 순서이고 IP 정보(userinfo가 붙이는 배지)는 없다. */
 export const DEFAULT_BADGE_VIEW: BadgeView = {order: ["UID", "MEMO", "RATIO", "PERMBAN"], fixedUid: true, halfFixedUid: true, ipFilter: "none"};
 
-export const badgeViewOf = (settings: ModuleSettings["userinfo"]): BadgeView => ({
-    order: settings.badgeOrder,
-    fixedUid: settings.showFixedNickUID,
-    halfFixedUid: settings.showHalfFixedNickUID,
-    ipFilter: settings.ipInfoFilter
-});
-
-/** 닉콘(고정닉, 반고정닉)에 따라 UID를 보일지. 닉콘이 없으면 늘 보인다. */
-export const showsUid = (view: BadgeView, icon?: string): boolean => {
-    const type = icon ? nickType(icon) : "UNFIXED";
-    return type === "FIXED" ? view.fixedUid : type === "HALF_FIXED" ? view.halfFixedUid : true;
-};
+export const {badgeViewOf, showsUid} = kotlinBridge;

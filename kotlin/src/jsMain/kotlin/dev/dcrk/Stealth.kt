@@ -76,3 +76,26 @@ fun stealthDispose() {
     doc.documentElement.classList.remove("refresherStealth", STEALTH_CLASS)
     removeButtons()
 }
+
+fun setupStealth(ctx: dynamic): dynamic {
+    val doc: dynamic = js("document")
+    ctx.onRevoke(::stealthDispose)
+    stealthEnable()
+    if (doc.body != null) {
+        stealthCreateButton()
+    } else {
+        val options: dynamic = js("({once: true})")
+        options.signal = ctx.signal
+        doc.addEventListener("DOMContentLoaded", { _: dynamic -> stealthCreateButton() }, options)
+    }
+
+    val api: dynamic = js("({})")
+    api.isRevealed = ::stealthIsRevealed
+    api.toggle = ::stealthToggle
+    return api
+}
+
+fun stealthShortcut(toggle: () -> Unit, isRevealed: () -> Boolean, showToast: (String) -> Unit) {
+    toggle()
+    showToast(if (isRevealed()) "이미지를 보이게 했습니다." else "이미지를 숨겼습니다.")
+}

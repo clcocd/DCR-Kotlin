@@ -1,26 +1,18 @@
+import * as react from "react"
+import {kotlinBridge} from "@/kotlin/bridge"
 import { cn } from "cn"
 
-function Kbd({ className, ...props }: React.ComponentProps<"kbd">) {
-  return (
-    <kbd
-      data-slot="kbd"
-      className={cn(
-        "pointer-events-none inline-flex h-5 w-fit min-w-5 items-center justify-center gap-1 rounded-sm bg-muted px-1 font-sans text-xs font-medium text-muted-foreground select-none in-data-[slot=tooltip-content]:bg-background/20 in-data-[slot=tooltip-content]:text-background dark:in-data-[slot=tooltip-content]:bg-background/10 [&_svg:not([class*='size-'])]:size-3",
-        className
-      )}
-      {...props}
-    />
-  )
+function Kbd(props: React.ComponentProps<"kbd">): react.ReactNode {
+  return view.Kbd(props)
 }
 
-function KbdGroup({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <kbd
-      data-slot="kbd-group"
-      className={cn("inline-flex items-center gap-1", className)}
-      {...props}
-    />
-  )
+function KbdGroup(props: React.ComponentProps<"div">): react.ReactNode {
+  return view.KbdGroup(props)
 }
+
+const view = kotlinBridge.createUiKbd<{
+  Kbd: (props: Parameters<typeof Kbd>[0]) => react.ReactNode
+  KbdGroup: (props: Parameters<typeof KbdGroup>[0]) => react.ReactNode
+}>({react, cn})
 
 export { Kbd, KbdGroup }

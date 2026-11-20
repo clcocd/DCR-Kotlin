@@ -15,4 +15,4 @@ export const defineModuleMeta = <const Id extends string, const S extends Settin
  * 팝업 토글은 메타의 토글 id에 동작을 붙여 레지스트리가 쓰는 목록으로 만든다.
  */
 export const defineModule = <M extends AnyModuleMeta, Api = void>(meta: M, impl: ModuleImpl<M, Api>): DefinedModule<M["id"], Api> =>
-    kotlinBridge.defineContentModule(meta, impl) as DefinedModule<M["id"], Api>;
+    kotlinBridge.defineFeature(meta, impl);

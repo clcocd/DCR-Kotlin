@@ -12,3 +12,4 @@ stats.html
 /generated/
 /kotlin/.gradle/
 /kotlin/build/
+/kotlin/.kotlin/

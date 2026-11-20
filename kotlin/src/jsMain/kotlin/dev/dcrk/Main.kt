@@ -6,6 +6,264 @@ package dev.dcrk
  */
 fun main() {
     val api: dynamic = js("({})")
+    api.moduleEnabled = { id: String, defaultEnable: Boolean?, enables: dynamic -> moduleEnabled(id, defaultEnable, enables) }
+    api.defaultSetting = { schema: dynamic -> defaultSetting(schema) }
+    api.normalizeSetting = { schema: dynamic, value: dynamic -> normalizeSetting(schema, value) }
+    api.previewEntry = { state: dynamic -> previewEntry(state) }
+    api.createRefreshLoader = ::createRefreshLoader
+    api.setupRefresh = ::setupRefresh
+    api.refreshCountCells = COUNT_CELLS
+    api.refreshCountText = refreshCountText
+    api.clearNewPost = ::clearNewPost
+    api.syncRefreshPaging = ::syncRefreshPaging
+    api.isWholeFirstPage = ::isWholeFirstPage
+    api.replaceRefreshList = ::replaceRefreshList
+    api.scanBlocks = ::scanBlocks
+    api.createSettingsTransfer = ::createSettingsTransfer
+    api.pinDefaultMode = ::pinDefaultMode
+    api.createAboutTab = ::createAboutTab
+    api.optionFormatTime = ::optionFormatTime
+    api.optionFormatBytes = ::optionFormatBytes
+    api.optionDownloadJson = ::optionDownloadJson
+    api.createImportDialog = ::createImportDialog
+    api.createRefresherSelect = ::createRefresherSelect
+    api.createOptionWidgets = ::createOptionWidgets
+    api.useOptionStorageItem = ::useOptionStorageItem
+    api.optionStoreState = ::optionStoreState
+    api.notifyOptionDone = ::notifyOptionDone
+    api.createDcconRain = ::createDcconRain
+    api.needOverlayWhen = ::needOverlayWhen
+    api.overlayNeeded = ::overlayNeeded
+    api.watchOverlayDemands = ::watchOverlayDemands
+    api.mountOverlayWhenNeeded = ::mountOverlayWhenNeeded
+    api.createContentRoot = ::createContentRoot
+    api.createPreviewHost = ::createPreviewHost
+    api.setupUserInfo = ::setupUserInfo
+    api.setupPreview = ::setupPreview
+    api.assembleFeatureInfo = ::assembleFeatureInfo
+    api.featureLoaders = ::featureLoaders
+    api.makeManifestCommands = ::makeManifestCommands
+    api.featureFolders = ::featureFolders
+    api.moduleTypeEntries = ::moduleTypeEntries
+    api.featureStyleEntry = ::featureStyleEntry
+    api.gzipBackup = ::gzipBackup
+    api.gunzipBackup = ::gunzipBackup
+    api.createHttpClient = ::createHttpClient
+    api.buildIpDatabase = ::buildIpDatabase
+    api.rawStorageKey = ::rawStorageKey
+    api.blockListKey = ::blockListKey
+    api.memoMapKey = ::memoMapKey
+    api.moduleSettingsKey = ::moduleSettingsKey
+    api.moduleDataKey = ::moduleDataKey
+    api.settingsKeyModule = ::settingsKeyModule
+    api.moduleKeyModule = ::moduleKeyModule
+    api.isBlockListKey = ::isBlockListKey
+    api.createStorageDefinitions = ::createStorageDefinitions
+    api.ownPreviewEntry = ::ownPreviewEntry
+    api.ownPreviewDepth = ::ownPreviewDepth
+    api.isRecord = ::record
+    api.canonicalStorageValue = ::canonical
+    api.storageSizeOf = { value: dynamic -> sizeOf(value) ?: undefinedValue() }
+    api.createTooltipViews = ::createTooltipViews
+    api.createOverlayPopover = ::createOverlayPopover
+    api.createColorInput = ::createColorInput
+    api.defineFeature = ::defineFeature
+    api.defineBackgroundFeature = ::defineBackgroundFeature
+    api.moduleEnables = ::moduleEnables
+    api.settingsOf = ::settingsOf
+    api.createModuleRead = ::createModuleRead
+    api.createModuleHooks = ::createModuleHooks
+    api.formBody = ::formBody
+    api.csrfBody = ::csrfBody
+    api.sha256 = ::sha256
+    api.once = ::once
+    api.focusOnMount = ::focusOnMount
+    api.installPageRuntime = ::installPageRuntime
+    api.whenDomReady = ::whenDomReady
+    api.onBfcacheRestore = ::onBfcacheRestore
+    api.smoothScroll = ::smoothScroll
+    api.followSystemAppearance = ::followSystemAppearance
+    api.followDcAppearance = ::followDcAppearance
+    api.isGalleryManager = ::isGalleryManager
+    api.loggedInUserId = ::loggedInUserId
+    api.badgeViewOf = ::badgeViewOf
+    api.showsUid = ::showsUid
+    api.loadedDocumentUrl = ::loadedDocumentUrl
+    api.writerFilter = ::writerFilter
+    api.queryString = ::queryString
+    api.rowPostNo = ::rowPostNo
+    api.buildIpCandidates = ::buildIpCandidates
+    api.normalizeBans = ::normalizeBans
+    api.shortenOrg = ::shortenOrg
+    api.createUiSlider = ::createUiSlider
+    api.createInputGroupAddon = ::createInputGroupAddon
+    api.createFieldError = ::createFieldError
+    api.createUiVariants = ::createUiVariants
+    api.createUiAlert = ::createUiAlert
+    api.createUiAlertDialog = ::createUiAlertDialog
+    api.createUiBadge = ::createUiBadge
+    api.createUiButton = ::createUiButton
+    api.createUiCard = ::createUiCard
+    api.createUiCheckbox = ::createUiCheckbox
+    api.createUiCollapsible = ::createUiCollapsible
+    api.createUiDialog = ::createUiDialog
+    api.createUiEmpty = ::createUiEmpty
+    api.createUiField = ::createUiField
+    api.createUiInput = ::createUiInput
+    api.createUiInputGroup = ::createUiInputGroup
+    api.createUiKbd = ::createUiKbd
+    api.createUiLabel = ::createUiLabel
+    api.createUiPopover = ::createUiPopover
+    api.createUiRadioGroup = ::createUiRadioGroup
+    api.createUiSelect = ::createUiSelect
+    api.createUiSeparator = ::createUiSeparator
+    api.createUiSkeleton = ::createUiSkeleton
+    api.createUiSpinner = ::createUiSpinner
+    api.createUiSwitch = ::createUiSwitch
+    api.createUiTable = ::createUiTable
+    api.createUiTabs = ::createUiTabs
+    api.createUiTextarea = ::createUiTextarea
+    api.createUiToggle = ::createUiToggle
+    api.createUiToggleGroup = ::createUiToggleGroup
+    api.createUiTooltip = ::createUiTooltip
+    api.listenPreviewBackground = ::listenPreviewBackground
+    api.listenListBridge = ::listenListBridge
+    api.tabTarget = ::tabTarget
+    api.createNotify = ::createNotify
+    api.createErrorUtilities = ::createErrorUtilities
+    api.originalEventTarget = ::originalEventTarget
+    api.createTyping = ::createTyping
+    api.fitPolls = ::fitPolls
+    api.fitTxtconNearView = ::fitTxtconNearView
+    api.watchGifVideos = ::watchGifVideos
+    api.createScrollLock = ::createScrollLock
+    api.createPreviewMediaHooks = ::createPreviewMediaHooks
+    api.createCountDown = ::createCountDown
+    api.keepTabInside = ::keepTabInside
+    api.createDialogs = ::createDialogs
+    api.focusedElement = ::focusedElement
+    api.panelOf = ::panelOf
+    api.focusPanel = ::focusPanel
+    api.createReturnFocus = ::createReturnFocus
+    api.createToastHost = ::createToastHost
+    api.fcmToken = ::fcmToken
+    api.savedNonmember = ::savedNonmember
+    api.saveNonmember = ::saveNonmember
+    api.createCommentSubmission = ::createCommentSubmission
+    api.createCommentSender = ::createCommentSender
+    api.createSettingsState = ::createSettingsState
+    api.startAutoBackup = ::startAutoBackup
+    api.fillBlockIds = ::fillBlockIds
+    api.startDatabaseUpdates = ::startDatabaseUpdates
+    api.createDcconPicker = ::createDcconPicker
+    api.createDcconInfoView = ::createDcconInfoView
+    api.createSanitizer = ::createSanitizer
+    api.createPreviewPopups = ::createPreviewPopups
+    api.createUserBubble = ::createUserBubble
+    api.createMemoDialog = ::createMemoDialog
+    api.createBlockRequest = ::createBlockRequest
+    api.createDcconRequests = ::createDcconRequests
+    api.createManageRequests = ::createManageRequests
+    api.txtconGraphemes = ::txtconGraphemes
+    api.wrapTxtcon = ::wrapTxtcon
+    api.normalizeTxtcon = ::normalizeTxtcon
+    api.createTxtconSubmission = ::createTxtconSubmission
+    api.startContentScript = ::startContentScript
+    api.createBackgroundStartup = ::createBackgroundStartup
+    api.startBackgroundModules = ::startBackgroundModules
+    api.createWriteCommentView = ::createWriteCommentView
+    api.extractCommentIcon = ::extractCommentIcon
+    api.extractCommentIp = ::extractCommentIp
+    api.createCommentView = ::createCommentView
+    api.threadParents = ::threadParents
+    api.commentSummary = ::commentSummary
+    api.groupCommentReplies = ::groupCommentReplies
+    api.mentionComment = ::mentionComment
+    api.createCommentList = ::createCommentList
+    api.numberedImageSource = numberedImageSource
+    api.adultPost = ADULT_POST
+    api.secretPost = SECRET_POST
+    api.parsePostInfo = ::parsePostInfo
+    api.createPreviewRequests = ::createPreviewRequests
+    api.ipCandidateKey = ::ipCandidateKey
+    api.encodeIpData = ::encodeIpData
+    api.parseIpData = ::parseIpData
+    api.parseStoredIpData = ::parseStoredIpData
+    api.createIpLookup = ::createIpLookup
+    api.createBlockRules = ::createBlockRules
+    api.createListDom = ::createListDom
+    api.createUiStateService = ::createUiStateService
+    api.createGallog = ::createGallog
+    api.createGallogBackground = ::createGallogBackground
+    api.createWriterCard = ::createWriterCard
+    api.createGallogActivityHook = ::createGallogActivityHook
+    api.createPreviewRows = ::createPreviewRows
+    api.bindPreviewRows = ::bindPreviewRows
+    api.bindPreviewListKeys = ::bindPreviewListKeys
+    api.createImageViewer = ::createImageViewer
+    api.createVotes = ::createVotes
+    api.createWheelGesture = ::createWheelGesture
+    api.createContentsControls = ::createContentsControls
+    api.createDatabase = ::createDatabase
+    api.createCloudBackup = ::createCloudBackup
+    api.createCommentsPull = ::createCommentsPull
+    api.createCommentProcessing = ::createCommentProcessing
+    api.setupBlock = ::setupBlock
+    api.createPreviewStateService = ::createPreviewStateService
+    api.createPreviewPostService = ::createPreviewPostService
+    api.createPreviewHistoryController = ::createPreviewHistoryController
+    api.createMiniController = ::createMiniController
+    api.createModuleRegistry = ::createModuleRegistry
+    api.blockLabel = ::blockLabel
+    api.emptyBlockEntries = ::emptyBlockEntries
+    api.createBlockState = ::createBlockState
+    api.createMemoState = ::createMemoState
+    api.randomMemoColor = ::randomMemoColor
+    api.normalizeMemoMap = ::normalizeMemoMap
+    api.ownMemo = ::ownMemo
+    api.lookupMemo = ::lookupMemo
+    api.createStorageSync = ::createStorageSync
+    api.setupManage = ::setupManage
+    api.removeManageViewTools = ::removeManageViewTools
+    api.renderManageViewTools = ::renderManageViewTools
+    api.listenManageBackground = ::listenManageBackground
+    api.writerSearchUrl = ::writerSearchUrl
+    api.keepWriterFilter = ::keepWriterFilter
+    api.addWriterTypes = ::addWriterTypes
+    api.removeWriterTypes = ::removeWriterTypes
+    api.listenSearchBackground = ::listenSearchBackground
+    api.setupSearch = ::setupSearch
+    api.previewPostKey = ::previewPostKey
+    api.createPreviewCache = ::createPreviewCache
+    api.uploadOptionsKey = UPLOAD_OPTIONS_KEY
+    api.hookUploads = ::hookUploads
+    api.setupWrite = ::setupWrite
+    api.listenWriteBackground = ::listenWriteBackground
+    api.createImageSearch = ::createImageSearch
+    api.createMiniPreview = ::createMiniPreview
+    api.createPreviewError = ::createPreviewError
+    api.createPreviewClock = ::createPreviewClock
+    api.createPreviewFrame = ::createPreviewFrame
+    api.createPreviewDialogRoot = ::createPreviewDialogRoot
+    api.restoreOptionList = ::restoreOptionList
+    api.createOptionListRow = ::createOptionListRow
+    api.createOptionListTabs = ::createOptionListTabs
+    api.createSettingItem = ::createSettingItem
+    api.createMemoTab = ::createMemoTab
+    api.parseAppMemos = ::parseAppMemos
+    api.formatAppMemos = ::formatAppMemos
+    api.createBlockDialog = ::createBlockDialog
+    api.createBlockTab = ::createBlockTab
+    api.optionDcconImage = ::optionDcconImage
+    api.createDataTab = ::createDataTab
+    api.createGeneralTab = ::createGeneralTab
+    api.createShortcutTab = ::createShortcutTab
+    api.matchOptionSettings = ::matchOptionSettings
+    api.createOptionsPage = ::createOptionsPage
+    api.createPopup = ::createPopup
+    api.mountExtensionPage = ::mountExtensionPage
+    api.filterSkipAttr = FILTER_SKIP_ATTR
+    api.addDomFilter = ::addDomFilter
     api.dcinsideHref = { url: String -> dcinsideHref(url) }
     api.galleryKind = { url: String -> galleryKind(url) }
     api.galleryPath = { url: String -> galleryPath(url) }
@@ -31,14 +289,11 @@ fun main() {
     api.pressedKey = { code: String, key: String -> pressedKey(code, key) }
     api.createDoublePress = { windowMs: Double -> createDoublePress(windowMs) }
     api.fontFamilyOf = { customFonts: String -> fontFamilyOf(customFonts) }
-    api.buildFontCss = { customFonts: String, size: Double, changeDCFont: Boolean -> buildFontCss(customFonts, size, changeDCFont) }
-    api.stealthIsRevealed = { stealthIsRevealed() }
-    api.stealthToggle = { stealthToggle() }
-    api.stealthCreateButton = { stealthCreateButton() }
-    api.stealthEnable = { stealthEnable() }
-    api.stealthDispose = { stealthDispose() }
-    api.layoutCompact = { narrow: Boolean, force: Boolean, shop: Boolean, view: Boolean, viewAllowed: Boolean -> layoutCompact(narrow, force, shop, view, viewAllowed) }
-    api.layoutHideCss = { options: dynamic, settings: dynamic, noticePage: Boolean -> layoutHideCss(options, settings, noticePage) }
+    api.setupFonts = ::setupFonts
+    api.setupLayout = ::setupLayout
+    api.setupStealth = ::setupStealth
+    api.stealthShortcut = ::stealthShortcut
+    api.createUnseenCounter = ::createUnseenCounter
     api.setTitleCount = { count: Int -> setTitleCount(count) }
     api.textWithoutScripts = { element: dynamic -> textWithoutScripts(element) }
     api.writeStyle = { id: String, css: String -> writeStyle(id, css) }
@@ -46,55 +301,6 @@ fun main() {
     api.isBrokenMedia = { image: dynamic -> isBrokenMedia(image) }
     api.markPreviewMedia = { media: dynamic, imageViewer: Boolean -> markPreviewMedia(media, imageViewer) }
     api.markPreviewPressable = { root: dynamic, imageViewer: Boolean -> markPreviewPressable(root, imageViewer) }
-    api.isModuleEnabled = { def: dynamic, enables: dynamic -> isModuleEnabledKotlin(def, enables) }
-    api.defaultSettingValue = { schema: dynamic -> defaultSettingValue(schema) }
-    api.normalizeModuleSetting = { schema: dynamic, value: dynamic -> normalizeModuleSetting(schema, value) }
-    api.moduleEnablesOf = { stored: dynamic -> moduleEnablesOf(stored) }
-    api.moduleSettingsOf = { def: dynamic, stored: dynamic -> moduleSettingsOf(def, stored) }
-    api.isJsRecord = { value: dynamic -> isJsRecord(value) }
-    api.canonicalStorageValue = { value: dynamic -> canonicalStorageValue(value) }
-    api.storageSizeOf = { value: dynamic -> storageSizeOf(value) }
-    api.defineContentModule = { meta: dynamic, impl: dynamic -> defineContentModule(meta, impl) }
-    api.defineBackgroundModule = { meta: dynamic, impl: dynamic -> defineBackgroundModuleKotlin(meta, impl) }
-    api.fontsModuleImpl = { fontsModuleImplementation() }
-    api.stealthModuleImpl = { showToast: (String) -> Unit -> stealthModuleImplementation(showToast) }
-    api.layoutModuleImpl = { hideOptions: dynamic, view: Boolean, shop: Boolean, isNotice: () -> Boolean ->
-        layoutModuleImplementation(hideOptions, view, shop, isNotice)
-    }
-    api.writeModuleImpl = { selectors: dynamic, isWrite: () -> Boolean, hookUploads: () -> dynamic ->
-        writeModuleImplementation(selectors, isWrite, hookUploads)
-    }
-    api.manageModuleImpl = {
-        selectors: dynamic, onReady: (() -> Unit, dynamic) -> Unit,
-        renderTools: (dynamic) -> Unit, removeTools: () -> Unit,
-        isManager: () -> Boolean, postNo: (dynamic) -> dynamic,
-        deleteNotify: (String, String, String) -> dynamic, gallery: String, href: String ->
-        manageModuleImplementation(
-            selectors, onReady, renderTools, removeTools, isManager, postNo, deleteNotify, gallery, href
-        )
-    }
-    api.manageViewImpl = {
-        numberedSource: (String) -> Boolean, searchPosts: (String) -> dynamic,
-        searchUrl: (String) -> String, toast: (String, String, dynamic, dynamic) -> Unit,
-        gallery: String?, postNo: String? ->
-        manageViewImplementation(numberedSource, searchPosts, searchUrl, toast, gallery, postNo)
-    }
-    api.writerSearchUrl = { filter: dynamic, nick: String?, params: dynamic ->
-        writerSearchUrlKotlin(filter, nick, params)
-    }
-    api.keepWriterFilter = { paging: dynamic, filter: dynamic, params: dynamic ->
-        keepWriterFilterKotlin(paging, filter, params)
-    }
-    api.addWriterTypes = { filter: dynamic, search: (dynamic) -> Unit, signal: dynamic ->
-        addWriterTypesKotlin(filter, search, signal)
-    }
-    api.removeWriterTypes = { removeWriterTypesKotlin() }
-    api.imageSearchBackgroundImpl = {
-        ids: dynamic, engines: dynamic, patterns: dynamic,
-        register: ((dynamic, dynamic) -> dynamic) -> Unit,
-        removeMenu: (String) -> dynamic, createMenu: (dynamic) -> dynamic, createTab: (dynamic) -> dynamic ->
-        imageSearchBackgroundImplementation(ids, engines, patterns, register, removeMenu, createMenu, createTab)
-    }
     val scope: dynamic = js("globalThis")
     scope.__DCR_KOTLIN__ = api
 }

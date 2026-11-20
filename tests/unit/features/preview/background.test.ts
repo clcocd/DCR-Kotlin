@@ -1,3 +1,4 @@
+import {kotlinBridge} from "@/kotlin/bridge";
 import {afterEach, describe, expect, it, vi} from "vitest";
 import {fakeBrowser} from "wxt/testing/fake-browser";
 
@@ -11,7 +12,7 @@ const onMessage = vi.hoisted(() => vi.fn<(type: string, handler: Handler) => voi
 vi.mock("@/core/messaging/protocol", () => ({onMessage}));
 type Execute = (siteKey: string, action: string) => Promise<string>;
 const runInPage = vi.hoisted(() => vi.fn<(sender: Sender, func: Execute, args: [string, string]) => Promise<{ result?: unknown }[]>>());
-vi.mock("@/core/module/background", async (importOriginal) => ({...await importOriginal<typeof import("@/core/module/background")>(), runInPage}));
+vi.mock("@/core/module/background", async (importOriginal) => ({...await importOriginal<typeof import("@/core/module/background")>(), runInPage, preparePageRuntime: async () => kotlinBridge.installPageRuntime()}));
 
 /** listen이 건 refresher:grecaptchaToken 리스너를 sender가 data를 보낸 것처럼 부른다. */
 const receive = (data: Data, sender: Sender = {tab: {id: 3}} as Sender): Promise<string | undefined> => {

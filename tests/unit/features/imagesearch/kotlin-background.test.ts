@@ -9,15 +9,15 @@ it("Kotlin 이미지 검색 메뉴 클릭은 해당 엔진 URL을 만들고 원�
         tab?: {id?: number; index: number; windowId: number}
     ) => Promise<unknown>;
     const createTab = vi.fn(async (details: {url: string; index?: number; openerTabId?: number; windowId?: number}) => details);
-    const impl = kotlinBridge.imageSearchBackgroundImpl(
-        ["saucenao"],
-        {saucenao: {name: "SauceNAO", url: "https://saucenao.com/search.php?url="}},
-        ["*://*.dcinside.com/viewimage.php*"],
-        (listener) => { click = listener; },
-        async () => {},
-        () => undefined,
-        createTab
-    ) as {listen(): void};
+    const impl = kotlinBridge.createImageSearch({
+        engineIds: ["saucenao"],
+        engines: {saucenao: {name: "SauceNAO", url: "https://saucenao.com/search.php?url="}},
+        patterns: ["*://*.dcinside.com/viewimage.php*"],
+        browser: {
+            contextMenus: {onClicked: {addListener(listener: typeof click) { click = listener; }}},
+            tabs: {create: createTab}
+        }
+    });
 
     impl.listen();
     const image = "https://dcimg1.dcinside.com/viewimage.php?id=test&no=1";

@@ -13,4 +13,3 @@ fun galleryKindFromPath(pathname: String): String = when {
     pathname.startsWith("/person/") -> "person"
     else -> "normal"
 }
-
