@@ -1,5 +1,7 @@
 package dev.dcrk
 
+import dev.dcrk.block.*
+
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotEquals
