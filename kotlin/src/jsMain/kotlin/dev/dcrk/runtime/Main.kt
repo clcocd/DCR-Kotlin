@@ -294,6 +294,7 @@ fun main() {
     api.filterSkipAttr = FILTER_SKIP_ATTR
     api.addDomFilter = ::addDomFilter
     api.dcinsideHref = { url: String -> dcinsideHref(url) }
+    api.dcinsideHrefInput = ::dcinsideHrefInput
     api.galleryKind = { url: String -> galleryKind(url) }
     api.galleryPath = { url: String -> galleryPath(url) }
     api.galltypeOf = { url: String -> galltypeOf(url) }

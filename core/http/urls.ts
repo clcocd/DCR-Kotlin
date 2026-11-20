@@ -4,10 +4,8 @@ import {kotlinBridge} from "@/kotlin/bridge";
 export const urls = kotlinBridge.runtimeConstants.urls;
 
 /** 원본의 URL/갤러리 판정 로직은 Kotlin/JS에서 실행한다. */
-export const dcinsideHref = (url: string | URL | null | undefined): string | undefined => {
-    if (url == null) return undefined;
-    return kotlinBridge.dcinsideHref(typeof url === "string" ? url : url.href) ?? undefined;
-};
+export const dcinsideHref = (url: string | URL | null | undefined): string | undefined =>
+    kotlinBridge.dcinsideHrefInput(url) ?? undefined;
 
 export type GalleryKind = "normal" | "minor" | "mini" | "person";
 export const galleryKind = kotlinBridge.galleryKind;

@@ -633,6 +633,7 @@ interface KotlinBridge {
         changed: boolean;
     };
     dcinsideHref(url: string): string | null;
+    dcinsideHrefInput(url: string | URL | null | undefined): string | null;
     galleryKind(url: string): "normal" | "minor" | "mini" | "person";
     galleryPath(url: string): string;
     galltypeOf(url: string): string;

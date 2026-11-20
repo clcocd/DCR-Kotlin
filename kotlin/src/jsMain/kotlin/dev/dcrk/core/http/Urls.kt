@@ -31,6 +31,13 @@ fun dcinsideHref(url: String): String? {
     return if (parsed.protocol == "https:" && parsed.hostname.endsWith(".dcinside.com")) parsed.href else null
 }
 
+/** URL 객체와 nullish를 원본 TS 호출부와 동일하게 처리한다. */
+fun dcinsideHrefInput(input: dynamic): String? {
+    if (input == null) return null
+    val source = if (jsTypeOf(input) == "string") input as String else input.href as String
+    return dcinsideHref(source)
+}
+
 /** 검색어가 아닌 URL의 첫 번째 경로 구간만 검사한다. */
 fun galleryKind(url: String): String = galleryKindFromPath(parseBrowserUrl(url)?.pathname ?: "")
 
