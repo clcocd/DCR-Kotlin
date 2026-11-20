@@ -100,7 +100,69 @@ type FeatureLabelMap = {
     write: LabelsOf<typeof import("@/features/write/meta").default>;
 };
 
+type CheckSetting = {type: "check"; default: boolean};
+type RangeSetting = {type: "range"; default: number; min: number; max: number; step: number; unit: string};
+type TextSetting = {type: "text"; default: string};
+
+type StaticFeatureSettingsMap = {
+    block: {
+        replyRemove: CheckSetting;
+        blur: CheckSetting;
+        blurReveal: CheckSetting;
+        blurStrength: RangeSetting;
+        foldDuplicate: CheckSetting;
+        duplicateCount: RangeSetting;
+        duplicateMinLength: RangeSetting;
+    };
+    fonts: {
+        customFonts: TextSetting;
+        changeDCFont: CheckSetting;
+        bodyFontSize: RangeSetting;
+    };
+    preview: {
+        previewWidth: RangeSetting;
+        toggleBackgroundBlur: CheckSetting;
+        popupBlur: CheckSetting;
+        scrollToSkip: CheckSetting;
+        reversePreviewKey: CheckSetting;
+        longPressDelay: RangeSetting;
+        colorPreviewLink: CheckSetting;
+        autoRefreshComment: CheckSetting;
+        highlightNewComments: CheckSetting;
+        commentRefreshInterval: RangeSetting;
+        expandRecognizeRange: CheckSetting;
+        imageViewer: CheckSetting;
+        listKeyboard: CheckSetting;
+        disableCache: CheckSetting;
+        archiveArticle: CheckSetting;
+        blockImage: CheckSetting;
+    };
+    refresh: {
+        refreshRate: RangeSetting;
+        fadeIn: CheckSetting;
+        useBetterBrowse: CheckSetting;
+        noRefreshOnSearch: CheckSetting;
+        pauseOnHover: CheckSetting;
+        titleCount: CheckSetting;
+        readMark: CheckSetting;
+        backgroundRefresh: CheckSetting;
+        backgroundRefreshRate: RangeSetting;
+        doNotColorVisited: CheckSetting;
+    };
+    search: {
+        maxSearches: RangeSetting;
+    };
+    write: {
+        preventExit: CheckSetting;
+        webpConvert: CheckSetting;
+        webpQuality: RangeSetting;
+        webpConcurrency: RangeSetting;
+        obfuscateName: CheckSetting;
+    };
+};
+
 interface KotlinBridge {
+    staticFeatureSettings<Id extends keyof StaticFeatureSettingsMap>(id: Id): StaticFeatureSettingsMap[Id];
     imageSearchSettings(ids: readonly string[]): Record<string, {type: "check"; default: boolean}>;
     layoutHideSettings(ids: readonly string[]): Record<string, {type: "check"; default: boolean}>;
     userInfoColorSettings(colors: Record<string, string>): Record<string, {type: "color"; default: string}>;
