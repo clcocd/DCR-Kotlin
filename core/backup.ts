@@ -5,13 +5,9 @@ import {
     BLOCK_DEFAULTS_KEY,
     BLOCK_TYPES,
     backupStorage,
-    blockListKey,
     isBlockListKey,
     MEMO_TYPES,
-    memoMapKey,
-    MODULES_KEY,
-    moduleSettingsKey,
-    rawKey
+    MODULES_KEY
 } from "@/core/storage/items";
 import {friendlyMessage} from "@/utils/error";
 import {sha256} from "@/utils/hash";
@@ -19,13 +15,9 @@ import {kotlinBridge} from "@/kotlin/bridge";
 
 export type BackupSlot = "manual" | "auto";
 
-const BACKUP_KEYS = [
-    rawKey(MODULES_KEY),
-    rawKey(BLOCK_DEFAULTS_KEY),
-    ...BLOCK_TYPES.map((type) => rawKey(blockListKey(type))),
-    ...MEMO_TYPES.map((type) => rawKey(memoMapKey(type))),
-    ...MODULE_IDS.map((id) => rawKey(moduleSettingsKey(id)))
-];
+const BACKUP_KEYS = kotlinBridge.backupTargetKeys(
+    MODULES_KEY, BLOCK_DEFAULTS_KEY, BLOCK_TYPES, MEMO_TYPES, MODULE_IDS
+);
 
 interface SlotStatus {
     createdAt: number;

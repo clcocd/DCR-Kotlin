@@ -357,6 +357,13 @@ interface KotlinBridge {
         pressContents(ev: React.KeyboardEvent<HTMLElement>): void;
     };
     createDatabase<T>(services: object): T;
+    backupTargetKeys(
+        modulesKey: string,
+        defaultsKey: string,
+        blockTypes: readonly BlockType[],
+        memoTypes: readonly MemoType[],
+        moduleIds: readonly string[]
+    ): string[];
     createCloudBackup<T>(services: object): T;
     createCommentsPull<T>(ctx: PreviewContext, signal: () => AbortSignal | undefined, services: object): T;
     createCommentProcessing(services: object): {

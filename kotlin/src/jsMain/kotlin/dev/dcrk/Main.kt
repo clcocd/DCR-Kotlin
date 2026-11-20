@@ -236,6 +236,7 @@ fun main() {
     api.createContentsControls = ::createContentsControls
     api.createDatabase = ::createDatabase
     api.createCloudBackup = ::createCloudBackup
+    api.backupTargetKeys = ::backupTargetKeys
     api.createCommentsPull = ::createCommentsPull
     api.createCommentProcessing = ::createCommentProcessing
     api.setupBlock = ::setupBlock
