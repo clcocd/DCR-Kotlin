@@ -1,5 +1,5 @@
 import {defineModuleMeta} from "@/core/module/define";
-import type {ModuleContext, SettingSchema, SettingsSchema} from "@/core/module/types";
+import type {ModuleContext, SettingsSchema} from "@/core/module/types";
 import {objectKeys} from "@/utils/typed";
 import {kotlinBridge} from "@/kotlin/bridge";
 
@@ -8,22 +8,7 @@ export const HIDE_OPTIONS = kotlinBridge.layoutHideOptions() satisfies Record<st
 
 export const HIDE_KEYS = objectKeys(HIDE_OPTIONS);
 
-export const settings = {
-    activePixel: {
-        type: "range",
-        default: 900,
-        min: 100,
-        // 모니터마다 다른 screen.width로 두면 큰 모니터에서 저장한 값이 작은 모니터에서 잘린다.
-        max: 3840,
-        step: 1,
-        unit: "px"
-    },
-    forceCompact: {type: "check", default: false},
-    useCompactModeOnView: {type: "check", default: true},
-    ...(kotlinBridge.layoutHideSettings(HIDE_KEYS) as
-        Record<(typeof HIDE_KEYS)[number], Extract<SettingSchema, { type: "check" }>>),
-    pushToRight: {type: "check", default: false}
-} satisfies SettingsSchema;
+export const settings = kotlinBridge.layoutSettings(HIDE_KEYS) satisfies SettingsSchema;
 
 export type Ctx = ModuleContext<typeof settings>;
 

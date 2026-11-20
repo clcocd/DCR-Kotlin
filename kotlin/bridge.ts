@@ -164,7 +164,12 @@ type StaticFeatureSettingsMap = {
 interface KotlinBridge {
     staticFeatureSettings<Id extends keyof StaticFeatureSettingsMap>(id: Id): StaticFeatureSettingsMap[Id];
     imageSearchSettings(ids: readonly string[]): Record<string, {type: "check"; default: boolean}>;
-    layoutHideSettings(ids: readonly string[]): Record<string, {type: "check"; default: boolean}>;
+    layoutSettings<Key extends string>(ids: readonly Key[]): {
+        activePixel: {type: "range"; default: number; min: number; max: number; step: number; unit: string};
+        forceCompact: {type: "check"; default: boolean};
+        useCompactModeOnView: {type: "check"; default: boolean};
+        pushToRight: {type: "check"; default: boolean};
+    } & Record<Key, {type: "check"; default: boolean}>;
     userInfoColorSettings(colors: Record<string, string>): Record<string, {type: "color"; default: string}>;
     readonly defaultFonts: string;
     fontExtensionPageVars(settings: {customFonts: string}): {"--refresher-font": string};

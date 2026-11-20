@@ -29,4 +29,23 @@ class LayoutTest {
             layoutHideCss(options, settings, false)
         )
     }
+    @Test
+    fun originalSettingsSchemaAndOrder() {
+        val settings = layoutSettings(arrayOf("hideGalleryView", "removeNotice"))
+        val keys = js("Object.keys")(settings) as Array<String>
+        assertEquals("activePixel,forceCompact,useCompactModeOnView,hideGalleryView,removeNotice,pushToRight", keys.joinToString(","))
+        val width = settings.activePixel
+        assertEquals("range", width.type as String)
+        assertEquals(900, width.default as Int)
+        assertEquals(100, width.min as Int)
+        assertEquals(3840, width.max as Int)
+        assertEquals(1, width.step as Int)
+        assertEquals("px", width.unit as String)
+        assertEquals(false, settings.forceCompact.default as Boolean)
+        assertEquals(true, settings.useCompactModeOnView.default as Boolean)
+        assertEquals(false, settings.hideGalleryView.default as Boolean)
+        assertEquals(false, settings.removeNotice.default as Boolean)
+        assertEquals(false, settings.pushToRight.default as Boolean)
+    }
+
 }
