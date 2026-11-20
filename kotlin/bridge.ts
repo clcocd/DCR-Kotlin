@@ -90,6 +90,12 @@ interface RefreshLoaderHelpers {
 }
 
 interface KotlinBridge {
+    currentPageContext(viewPage: RegExp): {
+        documentUrl: URL;
+        isViewPage: boolean;
+        pagePostNo: string | null;
+        pageGallery: string | null;
+    };
     readonly runtimeConstants: {
         urls: {
             base: string; vote: string; comments: string; comments_submit: string; dccon_comments_submit: string;
