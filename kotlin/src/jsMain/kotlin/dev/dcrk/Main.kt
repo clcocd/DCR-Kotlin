@@ -64,6 +64,15 @@ fun main() {
     api.writeModuleImpl = { selectors: dynamic, isWrite: () -> Boolean, hookUploads: () -> dynamic ->
         writeModuleImplementation(selectors, isWrite, hookUploads)
     }
+    api.manageModuleImpl = {
+        selectors: dynamic, onReady: (() -> Unit, dynamic) -> Unit,
+        renderTools: (dynamic) -> Unit, removeTools: () -> Unit,
+        isManager: () -> Boolean, postNo: (dynamic) -> dynamic,
+        deleteNotify: (String, String, String) -> dynamic, gallery: String, href: String ->
+        manageModuleImplementation(
+            selectors, onReady, renderTools, removeTools, isManager, postNo, deleteNotify, gallery, href
+        )
+    }
     val scope: dynamic = js("globalThis")
     scope.__DCR_KOTLIN__ = api
 }
