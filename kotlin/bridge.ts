@@ -123,6 +123,7 @@ interface KotlinBridge {
     createModuleHooks<T>(services: object): T;
     formBody(fields: Record<string, string | null | undefined | false>): URLSearchParams;
     csrfBody(fields: Record<string, string | null | undefined | false>): Promise<URLSearchParams>;
+    dcBody(link: string, fields: Record<string, string | null | undefined | false>): Promise<URLSearchParams>;
     sha256(data: BufferSource): Promise<string>;
     once<A extends unknown[], T>(action: (...args: A) => Promise<T>): (...args: A) => Promise<T>;
     focusOnMount(element: HTMLElement | null): void;
