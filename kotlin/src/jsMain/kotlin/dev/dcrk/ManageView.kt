@@ -40,7 +40,8 @@ fun manageViewImplementation(
     pageGallery: String?,
     pagePostNo: String?
 ): dynamic {
-    val doc: dynamic = js("document")
+    // Node 배경/테스트가 모듈을 import할 때 document가 없어도 실패하지 않는다.
+    val doc: dynamic = js("globalThis.document")
     val api: dynamic = js("({})")
 
     val remove: () -> Unit = {
