@@ -19,7 +19,7 @@ class ModuleDefinitionsTest {
         impl.pageToggles = js("({})")
         impl.pageToggles.reveal = action
 
-        val result = defineContentModule(meta, impl)
+        val result = defineFeature(meta, impl)
         assertEquals("preview", result.id)
         assertEquals(false, result.defaultEnable)
         assertTrue(result.settings === meta.settings)
@@ -35,9 +35,9 @@ class ModuleDefinitionsTest {
     @Test
     fun emptyAndAbsentTogglesMatchJsOptionalChaining() {
         val impl: dynamic = js("({setup:function() {}})")
-        val empty = defineContentModule(js("({id:'x',toggles:[]})"), impl)
+        val empty = defineFeature(js("({id:'x',toggles:[]})"), impl)
         assertEquals(0, empty.pageToggles.length as Int)
-        val noToggles = defineContentModule(js("({id:'x'})"), impl)
+        val noToggles = defineFeature(js("({id:'x'})"), impl)
         assertTrue(js("Object.hasOwn")(noToggles, "pageToggles") as Boolean)
         assertEquals("undefined", kotlin.js.jsTypeOf(noToggles.pageToggles))
     }
@@ -46,7 +46,7 @@ class ModuleDefinitionsTest {
     fun backgroundCopiesOnlySelectedMetaAndImpl() {
         val meta: dynamic = js("({id:'refresh',defaultEnable:true,settings:{flag:true},urls:['ignored'],toggles:['ignored']})")
         val impl: dynamic = js("({listen:function(){},apply:function(){}})")
-        val result = defineBackgroundModuleKotlin(meta, impl)
+        val result = defineBackgroundFeature(meta, impl)
         assertEquals("refresh", result.id)
         assertTrue(result.settings === meta.settings)
         assertFalse(js("Object.hasOwn")(result, "urls") as Boolean)

@@ -2,16 +2,16 @@ package dev.dcrk
 
 /** 브라우저가 제공하는 URL API를 Kotlin/JS에서 직접 사용한다. */
 @JsName("URL")
-internal external class BrowserUrl(source: String) {
+internal external class BrowserUrl(source: String, base: String = definedExternally) {
     val href: String
     val protocol: String
     val hostname: String
-    var pathname: String
-    var host: String
+    val pathname: String
     val searchParams: BrowserSearchParams
 }
 
 internal external class BrowserSearchParams {
+    fun get(name: String): String?
     fun delete(name: String)
     fun delete(name: String, value: String)
     fun set(name: String, value: String)
@@ -22,17 +22,17 @@ internal external class BrowserSearchParams {
 private const val BASE = "https://gall.dcinside.com/"
 
 /** 원본과 마찬가지로 잘못된 주소는 예외 대신 null이다. */
-private fun parseUrlOrNull(source: String): BrowserUrl? =
+internal fun parseBrowserUrl(source: String): BrowserUrl? =
     js("URL.parse")(source) as BrowserUrl?
 
 /** 원본 core/http/urls.ts의 https + dcinside 하위 도메인 검사. */
 fun dcinsideHref(url: String): String? {
-    val parsed = parseUrlOrNull(url) ?: return null
+    val parsed = parseBrowserUrl(url) ?: return null
     return if (parsed.protocol == "https:" && parsed.hostname.endsWith(".dcinside.com")) parsed.href else null
 }
 
 /** 검색어가 아닌 URL의 첫 번째 경로 구간만 검사한다. */
-fun galleryKind(url: String): String = galleryKindFromPath(parseUrlOrNull(url)?.pathname ?: "")
+fun galleryKind(url: String): String = galleryKindFromPath(parseBrowserUrl(url)?.pathname ?: "")
 
 fun galleryPath(url: String): String = when (galleryKind(url)) {
     "minor" -> "mgallery/"

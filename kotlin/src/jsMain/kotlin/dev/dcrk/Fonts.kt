@@ -52,3 +52,16 @@ fun buildFontCss(customFonts: String, size: Double, changeDCFont: Boolean): Stri
     }
     return css.joinToString("\n")
 }
+
+fun setupFonts(ctx: dynamic) {
+    fun apply(): () -> Unit {
+        val settings = ctx.settings
+        return writeStyle(
+            "refresher-fonts",
+            buildFontCss(settings.customFonts as String, settings.bodyFontSize as Double, settings.changeDCFont as Boolean),
+        )
+    }
+
+    ctx.onRevoke(apply())
+    ctx.onSettingsChanged { _: dynamic -> apply() }
+}

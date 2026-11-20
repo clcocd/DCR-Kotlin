@@ -1,3 +1,5 @@
+import * as react from "react";
+import {kotlinBridge} from "@/kotlin/bridge";
 import {Search} from "lucide-react";
 import type {ComponentProps, ReactNode} from "react";
 
@@ -5,36 +7,13 @@ import {Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle} f
 import {Empty, EmptyDescription} from "@/components/ui/empty";
 import {InputGroup, InputGroupAddon, InputGroupInput} from "@/components/ui/input-group";
 
-export const Section = ({title, desc, actions, children}: {
-    title?: ReactNode;
-    desc?: ReactNode;
-    actions?: ReactNode;
-    children?: ReactNode
-}) => (
-    <Card className="mb-4">
-        {(title || desc || actions) && (
-            <CardHeader>
-                {title && <CardTitle><h2>{title}</h2></CardTitle>}
-                {desc && <CardDescription>{desc}</CardDescription>}
-                {actions && <CardAction className="flex items-center gap-2">{actions}</CardAction>}
-            </CardHeader>
-        )}
-        {children && <CardContent>{children}</CardContent>}
-    </Card>
-);
+const widgets = kotlinBridge.createOptionWidgets({
+    react, Search, Card, CardAction, CardContent, CardDescription, CardHeader, CardTitle,
+    Empty, EmptyDescription, InputGroup, InputGroupAddon, InputGroupInput
+});
 
-/** 돋보기가 붙은 검색 입력. className은 감싸는 InputGroup에 붙는다. */
-export const SearchInput = ({className, ...props}: ComponentProps<typeof InputGroupInput>) => (
-    <InputGroup className={className}>
-        <InputGroupAddon>
-            <Search/>
-        </InputGroupAddon>
-        <InputGroupInput type="search" {...props}/>
-    </InputGroup>
-);
-
-export const EmptyList = ({children}: { children: ReactNode }) => (
-    <Empty>
-        <EmptyDescription>{children}</EmptyDescription>
-    </Empty>
-);
+export const Section = widgets.Section as (props: {
+    title?: ReactNode; desc?: ReactNode; actions?: ReactNode; children?: ReactNode
+}) => ReactNode;
+export const SearchInput = widgets.SearchInput as (props: ComponentProps<typeof InputGroupInput>) => ReactNode;
+export const EmptyList = widgets.EmptyList as (props: {children: ReactNode}) => ReactNode;

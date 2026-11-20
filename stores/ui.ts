@@ -1,5 +1,6 @@
-import {create} from "zustand";
+import {create, type StateCreator, type StoreApi} from "zustand";
 
+import {kotlinBridge} from "@/kotlin/bridge";
 import {needOverlayWhen} from "@/components/overlay/demands";
 import type {GallogActivity, RatioInfo} from "@/core/gallog";
 import {pageGallery} from "@/core/http/urls";
@@ -34,37 +35,12 @@ export interface MemoTargetState {
     gallery?: string;
 }
 
-/**
- * 버블, 메모 창의 갤러리: 연 쪽이 넘긴 것, 없으면 이 문서의 갤러리다.
- * 지금 주소는 '주소창에 게시글 주소 표시'를 켰을 때만 미리보기 글 주소로 바뀌므로 쓰지 않는다.
- */
-export const selectedGallery = (gallery: string | undefined): string | null => gallery ?? pageGallery;
-
-/** 깡계인지: 글댓합이 기준(alarm) 이하다. 기준이 0이면 끈 것이다. 페이지(userinfo)와 미리보기가 같은 판정을 쓴다. */
-export const isLowActivity = (ratio: GallogActivity, alarm: number): boolean => alarm > 0 && ratio.article + ratio.comment <= alarm;
-
-/**
- * 글댓비가 1시간 안에 받은 값인지. 지난 값은 미리보기, 버블이 새로 조회하고, userinfo는 그 유저의 새 글이 올라오면 다시 조회한다.
- * 목록 배지는 지난 값도 그대로 보인다. 1시간 뒤 지우면 새 글이 드문 갤러리에선 배지가 거의 남지 않는다.
- */
-export const isFresh = <T extends { date: number }>(info?: T): info is T => info !== undefined && Date.now() - info.date <= 3600_000;
-
 /** 미리보기도 쓰는 userinfo의 글댓비 캐시와 깡계 설정. action은 깡계 처리(태그, 흐리게, 숨기기)다. */
 export interface Ratios {
     cache: Record<string, RatioInfo>;
     alarm: number;
     action: ModuleSettings["userinfo"]["lowActivityAction"];
 }
-
-/**
- * 이 아이디의 글, 댓글을 깡계로 가리는 방식 (흐리게, 숨기기). 가리지 않으면 undefined다. 미리보기 댓글이 쓴다.
- * 페이지(userinfo)처럼 글댓비를 받아 둔 유저만 판정한다. hasOwn은 아이디가 constructor 같은 프로토타입 키일 때 캐시로 잘못 잡히지 않게 한다.
- */
-export const lowActivityOf = (ratios: Ratios | null, uid: string | undefined): "blur" | "hide" | undefined => {
-    if (!ratios || !uid || (ratios.action !== "blur" && ratios.action !== "hide") || !Object.hasOwn(ratios.cache, uid)) return;
-    const ratio = ratios.cache[uid];
-    return ratio && isLowActivity(ratio, ratios.alarm) ? ratios.action : undefined;
-};
 
 interface UiState {
     /** 오버레이가 아직 받지 않은 토스트. 마지막이 가장 최근 것이다. 띄우고 닫는 것은 ToastHost(Base UI Toast)가 맡는다. */
@@ -86,60 +62,18 @@ interface UiState {
     closeMemo: () => void;
 }
 
-export const useUiStore = create<UiState>((set, get) => ({
-    toasts: [],
-    selected: null,
-    bubble: null,
-    memo: null,
-    ratios: null,
-    blockRevealed: false,
+interface UiStateService {
+    init: StateCreator<UiState>;
+    attach(store: StoreApi<UiState>): void;
+    selectedGallery(gallery: string | undefined): string | null;
+    isLowActivity(ratio: GallogActivity, alarm: number): boolean;
+    isFresh<T extends {date: number}>(info?: T): info is T;
+    lowActivityOf(ratios: Ratios | null, uid: string | undefined): "blur" | "hide" | undefined;
+    copyText(text: string, done: string, failed: string): Promise<void>;
+    openWriterBubble(event: MouseEvent): void;
+}
 
-    showToast: (content, type = "info", autoClose = 5000, action) => {
-        set({toasts: [...get().toasts, {content, type, autoClose, action}]});
-    },
-
-    openBubble: (selected, x, y) => set({selected, bubble: {x, y}}),
-    closeBubble: () => set({bubble: null}),
-
-    openMemo: (selected) => {
-        const targets: Partial<Record<MemoType, string>> = {};
-        if (selected.nick) targets.NICK = selected.nick;
-        if (selected.uid) targets.UID = selected.uid;
-        if (selected.ip) targets.IP = selected.ip;
-
-        set({bubble: null, memo: {targets, initialType: selected.uid ? "UID" : selected.ip ? "IP" : "NICK", gallery: selected.gallery}});
-    },
-
-    closeMemo: () => set({memo: null})
-}));
-
-/** text를 클립보드에 복사하고 결과를 토스트로 알린다. done은 성공 문구, failed는 실패 문구다. */
-export const copyText = (text: string, done: string, failed: string): Promise<void> => {
-    const {showToast} = useUiStore.getState();
-    return navigator.clipboard.writeText(text).then(
-        () => showToast(done),
-        () => showToast(failed, "error")
-    );
-};
-
-/**
- * 페이지의 작성자 칸(.ub-writer)을 우클릭하면 브라우저 메뉴 대신 유저 버블(차단, 메모, 갤로그)을 연다. document의 capture 리스너로 건다.
- * 차단과 유저 정보 모듈이 각자 건다. 메모는 차단 모듈을 꺼도 쓸 수 있어야 한다.
- * 둘 다 켜져 있으면 먼저 받은 쪽이 열고, 나머지는 defaultPrevented를 보고 건너뛴다. Shift+우클릭은 브라우저 메뉴로 남긴다.
- */
-export const openWriterBubble = (ev: MouseEvent): void => {
-    if (ev.defaultPrevented || ev.shiftKey) return;
-
-    const target = eventTarget(ev);
-    const writer = target instanceof Element ? target.closest<HTMLElement>(".ub-writer") : null;
-    if (!writer) return;
-
-    const {nick, uid, ip} = writer.dataset;
-    if (!nick && !uid && !ip) return;
-
-    ev.preventDefault();
-    useUiStore.getState().openBubble({nick, uid, ip}, ev.clientX, ev.clientY);
-};
-
-// 토스트, 유저 버블, 메모 창이 뜨면 오버레이를 띄운다 (components/overlay/demands.ts). 글댓비, 가린 내용 보기처럼 setup이 늘 채우는 값은 넣지 않는다.
-needOverlayWhen(useUiStore, ({toasts, bubble, memo}) => Boolean(toasts.length || bubble || memo));
+const state = kotlinBridge.createUiStateService<UiStateService>({pageGallery, eventTarget, needOverlayWhen});
+export const {selectedGallery, isLowActivity, isFresh, lowActivityOf, copyText, openWriterBubble} = state;
+export const useUiStore = create<UiState>(state.init);
+state.attach(useUiStore);

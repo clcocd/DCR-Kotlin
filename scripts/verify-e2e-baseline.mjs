@@ -1,7 +1,7 @@
 import {readFileSync, appendFileSync} from "node:fs";
 
 const baseline = new Map([
-    ["e2e/list.spec.ts:183", "유저 메뉴의 아이디/IP 검색은 글쓴이 검색에 IP 거르기를 얹고, 닉네임 검색은 닉네임으로만 찾는다"],
+    ["e2e/list.spec.ts:184", "유저 메뉴의 아이디/IP 검색은 글쓴이 검색에 IP 거르기를 얹고, 닉네임 검색은 닉네임으로만 찾는다"],
     ["e2e/options.spec.ts:79", "폰트 교체 설정이 옵션 페이지 본문 글꼴에 걸린다 (크롬이 확장 페이지 body에 넣는 글꼴에 지지 않는다)"],
     ["e2e/preview.spec.ts:666", "디시콘 창에서 고른 디시콘을 CSRF 토큰과 함께 디시콘 댓글로 보낸다"],
     ["e2e/preview.spec.ts:742", "관리자는 댓글을 골라 한 번에 지운다"],

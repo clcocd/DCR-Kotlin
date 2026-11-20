@@ -1,17 +1,14 @@
+import * as react from "react"
+import {kotlinBridge} from "@/kotlin/bridge"
 import * as React from "react"
 import { cn } from "cn"
 
-function Label({ className, ...props }: React.ComponentProps<"label">) {
-  return (
-    <label
-      data-slot="label"
-      className={cn(
-        "flex items-center gap-2 text-sm leading-none font-medium select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50",
-        className
-      )}
-      {...props}
-    />
-  )
+function Label(props: React.ComponentProps<"label">): react.ReactNode {
+  return view.Label(props)
 }
+
+const view = kotlinBridge.createUiLabel<{
+  Label: (props: Parameters<typeof Label>[0]) => react.ReactNode
+}>({react, cn})
 
 export { Label }

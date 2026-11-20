@@ -6,6 +6,7 @@
 @import "shadcn/tailwind.css";
 /* 스캔 폴더 직접 지정 - 파이어폭스 심사 zip엔 .gitignore가 없어 자동 탐색을 못 쓴다. */
 @source "../../{components,core,entrypoints,features,stores,utils}";
+@source "../../kotlin/src/jsMain/kotlin";
 /* cn 플러그인이 만드는 클래스 그룹 표(wxt.config.ts). 표의 낱말이 클래스로 읽혀 쓰지 않는 유틸리티가 생긴다. */
 @source not "../../utils/cn-tables.ts";
 

@@ -3,7 +3,7 @@ import {create} from "zustand";
 import {LIST_LOCKS, MEMO_TYPES, memoMapKey} from "@/core/storage/items";
 import {typedListSync} from "@/core/storage/sync";
 import type {MemoEntry, MemoType} from "@/core/storage/types";
-import {isRecord} from "@/utils/record";
+import {kotlinBridge} from "@/kotlin/bridge";
 
 type MemoMap = Record<string, MemoEntry>;
 
@@ -15,68 +15,14 @@ interface MemosState {
     removeMemo: (type: MemoType, user: string) => Promise<void>;
 }
 
-const isMemoEntry = (value: unknown): value is MemoEntry =>
-    isRecord(value) && typeof value.text === "string" && typeof value.color === "string" && (value.gallery === undefined || typeof value.gallery === "string")
-    && (value.added === undefined || typeof value.added === "number");
+export const randomColor = kotlinBridge.randomMemoColor;
+export const normalizeMemoMap = kotlinBridge.normalizeMemoMap;
+export const ownMemo = kotlinBridge.ownMemo;
 
-/**
- * 새 메모의 기본 색. 색상만 무작위로 고르고 채도(60%), 명도(50%)는 고정한다. 아무 RGB나 고르면 흰색, 검은색에 가까운 색이 나와 한쪽 테마에서 안 보인다.
- * 색 입력칸(input[type=color])이 #rrggbb만 받으므로 HSL을 RGB로 바꾼다.
- */
-export const randomColor = (): string => {
-    const hue = Math.random() * 360;
-    const channel = (n: number): string => {
-        const k = (n + hue / 30) % 12;
-        const value = 0.5 - 0.3 * Math.max(-1, Math.min(k - 3, 9 - k, 1));
-        return Math.round(value * 255).toString(16).padStart(2, "0");
-    };
-    return `#${channel(0)}${channel(8)}${channel(4)}`;
-};
+export const useMemosStore = create<MemosState>(() => kotlinBridge.createMemoState<MemosState>(() => lists));
 
-/** 저장소, 가져오기 값에서 유효한 항목만 남긴다. */
-export const normalizeMemoMap = (value: unknown): MemoMap =>
-    isRecord(value)
-        ? Object.fromEntries(Object.entries(value).filter((entry): entry is [string, MemoEntry] => isMemoEntry(entry[1])))
-        : {};
-
-/** 메모의 단일 출처. 콘텐츠, 옵션 모두 이 스토어를 쓰고 저장소와 양방향 동기화된다. */
-export const useMemosStore = create<MemosState>(() => ({
-    memos: {UID: {}, NICK: {}, IP: {}},
-
-    updateMemos: (type, change): Promise<void> => lists.update(type, change),
-
-    setMemo: async (type, user, entry) => {
-        // 추가 시각은 밖에서 한 번 구한다 (change는 두 번 불린다). 고칠 때는 처음 시각을 지키고, 시각 없는 옛 메모는 그대로 둔다.
-        const now = Date.now();
-        await lists.update(type, (current) => {
-            const existing = ownMemo(current, user);
-            const added = existing ? existing.added : now;
-            return {...current, [user]: added === undefined ? entry : {...entry, added}};
-        });
-    },
-
-    removeMemo: async (type, user) => {
-        await lists.update(type, (current) => {
-            const {[user]: _removed, ...rest} = current;
-            return rest;
-        });
-    }
-}));
-
-/** 그 키의 메모. 닉네임이 toString, constructor, __proto__여도 프로토타입 값을 메모로 읽지 않게 자기 속성만 본다. */
-export const ownMemo = (map: MemoMap, key: string): MemoEntry | undefined => (Object.hasOwn(map, key) ? map[key] : undefined);
-
-type MemoUser = { uid?: string; ip?: string; nick?: string };
-
-/** 찾은 메모. */
-const lookupMemo = (memos: Record<MemoType, MemoMap>, user: MemoUser, gallery?: string | null): MemoEntry | undefined => {
-    const find = (type: MemoType, key?: string): MemoEntry | undefined => {
-        const entry = key ? ownMemo(memos[type], key) : undefined;
-        return !entry || (entry.gallery && entry.gallery !== gallery) ? undefined : entry;
-    };
-
-    return find("UID", user.uid) ?? find("IP", user.ip) ?? find("NICK", user.nick);
-};
+type MemoUser = {uid?: string; ip?: string; nick?: string};
+const lookupMemo = kotlinBridge.lookupMemo;
 
 /** 유저에 달린 메모 (아이디 > IP > 닉네임 순). 다른 갤러리 전용 메모는 건너뛴다. */
 export const findMemo = (user: MemoUser, gallery?: string | null): MemoEntry | undefined =>

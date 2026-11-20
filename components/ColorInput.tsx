@@ -1,5 +1,5 @@
+import * as react from "react";
 import type {ComponentProps} from "react";
+import {kotlinBridge} from "@/kotlin/bridge";
 
-export const ColorInput = ({width = 36, height = 28, ...props}: ComponentProps<"input"> & {width?: number; height?: number}) => (
-    <input type="color" {...props} className="cursor-pointer border-0 bg-transparent p-0" style={{width, height}}/>
-);
+export const ColorInput = kotlinBridge.createColorInput<ComponentProps<"input"> & {width?: number; height?: number}>(react);

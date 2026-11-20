@@ -1,4 +1,5 @@
 // 디시 글 목록 DOM 도우미. 목록을 갈아끼우거나 이어 붙이는 refresh, search 모듈과 행을 찾는 모듈이 같이 쓴다.
+import {kotlinBridge} from "@/kotlin/bridge";
 import type {WriterFilter} from "@/core/http/urls";
 import {LIST_REPLACED_EVENT, sendMessage} from "@/core/messaging/protocol";
 
@@ -15,110 +16,12 @@ export const WRITER_ROW_SELECTOR = ".ub-content, .search_comment";
 /** 글 목록의 글 행. 글 보기 머리, 댓글과 댓글 검색 결과의 댓글 행(.search_comment)은 들지 않는다. */
 export const LIST_ROW_SELECTOR = ".gall_list .ub-content";
 
-/** 그 작성자의 작성자 칸 (디시 목록의 td.ub-writer[data-uid|data-ip]). 작성자 거르기(features/search)가 숨기는 행을 search, refresh가 같이 가린다. */
-export const writerSelector = ({kind, value}: WriterFilter): string => `.ub-writer[data-${kind}="${CSS.escape(value)}"]`;
+interface ListDom {
+    writerSelector(filter: WriterFilter): string;
+    notifyListReplaced(gallery: string): void;
+    checkboxFiller(list: HTMLElement, commentSearch: boolean): (row: HTMLTableRowElement) => void;
+    highlightSearchResults(list: HTMLElement, searchValue: string, commentSearch: boolean): void;
+}
 
-// 숨은 탭에서 미뤄 둔 갤러리 id. 다시 보일 때 한 번만 보낸다. 숨은 동안 갤러리가 바뀌면 마지막 것으로 보낸다.
-let deferred: string | undefined;
-
-// 페이지에 건 목록 다리. 페이지마다 한 번만 배경에 요청하고, 실패하면 다음에 다시 요청한다.
-let bridge: Promise<void> | undefined;
-
-const installBridge = (): Promise<void> => bridge ??= sendMessage("refresher:installListBridge").catch((e: unknown) => {
-    bridge = undefined;
-    throw e;
-});
-
-/**
- * 목록 행을 갈아끼우거나 붙인 뒤 부른다. 디시는 자체 차단, 이용자 메모 표시를 로드 때만 걸므로, 배경이 페이지(MAIN world)에 건 다리가 다시 건다
- * (콘텐츠 스크립트에선 디시 함수를 부를 수 없다). 다리를 건 뒤로는 이벤트만 보내 배경을 깨우지 않는다.
- * 실패해도(확장이 멈춤 등) 목록은 그대로라 넘긴다.
- */
-export const notifyListReplaced = (gallery: string): void => {
-    // 숨은 탭은 다시 보일 때 한 번만 알린다. 숨은 탭 새로고침 주기(30초~)는 서비스 워커가 잠드는 30초보다 길어
-    // 바뀔 때마다 보내면 잠든 워커를 매번 다시 띄운다. 숨은 동안엔 차단, 메모 표시가 늦게 붙어도 보는 사람이 없다.
-    if (document.hidden) {
-        const first = deferred === undefined;
-        deferred = gallery;
-        if (!first) return;
-        document.addEventListener("visibilitychange", () => {
-            const last = deferred;
-            deferred = undefined;
-            if (last !== undefined) notifyListReplaced(last);
-        }, {once: true});
-        return;
-    }
-    void installBridge().then(() => document.dispatchEvent(new CustomEvent(LIST_REPLACED_EVENT, {detail: gallery})), () => {});
-};
-
-/**
- * 관리자 목록 행의 체크박스 칸을 만드는 함수를 돌려준다.
- * 실제 마크업과 같도록 기존 행의 칸을 복제해 글 번호만 바꾼다. 그런 행이 없으면 디시의 행 템플릿(갤러리 종류별 *_td-tmpl)을,
- * 그것도 없으면 빈 칸을 쓴다. 번호 없는 행(설문/AD)은 열만 맞추는 빈 칸이다.
- */
-const checkboxCellFactory = (oldRows: HTMLTableRowElement[]): ((no: string | undefined) => HTMLTableCellElement) => {
-    const sampleRow = oldRows.find((row) => row.dataset.no && row.querySelector(":scope > td .article_chkbox"));
-    let sample = sampleRow?.querySelector<HTMLTableCellElement>(":scope > td:has(.article_chkbox)") ?? null;
-
-    if (!sample) {
-        const template = document.createElement("template");
-        template.innerHTML = document.querySelector("script[type=\"text/x-jquery-tmpl\"][id$=\"_td-tmpl\"]")?.innerHTML.trim() ?? "";
-        const cell = template.content.firstElementChild;
-        sample = cell instanceof HTMLTableCellElement ? cell : null;
-    }
-
-    return (no) => {
-        if (!no || !sample) return document.createElement("td");
-
-        const cell = sample.cloneNode(true) as HTMLTableCellElement;
-        const input = cell.querySelector<HTMLInputElement>("input");
-        if (input) {
-            input.checked = false;
-            // 행을 복제했으면 그 행의 번호일 때만 바꾼다. 템플릿은 값이 자리표시자일 수 있으니 늘 이 글의 번호를 넣는다.
-            if (!sampleRow || input.value === sampleRow.dataset.no) input.value = no;
-        }
-        return cell;
-    };
-};
-
-/**
- * 받아온 행에 체크박스 칸을 채우는 함수를 돌려준다. list는 행을 넣을 지금 목록이다.
- * 관리자 목록은 머리에 체크박스 열이 있는데 받아온 행엔 그 칸이 없다 (디시 JS가 나중에 붙인다). 채우지 않으면 열이 한 칸씩 밀린다.
- * 댓글 검색 결과(commentSearch)에선 댓글 행에만 체크박스가 있다.
- */
-export const checkboxFiller = (list: HTMLElement, commentSearch: boolean): ((row: HTMLTableRowElement) => void) => {
-    if (!list.closest("table")?.querySelector("thead .chkbox_th")) return () => {};
-
-    const cellOf = checkboxCellFactory(Array.from(list.querySelectorAll<HTMLTableRowElement>(":scope > tr")));
-    return (row) => {
-        if (row.querySelector(".article_chkbox") || (commentSearch && !row.classList.contains("search_comment"))) return;
-        row.prepend(cellOf(row.dataset.no));
-    };
-};
-
-/**
- * 제목 링크 안의 검색어를 span.mark로 감싼다. 텍스트 노드만 바꿔 링크 안의 다른 요소는 건드리지 않는다.
- * 댓글 검색은 제목이 아니라 댓글에서 찾은 결과라 DC처럼 표시하지 않는다.
- */
-export const highlightSearchResults = (newList: HTMLElement, searchValue: string, commentSearch: boolean): void => {
-    if (!searchValue || commentSearch) return;
-
-    for (const gallTit of newList.querySelectorAll<HTMLElement>(".gall_tit")) {
-        const anchor = gallTit.querySelector<HTMLElement>("a:first-child");
-        if (!anchor) continue;
-
-        const className = anchor.querySelector(".spoiler") ? "mark spoiler" : "mark";
-
-        const walker = anchor.ownerDocument.createTreeWalker(anchor, NodeFilter.SHOW_TEXT);
-        const textNodes: Text[] = [];
-        while (walker.nextNode()) textNodes.push(walker.currentNode as Text);
-
-        for (const node of textNodes) {
-            const [first = "", ...rest] = node.data.split(searchValue);
-            if (rest.length === 0) continue;
-
-            const mark = (): HTMLSpanElement => Object.assign(anchor.ownerDocument.createElement("span"), {className, textContent: searchValue});
-            node.replaceWith(first, ...rest.flatMap((text) => [mark(), text]));
-        }
-    }
-};
+export const {writerSelector, notifyListReplaced, checkboxFiller, highlightSearchResults} =
+    kotlinBridge.createListDom<ListDom>({listReplacedEvent: () => LIST_REPLACED_EVENT, sendMessage});

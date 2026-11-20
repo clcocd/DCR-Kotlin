@@ -8,6 +8,7 @@ repositories {
 
 kotlin {
     js(IR) {
+        useEsModules()
         browser()
         nodejs()
         binaries.executable()

@@ -1,4 +1,6 @@
 "use client"
+import * as react from "react"
+import {kotlinBridge} from "@/kotlin/bridge"
 
 import * as React from "react"
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
@@ -7,141 +9,62 @@ import { cn } from "cn"
 import { Button } from "@/components/ui/button"
 import { XIcon } from "lucide-react"
 
-function Dialog({ ...props }: DialogPrimitive.Root.Props) {
-  return <DialogPrimitive.Root data-slot="dialog" {...props} />
+function Dialog(props: DialogPrimitive.Root.Props): react.ReactNode {
+  return view.Dialog(props)
 }
 
-function DialogTrigger({ ...props }: DialogPrimitive.Trigger.Props) {
-  return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />
+function DialogTrigger(props: DialogPrimitive.Trigger.Props): react.ReactNode {
+  return view.DialogTrigger(props)
 }
 
-function DialogPortal({ ...props }: DialogPrimitive.Portal.Props) {
-  return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />
+function DialogPortal(props: DialogPrimitive.Portal.Props): react.ReactNode {
+  return view.DialogPortal(props)
 }
 
-function DialogClose({ ...props }: DialogPrimitive.Close.Props) {
-  return <DialogPrimitive.Close data-slot="dialog-close" {...props} />
+function DialogClose(props: DialogPrimitive.Close.Props): react.ReactNode {
+  return view.DialogClose(props)
 }
 
-function DialogOverlay({
-  className,
-  ...props
-}: DialogPrimitive.Backdrop.Props) {
-  return (
-    <DialogPrimitive.Backdrop
-      data-slot="dialog-overlay"
-      className={cn(
-        "fixed inset-0 isolate z-50 bg-black/10 duration-100 supports-backdrop-filter:backdrop-blur-xs data-open:animate-in data-open:fade-in-0 data-closed:animate-out data-closed:fade-out-0",
-        className
-      )}
-      {...props}
-    />
-  )
+function DialogOverlay(props: DialogPrimitive.Backdrop.Props): react.ReactNode {
+  return view.DialogOverlay(props)
 }
 
-function DialogContent({
-  className,
-  children,
-  showCloseButton = true,
-  ...props
-}: DialogPrimitive.Popup.Props & {
+function DialogContent(props: DialogPrimitive.Popup.Props & {
   showCloseButton?: boolean
-}) {
-  return (
-    <DialogPortal>
-      <DialogOverlay />
-      <DialogPrimitive.Popup
-        data-slot="dialog-content"
-        className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-6 rounded-xl bg-popover p-6 text-sm text-popover-foreground ring-1 ring-foreground/10 duration-100 outline-none sm:max-w-md data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
-          className
-        )}
-        {...props}
-      >
-        {children}
-        {showCloseButton && (
-          <DialogPrimitive.Close
-            data-slot="dialog-close"
-            render={
-              <Button
-                variant="ghost"
-                className="absolute top-4 right-4"
-                size="icon-sm"
-              />
-            }
-          >
-            <XIcon
-            />
-            <span className="sr-only">Close</span>
-          </DialogPrimitive.Close>
-        )}
-      </DialogPrimitive.Popup>
-    </DialogPortal>
-  )
+}): react.ReactNode {
+  return view.DialogContent(props)
 }
 
-function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
-  return (
-    <div
-      data-slot="dialog-header"
-      className={cn("flex flex-col gap-2", className)}
-      {...props}
-    />
-  )
+function DialogHeader(props: React.ComponentProps<"div">): react.ReactNode {
+  return view.DialogHeader(props)
 }
 
-function DialogFooter({
-  className,
-  showCloseButton = false,
-  children,
-  ...props
-}: React.ComponentProps<"div"> & {
+function DialogFooter(props: React.ComponentProps<"div"> & {
   showCloseButton?: boolean
-}) {
-  return (
-    <div
-      data-slot="dialog-footer"
-      className={cn(
-        "flex flex-col-reverse gap-2 sm:flex-row sm:justify-end",
-        className
-      )}
-      {...props}
-    >
-      {children}
-      {showCloseButton && (
-        <DialogPrimitive.Close render={<Button variant="outline" />}>
-          Close
-        </DialogPrimitive.Close>
-      )}
-    </div>
-  )
+}): react.ReactNode {
+  return view.DialogFooter(props)
 }
 
-function DialogTitle({ className, ...props }: DialogPrimitive.Title.Props) {
-  return (
-    <DialogPrimitive.Title
-      data-slot="dialog-title"
-      className={cn("leading-none font-medium", className)}
-      {...props}
-    />
-  )
+function DialogTitle(props: DialogPrimitive.Title.Props): react.ReactNode {
+  return view.DialogTitle(props)
 }
 
-function DialogDescription({
-  className,
-  ...props
-}: DialogPrimitive.Description.Props) {
-  return (
-    <DialogPrimitive.Description
-      data-slot="dialog-description"
-      className={cn(
-        "text-sm text-muted-foreground *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground",
-        className
-      )}
-      {...props}
-    />
-  )
+function DialogDescription(props: DialogPrimitive.Description.Props): react.ReactNode {
+  return view.DialogDescription(props)
 }
+
+const view = kotlinBridge.createUiDialog<{
+  Dialog: (props: Parameters<typeof Dialog>[0]) => react.ReactNode
+  DialogTrigger: (props: Parameters<typeof DialogTrigger>[0]) => react.ReactNode
+  DialogPortal: (props: Parameters<typeof DialogPortal>[0]) => react.ReactNode
+  DialogClose: (props: Parameters<typeof DialogClose>[0]) => react.ReactNode
+  DialogOverlay: (props: Parameters<typeof DialogOverlay>[0]) => react.ReactNode
+  DialogContent: (props: Parameters<typeof DialogContent>[0]) => react.ReactNode
+  DialogHeader: (props: Parameters<typeof DialogHeader>[0]) => react.ReactNode
+  DialogFooter: (props: Parameters<typeof DialogFooter>[0]) => react.ReactNode
+  DialogTitle: (props: Parameters<typeof DialogTitle>[0]) => react.ReactNode
+  DialogDescription: (props: Parameters<typeof DialogDescription>[0]) => react.ReactNode
+}>({react, DialogPrimitive, cn, Button, XIcon})
 
 export {
   Dialog,

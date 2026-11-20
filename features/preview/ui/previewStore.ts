@@ -1,4 +1,5 @@
-import {create} from "zustand";
+import {create, type StateCreator, type StoreApi} from "zustand";
+import {kotlinBridge} from "@/kotlin/bridge";
 
 import {needOverlayWhen} from "@/components/overlay/demands";
 import type {TurnstileResult} from "@/core/messaging/protocol";
@@ -120,159 +121,30 @@ export interface TurnstilePrompt {
     resolve: (result: TurnstileResult | undefined) => void;
 }
 
-let miniCloseTimer = 0;
-// 커서가 조작할 수 있는 카드 위에 있다. 카드의 pointerenter가 제목의 mouseout보다 먼저 오기도 해서 따로 기억한다.
-let miniHovered = false;
+interface PreviewStateService {
+    init: StateCreator<PreviewState>;
+    attach(store: StoreApi<PreviewState>): void;
+    miniWidth: number;
+    miniHeight: number;
+    miniPosition(x: number, y: number): {x: number; y: number};
+    noReply: Reply;
+    noFresh: ReadonlySet<string>;
+    noHooks: Hooks;
+    toggled(set: ReadonlySet<string>, no: string, on?: boolean): Set<string>;
+    closeMiniSoon(): void;
+    keepMini(): void;
+    hoverMini(hovered?: boolean): void;
+    parseDate(value: string): Date;
+    postTitle(post: PostInfo): string;
+    previewGallery(): string | undefined;
+    refreshCommentsOf(preData: GalleryPreData): void;
+}
 
-/** 조작할 수 있는 미니를 조금 뒤에 닫는다. 커서가 제목에서 카드로(카드에서 제목으로) 옮겨 가는 사이 닫히지 않게 v5처럼 150ms 기다린다. */
-export const closeMiniSoon = (): void => {
-    window.clearTimeout(miniCloseTimer);
-    if (!miniHovered) miniCloseTimer = window.setTimeout(() => usePreviewStore.setState({mini: null}), 150);
-};
+const state = kotlinBridge.createPreviewStateService<PreviewStateService>({needOverlayWhen, postKey, setEntry});
+export const {
+    miniWidth: MINI_WIDTH, miniHeight: MINI_HEIGHT, noReply: NO_REPLY, noFresh: NO_FRESH, noHooks: NO_HOOKS,
+    miniPosition, toggled, closeMiniSoon, keepMini, hoverMini, parseDate, postTitle, previewGallery, refreshCommentsOf
+} = state;
 
-/** closeMiniSoon을 취소한다 (커서가 제목으로 돌아왔다). */
-export const keepMini = (): void => {
-    window.clearTimeout(miniCloseTimer);
-    miniCloseTimer = 0;
-};
-
-/** 카드에 커서가 들어오거나 나갔다. hovered가 없으면 새 미니를 띄우거나 바로 닫을 때 기억을 지운다. */
-export const hoverMini = (hovered?: boolean): void => {
-    miniHovered = hovered === true;
-    if (hovered === true) keepMini();
-    else if (hovered === false) closeMiniSoon();
-};
-
-
-/** 미니 미리보기 크기. Mini.tsx와 화면 밖 방지 계산(miniPosition, mini.ts의 showMini)이 같이 쓴다. */
-export const MINI_WIDTH = 720;
-export const MINI_HEIGHT = 560;
-
-/** 커서 오른쪽 아래에 띄우되 화면 밖으로 나가지 않게 한다. */
-export const miniPosition = (clientX: number, clientY: number): { x: number; y: number } => ({
-    x: Math.max(0, Math.min(clientX + 16, window.innerWidth - MINI_WIDTH - 20)),
-    y: Math.max(0, Math.min(clientY + 16, window.innerHeight - MINI_HEIGHT - 20))
-});
-
-export const NO_REPLY: Reply = {commentNo: null, replyNo: null};
-
-/** 새 댓글(고른 댓글)이 없을 때 쓰는 빈 집합. 새로고침마다 새 객체를 넣지 않는다. */
-export const NO_FRESH: ReadonlySet<string> = new Set();
-
-/** no를 넣거나(on) 뺀 새 집합. on을 주지 않으면 있으면 빼고 없으면 넣는다. 스토어에는 고친 집합이 아니라 새 집합을 넣어야 다시 그려진다. */
-export const toggled = (set: ReadonlySet<string>, no: string, on = !set.has(no)): Set<string> => {
-    const next = new Set(set);
-    if (on) next.add(no);
-    else next.delete(no);
-    return next;
-};
-
-export const NO_HOOKS: Hooks = {
-    requestOpen: () => undefined,
-    requestClose: () => undefined,
-    requestRefresh: async () => undefined,
-    requestReload: async () => undefined,
-    requestManage: () => undefined,
-    requestBlock: async () => false
-};
-
-const freshPost = (): PostState => ({
-    error: undefined,
-    post: undefined,
-    archived: false,
-    comments: undefined,
-    commentsFailed: false,
-    allowReply: true,
-    collapsed: new Set(),
-    commentsRevealed: false,
-    freshComments: NO_FRESH,
-    reply: NO_REPLY,
-    commentsOnly: false,
-    imageBlocked: false,
-    adminVisible: false,
-    blockPopup: false,
-    selectedComments: NO_FRESH,
-    deletePrompt: null,
-    deletingComments: NO_FRESH,
-    viewer: null
-});
-
-let signalSeq = 0;
-
-const KST = 9 * 3_600_000;
-
-/** 디시 시각 문자열(올해 것은 연도 없음)을 +09:00을 붙여 읽는다 - 브라우저 시간대로 읽으면 해외에서 어긋난다. */
-export const parseDate = (value: string): Date => {
-    const missingYear = value.substring(0, 4).includes(".");
-    // 빠진 연도도 한국 날짜 기준으로 채운다. 로컬 연도를 쓰면 해가 바뀌는 무렵 시차로 한 해 어긋난다.
-    const year = missingYear ? `${new Date(Date.now() + KST).getUTCFullYear()}-` : "";
-
-    return new Date(`${year}${value.replace(/\./g, "-").replace(" ", "T")}+09:00`);
-};
-
-/** `[말머리] 제목`. 둘 다 평문이므로 HTML이 아니라 텍스트로 렌더링한다. */
-export const postTitle = (post: PostInfo): string => (post.header ? `[${post.header}] ${post.title ?? ""}` : (post.title ?? ""));
-
-/** 닫힐 때 페이드아웃을 끝내는 타이머. */
-let fadeTimer = 0;
-
-export const usePreviewStore = create<PreviewState>((set, get) => ({
-    ...freshPost(),
-    ...NO_HOOKS,
-    visible: false,
-    warm: false,
-    fading: false,
-    preData: null,
-    signalId: 0,
-    captcha: null,
-    turnstile: null,
-    mini: null,
-    dcconInfo: null,
-    commentOrder: "oldest",
-
-    open: (preData, patch) => {
-        // 이전 글의 캡차, Turnstile 창은 닫는다. 남아 있으면 입력한 코드가 이전 글로 간다.
-        get().captcha?.resolve("");
-        get().turnstile?.resolve(undefined);
-        set({...freshPost(), ...patch, visible: true, fading: false, preData, signalId: ++signalSeq, mini: null, captcha: null, turnstile: null, dcconInfo: null});
-    },
-
-    close: () => {
-        // 열려 있지 않으면 할 일이 없다. 모듈을 끌 때도 부르는데, 페이드를 걸면 지난 글이 잠깐 비친다.
-        if (!get().visible) return;
-        get().captcha?.resolve("");
-        get().turnstile?.resolve(undefined);
-        // signalId도 올린다. 닫은 뒤 도착한 응답(abort로 난 오류 포함)이 페이드아웃 중인 창에 그려지면 안 된다.
-        set({visible: false, fading: true, comments: undefined, blockPopup: false, captcha: null, turnstile: null, reply: NO_REPLY, signalId: ++signalSeq, dcconInfo: null, viewer: null});
-        // 앞서 닫을 때 건 타이머는 지운다. 남겨 두면 닫았다 곧바로 다시 열고 닫을 때 이번 페이드를 일찍 끊는다.
-        window.clearTimeout(fadeTimer);
-        fadeTimer = window.setTimeout(() => set({fading: false}), 200);
-    },
-
-    toggleCollapse: (no) => set((state) => ({collapsed: toggled(state.collapsed, no)})),
-
-    toggleSelected: (no) => set((state) => ({selectedComments: toggled(state.selectedComments, no)})),
-
-    openCaptcha: (url) => new Promise((resolve) => set({captcha: {url, resolve}})),
-
-    openTurnstile: (config) => new Promise((resolve) => set({turnstile: {config, resolve}})),
-
-    moveMini: (clientX, clientY) => set((state) => (state.mini ? {mini: {...state.mini, ...miniPosition(clientX, clientY)}} : state))
-}));
-
-/** 유저 버블, 메모 창이 쓸 갤러리 - 미리보기가 아니면 undefined라 이 문서의 갤러리를 쓴다. */
-export const previewGallery = (): string | undefined => {
-    const {visible, preData} = usePreviewStore.getState();
-    return visible ? preData?.gallery : undefined;
-};
-
-/** 댓글을 올리거나 지운 글의 목록을 새로 받는다 - 캐시 목록은 낡은 것으로 표시해 10초 재사용 창을 피한다. */
-export const refreshCommentsOf = (preData: GalleryPreData): void => {
-    setEntry(preData, {commentsAt: 0});
-    const current = usePreviewStore.getState();
-    if (current.preData && postKey(current.preData) === postKey(preData)) void current.requestRefresh();
-};
-
-// 미리보기 UI 중 하나라도 떠 있으면 오버레이를 띄운다 (components/overlay/demands). 새 미리보기 UI를 추가하면 여기에 넣는다.
-needOverlayWhen(usePreviewStore, (state) =>
-    state.visible || state.warm || state.mini !== null || state.captcha !== null || state.turnstile !== null || state.blockPopup !== false || state.dcconInfo !== null);
+export const usePreviewStore = create<PreviewState>(state.init);
+state.attach(usePreviewStore);

@@ -7,7 +7,8 @@ import {typedListSync} from "@/core/storage/sync";
 import {saveOrReload} from "@/utils/error";
 
 // 검사, 정규화는 core/block-list에 있다.
-import {blockKey, normalizeBlockList, normalizeDefaults, type BlockInputFields} from "@/core/block-list";
+import {kotlinBridge} from "@/kotlin/bridge";
+import {normalizeBlockList, normalizeDefaults, type BlockInputFields} from "@/core/block-list";
 
 interface BlocksState {
     entries: Record<BlockType, BlockEntry[]>;
@@ -22,55 +23,11 @@ interface BlocksState {
     setDefault: (type: BlockType, mode: DetectMode) => Promise<void>;
 }
 
-/** 항목을 사람에게 보일 이름. 별명(extra)이 있으면 값 대신 보인다. */
-export const blockLabel = (entry: BlockEntry): string => entry.extra || entry.content;
+export const blockLabel = kotlinBridge.blockLabel;
+export const emptyEntries = kotlinBridge.emptyBlockEntries;
 
-/** 유형마다 빈 차단 목록. 유형을 늘리면 여기서 타입 오류가 난다. */
-export const emptyEntries = (): Record<BlockType, BlockEntry[]> => ({COMMENT: [], DCCON: [], ID: [], IP: [], NICK: [], TAB: [], TEXT: [], TITLE: []});
-
-/** 차단 목록/기본 모드의 단일 출처. 콘텐츠, 옵션 모두 이 스토어를 쓰고 저장소와 양방향 동기화된다. */
-export const useBlocksStore = create<BlocksState>((set, get) => ({
-    entries: emptyEntries(),
-    defaults: normalizeDefaults(null),
-
-    updateEntries: (type, change): Promise<void> => lists.update(type, change),
-
-    addEntry: (type, fields) => get().addEntries(type, [fields]),
-
-    addEntries: async (type, list) => {
-        // 같은 content+gallery는 새로 들어온 쪽으로 바꿔 맨 뒤로 보낸다. 바꾸는 항목은 기존 id를 이어 쓴다.
-        // 새 항목의 id는 가져온 id가 기존 항목과 겹치지 않게 늘 새로 준다. update의 change는 두 번 불리므로 id는 밖에서 미리 만든다.
-        const added = new Map(list.map((fields) => [blockKey(fields), {...fields, id: crypto.randomUUID()}]));
-        await lists.update(type, (current) => {
-            const kept = new Map(current.map((entry) => [blockKey(entry), entry.id]));
-            return [
-                ...current.filter((entry) => !added.has(blockKey(entry))),
-                ...Array.from(added, ([key, entry]) => ({...entry, id: kept.get(key) ?? entry.id}))
-            ];
-        });
-    },
-
-    updateEntry: async (type, id, fields) => {
-        // 다른 탭에서 지웠거나 가져오기로 id가 바뀐 항목이면 새로 넣는다. 아래 수정으로 넘기면 같은 content 항목만 지워지고 수정은 사라진다.
-        if (!get().entries[type].some((entry) => entry.id === id)) return get().addEntries(type, [fields]);
-
-        const key = blockKey(fields);
-        await lists.update(type, (current) =>
-            // 잠금 안에서 읽은 값에서 id가 사라졌다면 다른 탭이 지운 것이므로 그대로 둔다.
-            current.some((entry) => entry.id === id)
-                ? current.filter((entry) => entry.id === id || blockKey(entry) !== key).map((entry) => (entry.id === id ? {...entry, ...fields, id} : entry))
-                : current
-        );
-    },
-
-    removeEntry: async (type, id) => {
-        await lists.update(type, (current) => current.filter((entry) => entry.id !== id));
-    },
-
-    setDefault: async (type, mode) => {
-        set((state) => ({defaults: {...state.defaults, [type]: mode}}));
-        await saveOrReload(blockDefaultsStorage().setValue(get().defaults), lists.load, "차단 목록을 저장하지 못했습니다.");
-    }
+export const useBlocksStore = create<BlocksState>((set, get) => kotlinBridge.createBlockState<BlocksState>(set, get, {
+    lists: () => lists, defaultsStorage: blockDefaultsStorage, saveOrReload
 }));
 
 // 값이 없으면 null이고, normalize가 빈 목록, 기본 모드로 맞춘다.

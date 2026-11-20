@@ -1,26 +1,7 @@
-import {type CommentRcKey, type GrecaptchaRequest, sendMessage, type TurnstileResult} from "@/core/messaging/protocol";
+import {kotlinBridge} from "@/kotlin/bridge";
+import {sendMessage, type TurnstileResult} from "@/core/messaging/protocol";
 import {type ManageResult, resultMessage, submitComment, type SubmitResult, submitTxtcon, userDeleteComment} from "@/core/preview/request";
 import type {DcinsideDccon, GalleryPreData, PostInfo, TurnstileConfig} from "@/core/preview/types";
-
-// 'false||메시지' 형식이 아닌 실패 응답 코드 (디시 dccon.js, txtcon.js에서 옮김).
-const FAIL_MESSAGES: Record<string, string> = {
-    code_fail: "자동입력 방지 코드가 일치하지 않습니다.",
-    fail1: "닉네임과 비밀번호를 정확하게 입력해 주세요.",
-    form_error: "닉네임과 비밀번호를 정확하게 입력해 주세요."
-};
-
-// 디시콘 댓글만의 실패 응답 코드 (디시 dccon.js와 같은 문구). 글, 글자콘 댓글이 fail을 받아도 디시콘 문구를 보이지 않게 나눈다.
-const DCCON_FAIL_MESSAGES: Record<string, string> = {
-    not_buy: "구매내역이 존재하지 않는 디시콘입니다.",
-    expired: "사용기간이 만료된 디시콘입니다.",
-    unuseable: "해당 디시콘은 현재 사용 불가능합니다.",
-    not_exists: "잘못된 파일 경로 입니다.",
-    fail: "디시콘 입력에 실패하였습니다."
-};
-
-/** 'false'가 아니면 성공으로 보되 실패 코드, 빈 응답, HTML은 거른다 - 성공으로 잘못 보면 입력한 글을 지운다. */
-export const isCommentPosted = ({result}: SubmitResult): boolean =>
-    result !== "false" && result !== "" && !result.trimStart().startsWith("<") && !Object.hasOwn(FAIL_MESSAGES, result) && !Object.hasOwn(DCCON_FAIL_MESSAGES, result);
 
 /** 보낼 댓글. 디시콘이 있으면 디시콘을, txtcon(색)이 있으면 글자콘을, 아니면 글을 보낸다. */
 interface CommentContent {
@@ -30,98 +11,18 @@ interface CommentContent {
     txtcon?: { bg: string; txt: string };
 }
 
-/** 글 댓글의 reCAPTCHA 키 쌍. 디시는 페이지마다 반반으로 고른다. 재전송 토큰도 같은 쌍으로 받아야 서버가 확인한다. */
-const pickRcKey = (): CommentRcKey => (Math.random() < 0.5 ? "new" : "new3");
-
-/** 토큰 없이 보내고, 'false||captcha||v3'가 오면 reCAPTCHA v3 토큰을 붙여 한 번 더 보낸다. 토큰을 받지 못하면 첫 응답을 돌려준다. */
-const sendWithV3 = async (send: (token?: string) => Promise<SubmitResult>, request: GrecaptchaRequest): Promise<SubmitResult> => {
-    const response = await send();
-    if (response.message !== "captcha" || response.detail !== "v3") return response;
-    const token = await sendMessage("refresher:grecaptchaToken", request).catch(() => undefined);
-    return token ? send(token) : response;
-};
-
-/** 토큰은 받은 뒤 300초 동안 쓸 수 있다. 미리 받아 둔 것은 그보다 일찍 버린다. */
-const PREFETCH_TTL = 240_000;
-
-/** 폼에 들어올 때 미리 받기 시작한 토큰 (prefetchTurnstile). 한 번 쓰면 비운다. */
-let prefetched: { sitekey: string; at: number; result: Promise<TurnstileResult | undefined> } | undefined;
-
-/** 보이지 않게 그려 받는다. 처음 그릴 때는 api.js를 받고 판정하느라 10초 넘게 걸리기도 한다. */
-const hiddenToken = (config: TurnstileConfig): Promise<TurnstileResult | undefined> =>
-    sendMessage("refresher:turnstileToken", {config, visible: false}).catch(() => undefined);
-
-const freshPrefetch = (config: TurnstileConfig) =>
-    prefetched?.sitekey === config.sitekey && Date.now() - prefetched.at < PREFETCH_TTL ? prefetched : undefined;
-
-/** 디시 ts_cmt_touch처럼 댓글 폼에 들어오면 토큰을 미리 받기 시작해, 보낼 때 기다리지 않게 한다. */
-export const prefetchTurnstile = (config: TurnstileConfig): void => {
-    if (!freshPrefetch(config)) prefetched = {sitekey: config.sitekey, at: Date.now(), result: hiddenToken(config)};
-};
-
-/** 디시 ts_cmt_fields의 Turnstile 칸 - 보이지 않게 받고 interactive면 확인 창으로 받는다(닫으면 undefined). */
-export const turnstileFields = async (
-    config: TurnstileConfig,
-    focusMs: () => number,
-    ask: (config: TurnstileConfig) => Promise<TurnstileResult | undefined>
-): Promise<Record<string, string> | undefined> => {
-    const reuse = freshPrefetch(config);
-    prefetched = undefined;
-    let result = await reuse?.result;
-    // 미리 받다가 wait를 넘겼거나 실패했으면 디시 ts_cmt_wait처럼 보낼 때 다시 받는다.
-    if (!result?.token && result?.state !== "interactive") result = await hiddenToken(config);
-    if (result && !result.token && result.state === "interactive" && (config.mode !== 1 || config.appearance)) {
-        result = await ask(config);
-        if (!result) return undefined;
-    }
-    return {
-        "cf-turnstile-response": result?.token ?? "",
-        ts_state: result?.token ? "ok" : (result?.state ?? "error"),
-        ts_focus_ms: String(focusMs()),
-        ts_token_ms: String(result?.tokenMs ?? 0),
-        ...(config.test && {ts_test: "1"})
-    };
-};
-
 /** captcha: 원문 페이지에서만 풀 수 있는 자동입력 방지 확인을 요구받았다. */
 type CommentOutcome = { ok: true } | { ok: false; captcha: true } | { ok: false; captcha: false; message: string };
 
-/** 댓글, 디시콘, 글자콘을 보낸다 - 'false||captcha||v3'가 오면 v3 토큰을 붙여 한 번 더 보낸다. 끊기면 던진다(서버가 올렸을 수 있다). */
-export const postComment = async (
-    preData: GalleryPreData,
-    post: PostInfo,
-    user: { name: string; pw?: string },
-    content: CommentContent,
-    reply: { commentNo: string | null; replyNo: string | null },
-    code?: string,
-    turnstile?: Record<string, string>
-): Promise<CommentOutcome> => {
-    const useDccon = content.dccons.length > 0;
-    const rcKey = pickRcKey();
-    const send = (grecaptchaToken?: string): Promise<SubmitResult> => {
-        const fields = {user, ...reply, captcha: code, grecaptchaToken, turnstile};
-        return content.txtcon
-            ? submitTxtcon(preData, post, {...fields, text: content.text, colors: content.txtcon})
-            : submitComment(preData, post, {...fields, memo: useDccon ? content.dccons : content.text, bigDccon: useDccon && content.bigDccon, rcKey});
-    };
 
-    const response = await sendWithV3(send, content.txtcon || useDccon ? {action: "insert_icon"} : {action: "comment_submit", rcKey});
+interface CommentSender {
+    isCommentPosted(result: SubmitResult): boolean;
+    prefetchTurnstile(config: TurnstileConfig): void;
+    turnstileFields(config: TurnstileConfig, focusMs: () => number, ask: (config: TurnstileConfig) => Promise<TurnstileResult | undefined>): Promise<Record<string, string> | undefined>;
+    postComment(preData: GalleryPreData, post: PostInfo, user: {name: string; pw?: string}, content: CommentContent,
+        reply: {commentNo: string | null; replyNo: string | null}, code?: string, turnstile?: Record<string, string>): Promise<CommentOutcome>;
+    deleteOwnComment(preData: GalleryPreData, post: PostInfo, commentNo: string, password: string): Promise<ManageResult>;
+}
 
-    // 성공 응답: 댓글은 새 댓글 번호, 디시콘, 글자콘은 'ok'.
-    if (content.txtcon || useDccon ? response.result === "ok" : isCommentPosted(response)) return {ok: true};
-    // v2 체크박스를 요구하거나 v3 재전송도 막히면 원문 페이지에서만 풀 수 있다.
-    if (response.message === "captcha") return {ok: false, captcha: true};
-    const failMessage = Object.hasOwn(FAIL_MESSAGES, response.result) ? FAIL_MESSAGES[response.result]
-        : useDccon && Object.hasOwn(DCCON_FAIL_MESSAGES, response.result) ? DCCON_FAIL_MESSAGES[response.result] : undefined;
-    return {ok: false, captcha: false, message: (response.result === "false" ? resultMessage(response) : failMessage) || "댓글을 작성하지 못했습니다."};
-};
-
-/** 본인 댓글 삭제 - 'false||captcha||v3'가 오면 v3 토큰을 붙여 한 번 더 보낸다. */
-export const deleteOwnComment = async (preData: GalleryPreData, post: PostInfo, commentNo: string, password: string): Promise<ManageResult> => {
-    const rcKey = pickRcKey();
-    const response = await sendWithV3((token) => userDeleteComment(preData, post, commentNo, password, rcKey, token), {action: "comment_delete_submit", rcKey});
-
-    // 'true'만 성공으로 본다. 비밀번호가 틀려도 HTTP 200('false||메시지')이 온다.
-    if (response.result === "true") return {success: true};
-    return {success: false, message: response.message === "captcha" ? "자동입력 방지 확인이 필요합니다. 원문에서 삭제해 주세요." : resultMessage(response)};
-};
+export const {isCommentPosted, prefetchTurnstile, turnstileFields, postComment, deleteOwnComment} =
+    kotlinBridge.createCommentSender<CommentSender>({sendMessage, resultMessage, submitComment, submitTxtcon, userDeleteComment});

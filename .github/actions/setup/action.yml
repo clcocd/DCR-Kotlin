@@ -1,0 +1,28 @@
+name: Setup
+description: Kotlin/JS와 WXT 확장 빌드 환경을 준비한다.
+
+runs:
+    using: composite
+    steps:
+        -   uses: oven-sh/setup-bun@v2
+
+        -   uses: actions/setup-node@v4
+            with:
+                node-version: '26'
+
+        -   uses: actions/setup-java@v4
+            with:
+                distribution: temurin
+                java-version: '21'
+
+        -   uses: gradle/actions/setup-gradle@v4
+            with:
+                gradle-version: '8.14.3'
+
+        -   name: Generate Kotlin/JS bundle
+            shell: bash
+            run: bun run build:kotlin
+
+        -   name: Install Dependencies
+            shell: bash
+            run: bun ci

@@ -1,3 +1,4 @@
+import {kotlinBridge} from "@/kotlin/bridge";
 import {afterEach, describe, expect, it, vi} from "vitest";
 
 import {LIST_REPLACED_EVENT} from "@/core/messaging/protocol";
@@ -9,7 +10,7 @@ type Handler = (message: { sender: Sender }) => Promise<void>;
 const onMessage = vi.hoisted(() => vi.fn<(type: string, handler: Handler) => void>());
 vi.mock("@/core/messaging/protocol", async (importOriginal) => ({...await importOriginal<typeof import("@/core/messaging/protocol")>(), onMessage}));
 const runInPage = vi.hoisted(() => vi.fn<(sender: Sender, func: (eventName: string) => void, args: [string]) => Promise<unknown[]>>());
-vi.mock("@/core/module/background", async (importOriginal) => ({...await importOriginal<typeof import("@/core/module/background")>(), runInPage}));
+vi.mock("@/core/module/background", async (importOriginal) => ({...await importOriginal<typeof import("@/core/module/background")>(), runInPage, preparePageRuntime: async () => kotlinBridge.installPageRuntime()}));
 
 afterEach(() => {
     vi.unstubAllGlobals();
