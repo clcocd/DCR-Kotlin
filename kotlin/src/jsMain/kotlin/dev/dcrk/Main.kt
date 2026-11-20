@@ -236,6 +236,7 @@ fun main() {
     api.blockLabel = ::blockLabel
     api.emptyBlockEntries = ::emptyBlockEntries
     api.createBlockState = ::createBlockState
+    api.createBlockDefaultsWatcher = ::createBlockDefaultsWatcher
     api.createMemoState = ::createMemoState
     api.randomMemoColor = ::randomMemoColor
     api.normalizeMemoMap = ::normalizeMemoMap
