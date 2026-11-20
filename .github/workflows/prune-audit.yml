@@ -26,4 +26,4 @@ jobs:
                 for i,line in matches[:22]: print(f'  {i}: {line[:220]}')
           PY
           echo '=== BAN HISTORY REFS ==='
-          rg -n '갱차|차단.*조회|차단.*내역|차단.*기록|banHistory|banCheck|banLookup|blockHistory|blockLookup|갱신차단|갱차조회' features kotlin/src/jsMain entrypoints core stores components tests e2e || true
+          grep -RInE '갱차|차단.*조회|차단.*내역|차단.*기록|banHistory|banCheck|banLookup|blockHistory|blockLookup|갱신차단|갱차조회|갱차' features kotlin/src/jsMain entrypoints core stores components tests e2e || true
