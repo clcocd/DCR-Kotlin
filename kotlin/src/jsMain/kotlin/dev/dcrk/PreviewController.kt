@@ -180,13 +180,11 @@ private class PreviewController(private val ctx: dynamic, private val s: dynamic
         blocking = true
         val signal = store.getState().signalId
         try {
-            val request = if (comments == null) s.blockUser(target, options) else s.blockCommenters(target, comments, options)
+            val request = s.blockCommenters(target, comments, options)
             val blocked = awaitJs(s.notifyManage(request, "차단했습니다.", "차단하지 못했습니다. 잠시 후 다시 시도해 주세요."))
             if (truthy(blocked) && sameSignal(signal)) {
-                if (comments != null) {
-                    store.setState(props("selectedComments" to s.noFresh))
-                    pull.refreshComments()
-                } else if (options.delChk == true) close()
+                store.setState(props("selectedComments" to s.noFresh))
+                pull.refreshComments()
             }
             s.refresh()?.reload()
             blocked

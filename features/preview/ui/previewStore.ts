@@ -52,8 +52,8 @@ interface PostState {
     /** 본문 이미지 차단 (blockImage). */
     imageBlocked: boolean;
 
-    /** 차단 창. post는 글쓴이, comments는 고른 댓글(selectedComments)의 작성자를 차단한다. */
-    blockPopup: false | "post" | "comments";
+    /** 고른 댓글(selectedComments)의 작성자를 차단하는 창. */
+    blockPopup: false | "comments";
     /** 관리자가 체크한 댓글 번호. 디시 댓글 목록의 체크박스처럼 골라 한 번에 지우거나 차단한다. */
     selectedComments: ReadonlySet<string>;
     /** 댓글 삭제 확인 창(비밀번호 삭제는 비밀번호 창)을 띄운 댓글. 창은 CommentList가 한 번만 그린다 (Comment.tsx의 CommentDeletePrompt). */
@@ -72,8 +72,8 @@ interface Hooks {
     requestRefresh: (report?: boolean) => Promise<void>;
     /** 본문을 캐시 없이 다시 받고 댓글도 다시 받는다. */
     requestReload: () => Promise<void>;
-    /** 차단하고 성공 여부를 돌려준다. comments가 있으면 그 댓글 작성자를 차단한다. 글도 지웠으면 창을 닫는다. */
-    requestBlock: (preData: GalleryPreData, options: BlockOptions, comments?: string[]) => Promise<boolean>;
+    /** 선택한 댓글의 작성자를 차단하고 성공 여부를 돌려준다. */
+    requestBlock: (preData: GalleryPreData, options: BlockOptions, comments: string[]) => Promise<boolean>;
 }
 
 interface PreviewState extends PostState, Hooks {

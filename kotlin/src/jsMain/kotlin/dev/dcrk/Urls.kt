@@ -73,9 +73,3 @@ fun mergeParamURL(origin: String, from: String): String {
     return "?" + params.toString()
 }
 
-/** UTF-8 바이트를 '.XX' 형식으로 표현한다. */
-fun postSearchUrl(query: String): String =
-    "https://search.dcinside.com/post/sort/latest/q/" +
-        query.encodeToByteArray().joinToString("") { byte ->
-            "." + (byte.toInt() and 255).toString(16).padStart(2, '0').uppercase()
-        }

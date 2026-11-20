@@ -454,7 +454,6 @@ interface KotlinBridge {
     managerAjaxUrl(url: string, action: string): string;
     listUrl(url: string): string;
     mergeParamURL(origin: string, from: string): string;
-    postSearchUrl(query: string): string;
     hash53(text: string): number;
     nickType(iconUrl: string): "FIXED" | "HALF_FIXED" | "UNFIXED";
     submitResult(response: string): {result: string; message?: string; detail?: string};

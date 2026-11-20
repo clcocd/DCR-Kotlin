@@ -58,12 +58,12 @@ internal fun createPreviewPopups(s: dynamic): dynamic {
             ui.h(s.FieldLabel, props("htmlFor" to "$id-$key", "className" to "font-normal"), label))
         val change: (dynamic) -> Unit = { custom[1](it.target.value) }
         ui.h(dialog, props("onClose" to close, "className" to "sm:max-w-[440px]", "focusOnOpen" to "keyboard"),
-            header(if (comments != null) "댓글 작성자 차단 (${comments.length}개)" else "유저 차단"),
+            header("댓글 작성자 차단 (${comments.length}개)"),
             grid("기간", entriesOf(s.days), day),
             grid("사유", s.reasons, reason, if (reason[0] == "0") ui.h(s.Input, props("value" to custom[0],
                 "aria-label" to "차단 사유", "placeholder" to "차단 사유 직접 입력 (한글 20자 이내)",
                 "maxLength" to 20, "ref" to s.focusOnMount, "onChange" to change)) else null),
-            ui.div("flex flex-col gap-2", checkbox("del", if (comments != null) "선택한 댓글 삭제" else "선택한 글 삭제", delete),
+            ui.div("flex flex-col gap-2", checkbox("del", "선택한 댓글 삭제", delete),
                 checkbox("ip", "식별 코드 차단 시 IP 동시 차단", type)),
             ui.h(s.DialogActions, null, ui.h(s.Button, props("variant" to "destructive", "disabled" to sending, "onClick" to submit),
                 if (sending) ui.h(s.Spinner, props("aria-hidden" to true, "data-icon" to "inline-start")) else null, "차단")))

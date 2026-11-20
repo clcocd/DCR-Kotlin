@@ -264,7 +264,6 @@ fun main() {
     api.managerAjaxUrl = { url: String, action: String -> managerAjaxUrl(url, action) }
     api.listUrl = { url: String -> listUrl(url) }
     api.mergeParamURL = { origin: String, from: String -> mergeParamURL(origin, from) }
-    api.postSearchUrl = { query: String -> postSearchUrl(query) }
     api.hash53 = { value: String -> hash53(value) }
     api.nickType = { iconUrl: String -> nickType(iconUrl) }
     api.submitResult = { response: String -> submitResult(response) }

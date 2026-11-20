@@ -25,16 +25,11 @@ internal fun createManageRequests(s: dynamic): dynamic {
         val result = s.submitResult(text)
         props("success" to success(result.result), "message" to s.resultMessage(result))
     }
-    fun byPost(pre: dynamic, action: String) = manage(pre, action, props("id" to pre.gallery, "nos[]" to pre.id))
     fun avoid(pre: dynamic, ids: dynamic, parent: dynamic, options: dynamic) = manage(pre, "update_avoid_list",
         props("id" to pre.gallery, "nos[]" to ids, "parent" to parent, "avoid_hour" to options.avoidHour,
             "avoid_reason" to options.avoidReason, "avoid_reason_txt" to options.avoidReasonTxt,
             "del_chk" to if (options.delChk == true) "1" else "0",
             "avoid_type_chk" to if (options.userTypeChk == true) "1" else "0"))
-    fun notice(pre: dynamic, register: Boolean) = manage(pre, "set_notice",
-        props("mode" to if (register) "SET" else "REL", "id" to pre.gallery, "no" to pre.id))
-    fun recommend(pre: dynamic, register: Boolean) = manage(pre, "set_recommend",
-        props("mode" to if (register) "SET" else "REL", "id" to pre.gallery, "nos[]" to pre.id))
     fun image(pre: dynamic, type: String): String {
         val now = Date.now().asDynamic().toString()
         return "${s.urls.base}kcaptcha/image_v3/?gall_id=${pre.gallery}&kcaptcha_type=$type&time=$now&_GALLTYPE_=${s.galltypeOf(pre.link)}"
@@ -54,11 +49,7 @@ internal fun createManageRequests(s: dynamic): dynamic {
         val response = awaitJs(s.ajax.post(s.urls.comment_remove, props("body" to body)).text())
         s.submitResult(response)
     }
-    val bump: (dynamic) -> Promise<dynamic> = { byPost(it, "update_bump") }
-    val deletePost: (dynamic) -> Promise<dynamic> = { byPost(it, "delete_list") }
-    val blockUser: (dynamic, dynamic) -> Promise<dynamic> = { pre, options -> avoid(pre, pre.id, "", options) }
     val blockCommenters: (dynamic, dynamic, dynamic) -> Promise<dynamic> = { pre, ids, options -> avoid(pre, ids, pre.id, options) }
-    return props("bump" to bump, "deletePost" to deletePost, "blockUser" to blockUser, "blockCommenters" to blockCommenters,
-        "setNotice" to ::notice, "setRecommend" to ::recommend, "captchaImage" to ::image,
+    return props("blockCommenters" to blockCommenters, "captchaImage" to ::image,
         "adminDeleteComments" to ::deleteAsAdmin, "userDeleteComment" to ::deleteAsUser)
 }
