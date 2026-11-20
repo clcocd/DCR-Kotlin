@@ -172,7 +172,13 @@ private class PreviewController(private val ctx: dynamic, private val s: dynamic
             refreshTimer = window.setTimeout(refresh, min(interval * 2.0.pow(failures), max(interval, 60_000.0))) as Int
         }
         scheduleRefresh()
-        jsPromise { load(pre, signal, dir) }
+        // 창 이동·닫기로 취소된 비동기 작업은 실행 주체가 없으므로 거부를 소비한다.
+        // 실제 오류는 숨기지 않고 콘솔에 남긴다.
+        val onLoadFailure: (dynamic) -> dynamic = { failure ->
+            if (s.isAbortError(failure) != true) console.error("Preview background load failed:", failure)
+            undefinedValue()
+        }
+        jsPromise { load(pre, signal, dir) }.catch(onLoadFailure)
     }
 
     private fun block(target: dynamic, options: dynamic, comments: dynamic): Promise<dynamic> = jsPromise block@{
