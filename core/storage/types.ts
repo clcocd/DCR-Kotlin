@@ -24,15 +24,12 @@ export interface MemoEntry {
     added?: number;
 }
 
-/** IP/밴 DB의 버전과 마지막 확인 시각. 갱신 여부는 큰 ip, ban 대신 이것만 읽는다. */
+/** IP DB의 버전과 마지막 확인 시각. 갱신 여부는 큰 IP 데이터 대신 이것만 읽는다. */
 export interface DatabaseMeta {
     version: string;
     lastUpdate: number;
     /** 저장된 IP 데이터의 형식 (core/ipdb.ts의 IP_FORMAT). 없으면 옛 형식. */
     format?: number;
 }
-
-/** 밴 목록: 갤러리 이름(갱차 이유로 보인다) → uid[]. */
-export type BanList = Record<string, string[]>;
 
 export type SettingValue = boolean | number | string | string[];

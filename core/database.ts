@@ -31,12 +31,11 @@ interface DatabaseService {
     initDatabase(): Promise<void>;
     ipInfoOf(ip: string): IpInfo | undefined;
     passesIpFilter(info: IpInfo, filter: IpInfoFilter): boolean;
-    banReasonsOf(uid: string): string | undefined;
 }
 
 export const {
     updateDatabase, databaseVersion, subscribeDatabase, onDatabaseChange, releaseDatabase,
-    initDatabase, ipInfoOf, passesIpFilter, banReasonsOf
+    initDatabase, ipInfoOf, passesIpFilter
 } = kotlinBridge.createDatabase<DatabaseService>({
     http, urls: urls.database, storage, createIpLookup, format: IP_FORMAT, parseIpData, parseStoredIpData,
     keys: DB_KEYS, metaKey: DB_META_KEY, dbMetaStorage, writeDatabase, watchStorage, onBfcacheRestore,

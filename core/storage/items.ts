@@ -55,10 +55,9 @@ export const LIST_LOCKS = {blocks: "refresher:blocks", memos: "refresher:memos",
 
 export const DB_META_KEY = "local:refresher:db:meta";
 
-/** ip, ban 값은 CompactIpData, BanList의 JSON 문자열. 항목으로 만들면 수백 KB를 바로 읽으므로 키로만 다룬다. */
+/** IP 데이터는 큰 JSON 문자열이므로 저장소 항목 대신 키로 다룬다. */
 export const DB_KEYS = {
-    ip: "local:refresher:db:ip",
-    ban: "local:refresher:db:ban"
+    ip: "local:refresher:db:ip"
 } as const;
 
 interface StorageDefinitions {
@@ -67,7 +66,7 @@ interface StorageDefinitions {
     moduleSettingsStorage(id: string): WxtStorageItem<Record<string, SettingValue>, {}>;
     moduleDataStorage<T>(id: string, fallback: T): WxtStorageItem<T, {}>;
     dbMetaStorage(): WxtStorageItem<DatabaseMeta, {}>;
-    writeDatabase(meta: DatabaseMeta, ip: string, ban: string): Promise<void>;
+    writeDatabase(meta: DatabaseMeta, ip: string): Promise<void>;
     backupStorage: {
         auto(): WxtStorageItem<boolean, {}>;
         error(): WxtStorageItem<string, {}>;

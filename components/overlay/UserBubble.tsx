@@ -11,7 +11,7 @@ import {Separator} from "@/components/ui/separator";
 import {Skeleton} from "@/components/ui/skeleton";
 import {useReturnFocus} from "@/components/useReturnFocus";
 import {blockingEntries} from "@/core/block";
-import {banReasonsOf, databaseVersion, ipInfoOf, onDatabaseChange, subscribeDatabase} from "@/core/database";
+import {databaseVersion, ipInfoOf, onDatabaseChange, subscribeDatabase} from "@/core/database";
 import {urls} from "@/core/http/urls";
 import {getModuleApi, subscribeModuleApis} from "@/core/module/registry";
 import {useRunningModuleSettings} from "@/core/module/useModuleSettings";
@@ -40,7 +40,7 @@ export const {BubbleHost, DcconPackageDialog} = kotlinBridge.createUserBubble<{
 }>({
     react, cn, overlay, OverlayPopoverContent, uiStore: useUiStore, blockStore: useBlocksStore, saveFailed: SAVE_FAILED,
     DialogActions, ModalDialog, Button, DialogDescription, DialogHeader, DialogTitle, Popover, Separator, Skeleton,
-    useReturnFocus, blockingEntries, banReasonsOf, databaseVersion, ipInfoOf, onDatabaseChange, subscribeDatabase,
+    useReturnFocus, blockingEntries, databaseVersion, ipInfoOf, onDatabaseChange, subscribeDatabase,
     getModuleApi, subscribeModuleApis, useRunningModuleSettings, dcconPackages, fetchDcconPackage, typeNames: TYPE_NAMES, imageBase: urls.dccon.image,
     handleBlockRequest, blockLabel, useUserMemo, copyText, selectedGallery, useGallogActivity, Ban, ExternalLink, NotebookPen, Search
 });

@@ -2,15 +2,13 @@ import {expect, test} from "./fixtures";
 import {openOptions} from "./pages/extension";
 
 // 파이어폭스는 배경 요청을 route로 가로채지 못해(OFFLINE_PREFS) Chromium에서만 돈다.
-test.describe("IP/밴 데이터베이스", () => {
+test.describe("IP 데이터베이스", () => {
     test.use({serveIpDb: true});
     test.skip(({browserName}) => browserName === "firefox", "파이어폭스는 배경의 IP DB 요청을 가로채지 못한다.");
 
-    test("설치 때 받은 IP DB로 유동 행에 통신사 배지를, 갱차 조회를 켜면 밴 배지를 붙인다", async ({listPage, ipDb, storage}) => {
+    test("설치 때 받은 IP DB로 유동 행에 통신사 배지를 붙인다", async ({listPage, ipDb}) => {
         await expect(listPage.row(2).locator(".refresher-user-badges")).toHaveText(`[${ipDb.org}]`);
 
-        await storage.setModuleSettings("userinfo", {checkPermBan: true});
-        await expect(listPage.row(1).locator(".refresher-user-badges")).toHaveText("(user1)[테스트 갤러리]");
     });
 
     test("갱신은 버전이 같아도 다시 받는다", async ({page, extensionId, ipDb, storage}) => {

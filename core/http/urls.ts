@@ -20,8 +20,7 @@ export const urls = {
     },
     database: {
         version: "https://dcrefresher.green1052.com/version",
-        ip: "https://dcrefresher.green1052.com/ip.json",
-        ban: "https://dcrefresher.green1052.com/ban.json"
+        ip: "https://dcrefresher.green1052.com/ip.json"
     }
 };
 
