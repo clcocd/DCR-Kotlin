@@ -40,7 +40,7 @@ scripts/                IP DB 빌드 스크립트
 
 1. 단축키, 팝업 메시지 준비, 컨텍스트가 무효가 되면 모듈을 멈춥니다(`stopAll`, `releaseDatabase`).
 2. `BOARD_PAGE`면 차단, 메모 스토어와 모듈 on/off, 설정(`core/module/registry.ts`의 `loadAll`)을 동시에 읽고 setup을 돌립니다. 오버레이는 그릴 것이 생길 때 띄웁니다([UI](ui.md#오버레이와-css)).
-3. IP DB는 유저 정보 모듈의 `setup`이 설정을 읽은 뒤 읽습니다(`initDatabase`). IP 정보 표시(`ipInfoFilter`)가 `none`이 아니거나 갱차 조회(`checkPermBan`)가 켜져 있을 때만 읽고(`needsDatabase`) 나중에 켜면 그때 읽습니다(`subscribeDatabase`). 밴 DB는 처음 조회할 때 읽습니다.
+3. IP DB는 유저 정보 모듈의 `setup`이 설정을 읽은 뒤 읽습니다(`initDatabase`). IP 정보 표시(`ipInfoFilter`)가 `none`이 아닐 때만 읽고(`needsDatabase`) 나중에 켜면 그때 읽습니다(`subscribeDatabase`).
 
 ## 필터
 
@@ -55,12 +55,12 @@ scripts/                IP DB 빌드 스크립트
 배경은 뜰 때마다 리스너를 동기로 겁니다. Chrome은 서비스 워커, Firefox는 이벤트 페이지라 상태는 저장소에 둡니다. 탭↔배경 메시지는 `core/messaging/protocol.ts`의 `ProtocolMap`에 모읍니다 - 이름은 `refresher:` 접두사, 배경에서 딱 한 번만 받고(`tests/unit/entrypoints/background/messages.test.ts`), 배경을 거친 오류는 `instanceof` 대신 `utils/error.ts`의 이름으로 봅니다. 모듈은 이 문서를 불러온 주소(`documentUrl`)로 판단하고 갤러리 id, 글 번호는 `pageGallery`, `pagePostNo`를 씁니다.
 
 - `page.ts`: 탭의 페이지(MAIN world)에서 실행합니다. 갈아끼운 목록에 디시 스크립트(`chk_user_block`, `UserMemo.renderWriterMemoBadges`)를 다시 거는 다리를 페이지마다 겁니다(`refresher:installListBridge`). 그 뒤로 콘텐츠 스크립트는 `LIST_REPLACED_EVENT` 이벤트만 보냅니다. 한 모듈만 쓸 때는 그 `background.ts`가 `runInPage`로 합니다. import가 필요한 코드는 unlisted script로 번들해 `runFileInPage`로 넣습니다(글쓰기 이미지 변환).
-- `database.ts`: IP, 밴 DB를 하루마다 확인해 7일이 지났거나 형식이 옛것이면 받습니다. 알람은 배포 빌드에서만, 설치, 업데이트 때도 받습니다. "갱신"은 배경에 메시지(`refresher:updateDatabase`)를 보냅니다. 통합검색, 갤로그는 CORS가 막혀 배경이 대신 받습니다(`refresher:searchPosts`, `refresher:gallogPage`).
+- `database.ts`: IP DB를 하루마다 확인해 7일이 지났거나 형식이 옛것이면 받습니다. 알람은 배포 빌드에서만, 설치, 업데이트 때도 받습니다. "갱신"은 배경에 메시지(`refresher:updateDatabase`)를 보냅니다. 갤로그는 CORS가 막혀 배경이 대신 받습니다(`refresher:gallogPage`).
 
 ## 저장소
 
 - 모든 키는 `core/storage/items.ts`에 모읍니다. `storage.defineItem`을 쓰고 래퍼는 두지 않습니다. `defineItem`은 만드는 순간 값을 읽으므로 항목은 처음 쓸 때 만듭니다(`lazyItem`).
-- 읽기만 하는 곳은 키로 읽고 감시하며 없는 값은 `null`이라 받는 쪽이 기본값을 맞춥니다. 여러 키는 `storageSync(keys, apply)`, 콘텐츠 스크립트의 감시는 `watchStorage(key, cb, signal)`, 모듈 on/off와 설정은 `readModuleStorage(ids)` → `enablesOf`, `settingsOf`로 읽습니다. IP, 밴 DB(`DB_KEYS`)는 수백 KB라 `storage.getItem`, `storage.watch`로 다룹니다.
+- 읽기만 하는 곳은 키로 읽고 감시하며 없는 값은 `null`이라 받는 쪽이 기본값을 맞춥니다. 여러 키는 `storageSync(keys, apply)`, 콘텐츠 스크립트의 감시는 `watchStorage(key, cb, signal)`, 모듈 on/off와 설정은 `readModuleStorage(ids)` → `enablesOf`, `settingsOf`로 읽습니다. IP DB(`DB_KEYS`)는 수백 KB라 `storage.getItem`, `storage.watch`로 다룹니다.
 - 모듈 캐시 항목은 `moduleDataStorage(id, fallback)`로 만들고 백업에서 빠집니다. 개수 상한을 두세요(글댓비 캐시 500명).
 - 백업 대상은 `core/backup.ts`의 `BACKUP_KEYS`(모듈 on/off와 설정, 차단 목록과 기본 차단 모드, 메모)입니다. 모듈 id는 `.wxt/module-ids.ts`에서 읽고(배경 번들에 `meta.ts`를 넣지 않도록), 파이어폭스에는 한도 상수가 없어 같은 값(102,400 / 8,192바이트)을 씁니다(`CLOUD_QUOTA`).
 - 차단 항목의 `mode`가 비어 있으면 기기의 기본 차단 모드를 따릅니다(내보낼 때 기본 모드가 다르면 항목에 적음). 설정을 없애거나 바꿀 때 옛 값 이전 코드는 두지 않습니다(`pruneStaleSettings`가 지움).
