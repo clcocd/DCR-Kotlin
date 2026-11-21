@@ -82,7 +82,8 @@ internal fun createPreviewPostService(services: dynamic): dynamic {
             })
     }
 
-    return props("textBlockOf" to ::textBlock, "cachedPost" to ::cached, "createPostLoader" to ::create)
+    return props("textBlockOf" to ::textBlock, "cachedPost" to ::cached, "createPostLoader" to ::create,
+        "supplementYoutubeEmbeds" to ::supplementYoutubeEmbeds)
 }
 
 internal fun createPreviewHistoryController(ctx: dynamic, services: dynamic): dynamic {
