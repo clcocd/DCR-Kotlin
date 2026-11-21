@@ -1,6 +1,6 @@
 import {describe, expect, it} from "vitest";
 
-import {BOARD_PAGE} from "@/core/pages";
+import {BOARD_PAGE} from "@/core/pagePatterns";
 import meta, {settings} from "@/features/refresh/meta";
 
 describe("Kotlin refresh module metadata", () => {
