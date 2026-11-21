@@ -82,3 +82,27 @@ Kotlin 경로는 `kotlin/src/jsMain/kotlin/dev/dcrk/` 기준이다. 위 표는 �
 ## 검증 경계
 
 ZIP의 CRC, manifest 직접 참조 파일 7개(누락 0개), JS 10개 파일의 Node.js 문법 검사 및 핵심 구현 마커 13개 검증을 통과했다. ZIP 정적 소스에서 확인한 사실을 위에 기록했다. 6.2.2 순정 소스나 과거 대화 기준을 덮어쓰지 않는다. **코드 확인 / 브라우저 확인 / 실제 서버 쓰기 확인**을 구분하여 완료를 판정한다. 특히 YouTube의 폐기된 구형 1px 템플릿은 복원 금지이며, 더블콘 전송 성공은 아직 미확인이다.
+
+## 2026-11-21 전수조사 판정 및 잔여 계약
+
+**판정: 주요 기능의 정적 역공학은 기록돼 있으나, 최종 ZIP의 개인 패치 전체에 대한 전수조사는 아직 완료로 판정하지 않는다.** 위에서 기록한 구현 마커·CSS 존재 확인과 함수 전체 제어 흐름/예외 분기·원본 6.2.2 대비 차이 전수 대조는 서로 다른 작업이다. 또한 기존 문서의 ZIP 해시·CRC·문법 검사 결과는 **이전 분석에서 기록한 결과**이며 재검사 결과로 표기하지 않는다.
+
+2026-11-21에 이전 상세 분석 문서 `FINAL-ZIP-REVERSE-ENGINEERING(1).md`와 현재 저장소 문서를 교차 검토하여, 보고서에는 있으나 위에 생략되었던 구체 사항을 복구한다. 아래의 **기존 보고서상 코드 확인**은 이번 작업에서 ZIP 실행 파일을 재열람했다는 뜻이 아니다.
+
+- **Manifest의 상세 계약(기존 보고서상 확인):** Chrome MV3, 버전 6.2.2, 최소 Chrome 140. 권한 `alarms`, `contextMenus`, `storage`, `scripting`, `unlimitedStorage`, `declarativeNetRequestWithHostAccess`; 기본 host `https://*.dcinside.com/*`, 선택 host `https://*.dcinside.co.kr/*`. 추가 권한의 Kotlin 이식 필요성은 별도 판정.
+- **더블콘 요청의 공통 값(기존 보고서상 확인):** 각 `slotN_type`과 타입별 필드 외에도 게시글 `id/no`, 대댓글 `c_no/reply_no`, 닉네임/비밀번호, captcha 및 Turnstile 등 기존 제출 기본 필드를 유지한다. 선택 모드에는 `__rfPickTxtcon`, 빈 목록에는 `__rfMixLoaded`가 관여하며 `__rfMixSlots`/선택/삭제/교환과 구분해야 한다.
+- **X MAIN world 메시지 세부(기존 보고서상 확인):** `data-refresher-x-stage` 대상과 `dataset.tweetId`를 사용하고, `refresher-x-render` 요청 후 `refresher-x-done`/`refresher-x-error`로 결과를 전파한다. 위젯 준비 10초와 미리보기 렌더 실패 5초 제한은 독립적이다.
+- **글자콘 표시 수명주기(기존 보고서상 확인):** `__rfTxtPending`/`__rfTxtIntersect`/`__rfTxtStop` 외에 `__rfTxtUnwatch` 정리 경로가 기록돼 있다. 최초 표시뿐 아니라 중단·해제 조건을 포함한 동등성 검증이 필요하다.
+
+| 전수조사 대상 | 현재 문서로 확인된 사실 | 여전히 복원되지 않은 계약 |
+| --- | --- | --- |
+| 새로고침 | `__rfResume`와 복귀 이벤트 연결 | 요청 시작 기준 주기, 중복 요청·일시정지·실패·재시도·타임아웃의 전체 분기 및 순정 대비 수정 범위 |
+| 본문/댓글 10초 캐시 | `fetchedAt`/`commentsAt`의 10초 조건 | 생성·무효화·수정/삭제 후 처리·뒤로 가기 경로 전체; Kotlin의 다른 TTL과 동일 목적 여부 |
+| 댓글/대댓글/초안 | `__rfInlineMode`, `|reply:<번호>`, `__rfPreviousReplies` | 본문·댓글 위치별 입력 UI, 포커스, 저장/삭제 시점, 빈 공간 클릭의 정확한 트리거 |
+| 최근 디시콘/호버 | `target:recent` 요청과 180ms 닫기 | 응답 경쟁·목록 없는 경우·차단 디시콘·정리의 모든 예외 분기 |
+| NetworkError 로그 | 오류명·메시지 분기 존재 | 기록 조건, 전파 범위, 개인정보 출력 여부, 실패와 일반 취소 구분 |
+| 동영상/다크모드/표/OG | 25px 패딩, iframe fullscreen 반전 제외, 주요 카드 CSS | 모든 관련 선택자·우선순위·원본 대비 차이·실제 사이트 렌더 결과 |
+| YouTube/X/Instagram | 링크 후처리·브리지·인스타 embed 경로 존재 | 중복/실패/정리/페이지 전환 전체 분기와 실사이트 동등성 |
+| 더블콘 전송 | 슬롯 직렬화·빈 글자콘 차단·일반 댓글 빈 입력 예외 | 서버가 `/txtcon/insert_double` 요청을 수락하는지 및 성공/실패 후 UI 상태 |
+
+**완료 판정 조건:** 최종 ZIP의 `PATCH-NOTES.md` 각 항목을 실행 JS/CSS 위치와 대응시키고, 원본 6.2.2와의 차이를 구분하며, 표의 미복원 계약을 조사한 뒤 정적 코드 확인과 실사이트 검증을 별도로 기록한다. **Kotlin 개인 패치 이식은 원본 기능 동등성 검증 완료 전에는 시작하지 않는다.**
