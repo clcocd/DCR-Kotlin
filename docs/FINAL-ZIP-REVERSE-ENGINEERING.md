@@ -25,6 +25,7 @@
 - `content.js`: `__rfMixSlots`, `__rfMixActive`, `__rfMixStart`, `__rfMixSelect`, `__rfMixRemove`, `__rfMixSwap`. 글자콘 모드의 **단일 ‘더블콘 만들기’ 버튼**에서 기존 디시콘 선택창을 열어 두 번째 항목으로 글자콘 또는 이미지 디시콘을 고른다.
 - 선택창에서 디시콘 목록이 비거나 요청이 실패하면 `__rfMixLoaded`로 빈 상태를 표시하며 **글자콘** 버튼을 남긴다. 패키지 목록이 있을 때는 상단 글자콘 버튼, 목록이 비었을 때는 빈 상태 화면의 글자콘 버튼.
 - 두 슬롯의 선택, 텍스트·색상 수정, 삭제, 순서 교환을 지원한다. 글자콘 슬롯이 빈 문자열이면 전송을 막는다.
+- **빈 일반 댓글 입력 처리:** 전송 UI의 중단 조건이 `!r && !n && !__rfDouble`이므로 두 슬롯이 존재하면 일반 댓글 텍스트가 비어도 제출 단계로 진행한다. 단, 각 글자콘 슬롯의 빈 내용은 별도 검증으로 전송을 차단한다. 이 코드가 ZIP 파일명 `empty-message`의 유일한 의미라고 단정하지 않는다.
 - `Ud`가 `POST https://gall.dcinside.com/txtcon/insert_double`로 보냄. 글자콘 슬롯 N: `slotN_type=txtcon`, `txtcon_text_N`, `txtcon_bg_N`, `txtcon_color_N`. 이미지 디시콘 슬롯 N: `slotN_type=dccon`, `package_idx_N`, `detail_idx_N`. N은 1, 2.
 - 일반 글자콘은 `/txtcon/insert`를 사용해 기존 경로를 유지.
 - 댓글 표시 CSS: `.double_txtcon > .double_txtcon_item`과, 정화된 댓글에서 `.coment_dccon_txt`/`.written_dccon`이 연속 형제로 나온 경우 모두 가로 정렬. 각 항목 100×100px.
