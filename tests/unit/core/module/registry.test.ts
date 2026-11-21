@@ -33,6 +33,24 @@ const size = setting({type: "range", default: 5, min: 1, max: 10, step: 1, unit:
 const flag = setting({type: "check", default: true});
 const name = setting({type: "text", default: "n"});
 
+describe("Kotlin 모듈 설정 조회", () => {
+    it("지정된 상태 객체에서 설정을 가져오고 없는 모듈은 undefined를 반환한다", () => {
+        const given = {preview: {size: 4}} as Parameters<typeof registry.moduleSettings>[1];
+        expect(registry.moduleSettings("preview", given)).toEqual({size: 4});
+        expect(registry.moduleSettings("refresh", given)).toBeUndefined();
+    });
+
+    it("실행 중인 모듈에만 설정을 노출하고 원본 객체를 유지한다", () => {
+        const settings = {size: 5};
+        registry.moduleSettingsStore.setState({preview: settings});
+        registry.runningModulesStore.setState({preview: true});
+        expect(registry.runningModuleSettings("preview")).toBe(settings);
+        registry.runningModulesStore.setState({preview: false});
+        expect(registry.moduleSettings("preview")).toBe(settings);
+        expect(registry.runningModuleSettings("preview")).toBeUndefined();
+    });
+});
+
 describe("loadAll", () => {
     it("저장된 설정을 스키마에 맞춰 setup에 넘긴다", async () => {
         await setSettings("a", {size: 9999, gone: 1});
