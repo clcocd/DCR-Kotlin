@@ -58,6 +58,9 @@ jobs:
       - name: Firefox 미리보기 요청 취소 E2E — AbortError 회귀
         run: bunx playwright test e2e/preview.spec.ts --project=firefox --grep "받는 중에 넘기거나 닫아 끊은 요청은 콘솔에 오류를 남기지 않는다"
 
+      - name: 실제 디시 읽기 전용 E2E — 6.2.2 동작·마크업 검사
+        run: bunx playwright test e2e/live/dcinside.spec.ts --project=live --workers=1
+
       - name: Kotlin 포함 여부와 Manifest 검증
         shell: bash
         run: |
