@@ -472,12 +472,13 @@ describe("페이지 이동 시 목록만 교체", () => {
         await vi.waitFor(() => expect(listed()).toEqual(["8", "7"]));
     });
 
-    it("같은 목록 주소로 돌아온 것은 받지 않는다", async () => {
+    it("같은 목록 주소로 돌아온 것도 새 글을 확인한다", async () => {
+        respond(["3", "2", "1"]);
         await start();
         history.replaceState(null, "", "/board/lists/?id=test&no=5");
         window.dispatchEvent(new PopStateEvent("popstate"));
-        await tick();
-        expect(get).not.toHaveBeenCalled();
+        await vi.waitFor(() => expect(listed()).toEqual(["3", "2", "1"]));
+        expect(get).toHaveBeenCalledTimes(1);
     });
 });
 
@@ -640,5 +641,92 @@ describe("탭 제목 새 글 수, 여기까지 읽음", () => {
         stop();
         running = undefined;
         expect(marked()).toEqual([]);
+    });
+});
+
+describe("최초 표시·탭 복귀·bfcache 갱신", () => {
+    it("pageshow로 처음 목록을 표시할 때 주기를 기다리지 않고 확인한다", async () => {
+        vi.useFakeTimers();
+        respond(["3", "2", "1"]);
+        await start();
+        expect(get).not.toHaveBeenCalled();
+        window.dispatchEvent(new Event("pageshow"));
+        await vi.advanceTimersByTimeAsync(0);
+        expect(listed()).toEqual(["3", "2", "1"]);
+        expect(get).toHaveBeenCalledTimes(1);
+    });
+
+    it("pageshow·visibilitychange·같은 목록 popstate가 겹쳐도 한 번만 요청한다", async () => {
+        vi.useFakeTimers();
+        respond(["3", "2", "1"]);
+        await start();
+        window.dispatchEvent(new Event("pageshow"));
+        document.dispatchEvent(new Event("visibilitychange"));
+        history.replaceState(null, "", "/board/lists/?id=test&no=5");
+        window.dispatchEvent(new PopStateEvent("popstate"));
+        await vi.advanceTimersByTimeAsync(0);
+        expect(get).toHaveBeenCalledTimes(1);
+        expect(listed()).toEqual(["3", "2", "1"]);
+
+        // 곧바로 들어온 중복 복귀 신호는 2초 요청 제한을 존중한다.
+        window.dispatchEvent(new Event("pageshow"));
+        await vi.advanceTimersByTimeAsync(0);
+        expect(get).toHaveBeenCalledTimes(1);
+        await vi.advanceTimersByTimeAsync(2000);
+        window.dispatchEvent(new Event("pageshow"));
+        await vi.advanceTimersByTimeAsync(0);
+        expect(get).toHaveBeenCalledTimes(2);
+    });
+
+    it("일시정지 중에는 복귀해도 요청하지 않고 재개 후에는 갱신한다", async () => {
+        vi.useFakeTimers();
+        respond(["3", "2", "1"]);
+        const {api} = await start();
+        api.togglePause();
+        window.dispatchEvent(new Event("pageshow"));
+        document.dispatchEvent(new Event("visibilitychange"));
+        await vi.advanceTimersByTimeAsync(0);
+        expect(get).not.toHaveBeenCalled();
+
+        api.togglePause();
+        window.dispatchEvent(new Event("pageshow"));
+        await vi.advanceTimersByTimeAsync(0);
+        expect(get).toHaveBeenCalledTimes(1);
+    });
+
+    it("숨은 탭에서는 복원 이벤트를 무시하고 보이는 순간 갱신한다", async () => {
+        vi.useFakeTimers();
+        respond(["3", "2", "1"]);
+        const hidden = vi.spyOn(document, "hidden", "get").mockReturnValue(true);
+        await start();
+        window.dispatchEvent(new Event("pageshow"));
+        await vi.advanceTimersByTimeAsync(0);
+        expect(get).not.toHaveBeenCalled();
+
+        hidden.mockReturnValue(false);
+        window.dispatchEvent(new Event("pageshow"));
+        await vi.advanceTimersByTimeAsync(0);
+        expect(get).toHaveBeenCalledTimes(1);
+    });
+
+    it("미리보기 때문에 미룬 요청은 일시정지 중에는 유지하다 해제 시 반영한다", async () => {
+        vi.useFakeTimers();
+        respond(["3", "2", "1"]);
+        preview.open = true;
+        const {api} = await start();
+        await vi.advanceTimersByTimeAsync(5500);
+        expect(get).not.toHaveBeenCalled();
+
+        api.togglePause();
+        preview.open = false;
+        api.catchUp();
+        await vi.advanceTimersByTimeAsync(0);
+        expect(get).not.toHaveBeenCalled();
+
+        api.togglePause();
+        api.catchUp();
+        await vi.advanceTimersByTimeAsync(0);
+        expect(get).toHaveBeenCalledTimes(1);
+        expect(listed()).toEqual(["3", "2", "1"]);
     });
 });
