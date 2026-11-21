@@ -255,6 +255,8 @@ fun main() {
     api.createPreviewPostService = ::createPreviewPostService
     api.createPreviewHistoryController = ::createPreviewHistoryController
     api.createModuleRegistry = ::createModuleRegistry
+    api.moduleSettingsValue = ::moduleSettingsValue
+    api.runningModuleSettingsValue = ::runningModuleSettingsValue
     api.blockLabel = ::blockLabel
     api.emptyBlockEntries = ::emptyBlockEntries
     api.createBlockState = ::createBlockState
