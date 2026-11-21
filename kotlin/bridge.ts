@@ -550,6 +550,11 @@ interface KotlinBridge {
     createPreviewHost(react: typeof React, frame: React.ComponentType,
         popups: React.ComponentType): () => React.ReactNode;
     setupUserInfo(ctx: {signal: AbortSignal; settings: ModuleSettings["userinfo"]}, services: Record<string, unknown>): Promise<{checkNewPosts(elements: HTMLElement[]): void}>;
+    previewMeta(urls: RegExp[]): {
+        id: "preview";
+        urls: RegExp[];
+        settings: StaticFeatureSettingsMap["preview"];
+    };
     setupPreview(ctx: Pick<ModuleContext, "signal" | "addCleanup"> & {settings: ModuleSettings["preview"]},
         services: Record<string, unknown>): {archiveArticle(): boolean; isOpen(): boolean};
     createModuleRegistry(services: Record<string, unknown>): {
