@@ -230,7 +230,7 @@ const pageCommentList = (comments: FakeComment[]): string => (comments.length ==
 </ul></div>`);
 
 /** 글 페이지. 직접 열릴 때 아래 인라인 스크립트가 부르는 디시 전역(_d, $)을 빈 함수로 둔다. */
-const viewPage = (no: string, comments: FakeComment[], target: { id: string; no: string } | null, commentCount: number, extra: string): string => `<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>글 ${no}</title>
+const viewPage = (no: string, comments: FakeComment[], target: { id: string; no: string } | null, commentCount: number, extra: string, device: string): string => `<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>글 ${no}</title>
 <script>window._d = () => ""; window.$ = () => ({data() {}});</script></head><body>
 <input type="hidden" id="e_s_n_o" value="token">
 <div class="view_content_wrap"><header><div class="gallview_head clear ub-content">
