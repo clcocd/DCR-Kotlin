@@ -99,6 +99,7 @@ internal fun parsePostInfo(html: String): dynamic {
     if (doc.querySelector(".writing_view_box .mini_pwcheck") != null) throw Error(SECRET_POST)
     restoreMedia(doc)
     val subject = doc.querySelector(".title_subject")
+    val device = doc.querySelector(".title_device")
     if (subject != null) for (script in jsArray(subject.querySelectorAll("script"))) script.remove()
     val body = doc.querySelector(".writing_view_box")
     val contents = body?.innerHTML ?: undefinedValue()
