@@ -623,7 +623,7 @@ test.describe("댓글 쓰기, 지우기", () => {
         const frame = await listPage.openPreview();
         await frame.getByRole("textbox", {name: "댓글 입력", exact: true}).fill("대상 글에 쓴 댓글");
         await frame.getByRole("button", {name: "작성", exact: true}).click();
-        await expect.poll(async () => ({sent: site.submitted.length, feedback: await listPage.overlay.locator('[role="alert"], [role="status"]').allTextContents()})).toMatchObject({sent: 1});
+        await expect.poll(async () => ({sent: site.submitted.length, input: await frame.getByRole("textbox", {name: "댓글 입력", exact: true}).inputValue(), toasts: await listPage.toast.allTextContents()})).toMatchObject({sent: 1});
         const {body} = site.submitted[0]!;
         expect(Object.fromEntries(["id", "no", "c_gall_id", "c_gall_no"].map((key) => [key, body.get(key)]))).toEqual({
             id: "other", no: "77", c_gall_id: "other", c_gall_no: "77"
