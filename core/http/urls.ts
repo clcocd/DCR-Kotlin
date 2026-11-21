@@ -1,4 +1,4 @@
-import {VIEW_PAGE} from "@/core/pages";
+import {VIEW_PAGE} from "@/core/pagePatterns";
 import {kotlinBridge} from "@/kotlin/bridge";
 
 export const urls = kotlinBridge.runtimeConstants.urls;

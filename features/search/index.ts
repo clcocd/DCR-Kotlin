@@ -5,7 +5,7 @@ import {documentUrl, pageGallery, queryString, writerFilter} from "@/core/http/u
 import {checkboxFiller, highlightSearchResults, LIST_SELECTOR, notifyListReplaced, PAGING_SELECTOR, writerSelector} from "@/core/list";
 import {sendMessage} from "@/core/messaging/protocol";
 import {defineModule} from "@/core/module/define";
-import {LIST_PAGE} from "@/core/pages";
+import {LIST_PAGE} from "@/core/pagePatterns";
 import {ownPreviewEntry} from "@/core/preview/history";
 import {kotlinBridge} from "@/kotlin/bridge";
 import {reportFailure} from "@/stores/notify";

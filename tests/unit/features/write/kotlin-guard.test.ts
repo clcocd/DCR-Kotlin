@@ -3,7 +3,7 @@ import {afterEach, expect, it} from "vitest";
 
 import write from "@/features/write/index";
 import meta from "@/features/write/meta";
-import {WRITE_PAGE} from "@/core/pages";
+import {WRITE_PAGE} from "@/core/pagePatterns";
 import {runModule} from "../module";
 
 afterEach(() => {

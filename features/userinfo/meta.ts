@@ -1,7 +1,7 @@
 import type {IpCategory} from "@/core/database";
 import {defineModuleMeta} from "@/core/module/define";
 import type {ModuleContext, SettingsSchema} from "@/core/module/types";
-import {BOARD_PAGE} from "@/core/pages";
+import {BOARD_PAGE} from "@/core/pagePatterns";
 import {kotlinBridge} from "@/kotlin/bridge";
 
 /** 배지 색 기본값. 키마다 `${key}Color` 설정이 생긴다 (IP는 분류가 키). */

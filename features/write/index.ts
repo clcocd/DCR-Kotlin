@@ -1,6 +1,6 @@
 import {sendMessage} from "@/core/messaging/protocol";
 import {defineModule} from "@/core/module/define";
-import {WRITE_PAGE} from "@/core/pages";
+import {WRITE_PAGE} from "@/core/pagePatterns";
 import {kotlinBridge} from "@/kotlin/bridge";
 
 import {AUTO, EDITOR, LEAVE, POSTED, SUBJECT, SUBMIT} from "./markup";

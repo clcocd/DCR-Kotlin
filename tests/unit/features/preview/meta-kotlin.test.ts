@@ -1,7 +1,7 @@
 // @vitest-environment-options {"url": "https://gall.dcinside.com/board/lists/?id=test"}
 import {expect, it} from "vitest";
 
-import {BOARD_PAGE} from "@/core/pages";
+import {BOARD_PAGE} from "@/core/pagePatterns";
 import meta, {settings} from "@/features/preview/meta";
 
 it("Kotlin 미리보기 메타에서 v5 호환 설정 키와 기본값을 그대로 유지한다", () => {
