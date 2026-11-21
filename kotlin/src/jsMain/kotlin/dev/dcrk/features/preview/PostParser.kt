@@ -40,7 +40,7 @@ private fun restoreMedia(doc: dynamic) {
         val url = firstMatch(image.getAttribute("onclick"), popupImage)
         if (!url.isNullOrEmpty()) image.dataset.pop = url
     }
-    for (node in jsArray(doc.querySelectorAll(".writing_view_box #zzbang_div, .writing_view_box #ad_nv_slot, .writing_view_box #tip_video"))) node.remove()
+    for (node in jsArray(doc.querySelectorAll(".writing_view_box #zzbang_div, .writing_view_box #ad_nv_slot, .writing_view_box #tip_video, .writing_view_box .tip_box2.tip_video, .writing_view_box #spoiler_warning_tip"))) node.remove()
 
     val cookie = firstMatch(js("document.cookie"), numberingCookie)
     if (!cookie.isNullOrEmpty() && cookie != "1") return
