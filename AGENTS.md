@@ -8,8 +8,8 @@
 4. **Goal-Driven Execution**: 변경 전 재현/기준을 확보하고, 변경 후 컴파일·테스트·실제 확장 실행 여부를 분리하여 확인한다.
 5. **Kotlin 중심**: 기능·UI를 Kotlin으로 구현하는 것을 목표로 한다. 브라우저 API 호출, manifest, 패키징을 위해 다른 언어가 필요할 때에는 최소로 유지한다.
 6. **호환성 우선**: 모듈 ID, 설정/백업 형식, 기존 UI, content/background/MAIN world 경계를 보존한다.
-7. **작업 순서 보존**: 원본 6.2.2의 기능·UI Kotlin 전체 이식 및 기능 동등성 검증이 끝나기 전에는 개인 패치를 적용하지 않는다. 디시콘 가로 휠은 **6.2.2 순정 구현**을 유지하고 구형 개인 캡처 패치를 재도입하지 않는다. 개인 패치의 채택·폐기·미검증 구분은 `docs/PATCH-DECISIONS.md`를 따른다.
+7. **작업 순서·최종본 보존**: 순정 6.2.2의 Kotlin 이식과 기능 동등성 검증을 먼저 진행한다. 개인 패치의 **구현 사양은 SHA-256 `5ff415d0c1810c7eac65ade248898a3056d26f37c6938c90dfe1099e406b72a0` 최종 ZIP의 실제 JS/CSS 및 `PATCH-NOTES.md`만** 기준으로 삼고 `docs/FINAL-ZIP-REVERSE-ENGINEERING.md`에서 확인한다. 구형 YouTube iframe/URL/1px/OG 템플릿은 ZIP에서 폐기됐다. 이전 합의·역사 기록으로 ZIP의 구현 사양을 덮어쓰지 않는다. 검증되지 않은 ZIP 기능은 검증 완료라고 주장하지 않는다.
 8. **PR 기반 개발**: 단계별 브랜치/PR, 통과한 변경만 `main`에 병합한다. 커밋 메시지는 한국어 본문과 명확한 변경 범위를 선호한다.
 9. **GPL-3.0**: 원본 코드/파생 코드를 포함하면 기존 라이선스와 저작권 고지를 보존한다.
 
-진행 계획: `docs/MIGRATION.md`. 확정 패치 범위: `docs/PATCH-DECISIONS.md`. 감사 기록: `docs/KOTLIN-AUDIT.md`.
+진행 계획: `docs/MIGRATION.md`. **최종 개인 패치 구현 기준: `docs/FINAL-ZIP-REVERSE-ENGINEERING.md`와 원본 ZIP**. 과거 기록: `docs/PATCH-DECISIONS.md`. 이식 감사: `docs/KOTLIN-AUDIT.md`.
