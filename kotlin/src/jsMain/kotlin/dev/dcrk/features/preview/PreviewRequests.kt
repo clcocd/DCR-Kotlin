@@ -6,6 +6,10 @@ import kotlin.js.jsTypeOf
 import kotlin.math.ceil
 import kotlin.math.max
 
+/** 디시콘 패키지 캐시 용량(100개)과 유효시간(10분)은 Kotlin에서 결정한다. */
+internal fun createDcconPackageCache(factory: (dynamic) -> dynamic): dynamic =
+    factory(props("maxSize" to 100, "maxAge" to 600_000))
+
 internal fun createPreviewRequests(s: dynamic): dynamic {
     fun viewUrl(link: String, gallery: String, id: String): String = "${s.urls.base}${s.galleryPath(link)}board/view/?id=$gallery&no=$id"
     fun fetchPost(pre: dynamic, signal: dynamic): Promise<dynamic> = jsPromise {

@@ -8,14 +8,12 @@ import {kotlinBridge} from "@/kotlin/bridge";
 import type {DcinsideDcconDetailList, DcinsideDcconPackage} from "./types";
 
 /**
- * 디시콘 관련 캐시의 수명. 창을 닫았다 열어도 다시 받지 않고, 새로 산 디시콘이 보이도록 이 뒤에는 다시 받는다.
+ * 디시콘 코드별 패키지 정보. Kotlin이 원본 용량·만료 시간 설정을 만들고
+ * TypeScript에서는 QuickLRU 생성자만 전달한다.
  */
-const DCCON_TTL = 10 * 60_000;
-
-/**
- * 디시콘 코드별 패키지 정보. 같은 디시콘을 다시 눌러도 받지 않는다. 정보 창과 디시콘 버블이 같이 쓴다.
- */
-export const dcconPackages = new QuickLRU<string, DcinsideDcconPackage>({maxSize: 100, maxAge: DCCON_TTL});
+export const dcconPackages = kotlinBridge.createDcconPackageCache<DcinsideDcconPackage>(
+    (options) => new QuickLRU<string, DcinsideDcconPackage>(options)
+);
 
 type DcconListResult = DcinsideDcconDetailList[] | "not_login" | "shop";
 

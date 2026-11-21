@@ -200,6 +200,7 @@ fun main() {
     api.createUserBubble = ::createUserBubble
     api.createMemoDialog = ::createMemoDialog
     api.createBlockRequest = ::createBlockRequest
+    api.createDcconPackageCache = ::createDcconPackageCache
     api.createDcconRequests = ::createDcconRequests
     api.createManageRequests = ::createManageRequests
     api.txtconGraphemes = ::txtconGraphemes
