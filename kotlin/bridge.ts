@@ -405,6 +405,7 @@ interface KotlinBridge {
     createPreviewMediaHooks(services: object): {
         usePreviewMedia(ref: React.RefObject<HTMLElement | null>, html: string | undefined, gallery: string | undefined, hideOnly?: boolean, hideMedia?: boolean): void;
         markBlockedDccons(root: HTMLElement, gallery: string | undefined, block: ModuleSettings["block"] | undefined, hideOnly: boolean): void;
+        installExternalEmbeds(root: HTMLElement): () => void;
     };
     keepTabInside(event: React.KeyboardEvent<HTMLDivElement>): void;
     createDialogs<T>(services: object): T;
