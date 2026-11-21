@@ -2,6 +2,14 @@ package dev.dcrk
 
 import dev.dcrk.block.*
 
+/** 원본 6.2.2 차단 설정 설명: 불일치/불포함 규칙의 의미도 그대로 보존한다. */
+internal fun optionDetectModeDescriptions(): dynamic = props(
+    "SAME" to "값과 똑같으면 가립니다.",
+    "CONTAIN" to "값이 들어 있으면 가립니다.",
+    "NOT_SAME" to "값과 똑같은 것만 남기고 나머지를 모두 가립니다.\n불일치, 불포함 항목이 여럿이면 하나에만 맞아도 남깁니다.",
+    "NOT_CONTAIN" to "값이 들어 있는 것만 남기고 나머지를 모두 가립니다.\n불일치, 불포함 항목이 여럿이면 하나에만 맞아도 남깁니다."
+)
+
 private val firstCode = Regex("""^\^\(((?:\\x[0-9a-f]{2})?\w+)[|)]""")
 private val factoredCode = Regex("""^\^\(\?:((?:\\x[0-9a-f]{2})?\w+)\(\?:((?:\\x[0-9a-f]{2})?\w+)\|""")
 private val initialHex = Regex("""^\\x([0-9a-f]{2})""")

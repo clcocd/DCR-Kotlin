@@ -639,6 +639,7 @@ interface KotlinBridge {
     createMemoTab(services: Record<string, unknown>): () => React.ReactNode;
     parseAppMemos(text: string): {memos: Record<"UID" | "IP", Record<string, string>>; skipped: number};
     formatAppMemos(memos: Record<MemoType, Record<string, MemoEntry>>): {text: string; count: number; skipped: number};
+    optionDetectModeDescriptions(): Record<DetectMode, string>;
     createBlockDialog(services: Record<string, unknown>): (props: unknown) => React.ReactNode;
     createBlockTab(services: Record<string, unknown>): () => React.ReactNode;
     optionDcconImage(entry: BlockEntry): string;

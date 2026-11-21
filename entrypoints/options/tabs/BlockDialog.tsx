@@ -18,12 +18,7 @@ import {messageOf, SAVE_FAILED} from "@/utils/error";
 import {RefresherSelect} from "../shared/RefresherSelect";
 
 /** 모드마다 무엇을 가리는지. NOT_*는 한 유형의 불일치, 불포함 항목을 묶은 허용 목록이라(core/block.ts) 나머지가 모두 가려진다. */
-export const DETECT_MODE_DESCRIPTIONS: Record<DetectMode, string> = {
-    SAME: "값과 똑같으면 가립니다.",
-    CONTAIN: "값이 들어 있으면 가립니다.",
-    NOT_SAME: "값과 똑같은 것만 남기고 나머지를 모두 가립니다.\n불일치, 불포함 항목이 여럿이면 하나에만 맞아도 남깁니다.",
-    NOT_CONTAIN: "값이 들어 있는 것만 남기고 나머지를 모두 가립니다.\n불일치, 불포함 항목이 여럿이면 하나에만 맞아도 남깁니다."
-};
+export const DETECT_MODE_DESCRIPTIONS: Record<DetectMode, string> = kotlinBridge.optionDetectModeDescriptions();
 
 interface BlockDialogProps {
     type: BlockType;
