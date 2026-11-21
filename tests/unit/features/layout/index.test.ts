@@ -1,5 +1,5 @@
 // @vitest-environment-options {"url": "https://gall.dcinside.com/board/lists/?id=test"}
-import {afterEach, expect, it, vi} from "vitest";
+import {afterEach, expect, it, onTestFinished, vi} from "vitest";
 
 import layout from "@/features/layout/index";
 import meta from "@/features/layout/meta";
@@ -86,4 +86,54 @@ it("Kotlin layout 메타는 설정 스키마의 같은 객체를 내보낸다", 
     expect(meta.id).toBe("layout");
     expect(meta.settings).toBe(settings);
     expect(Object.keys(meta.settings ?? {})).toEqual(Object.keys(settings));
+});
+
+const loginFixture = () => {
+    const wrapper = document.createElement("section");
+    wrapper.innerHTML = '<div id="login-origin"><span id="before">앞</span><div id="login_box">로그인</div><span id="after">뒤</span></div>'
+        + '<div id="header"><div id="hdline_ban">배너</div></div>';
+    document.body.append(wrapper);
+    onTestFinished(() => wrapper.remove());
+    return {
+        origin: wrapper.querySelector("#login-origin")!,
+        login: wrapper.querySelector("#login_box")!,
+        banner: wrapper.querySelector("#hdline_ban")!
+    };
+};
+
+it("본문 확장 중 로그인 박스를 옮기고 컴팩트·설정 해제·모듈 종료에 원래 위치로 돌린다", async () => {
+    const {origin, login, banner} = loginFixture();
+    running = await runModule(layout, {pushToRight: true, hideUselessView: true});
+    document.dispatchEvent(new Event("DOMContentLoaded"));
+    expect(login.nextElementSibling).toBe(banner);
+    expect(html.classList.contains("refresherGallLoginBox")).toBe(true);
+    expect(origin.querySelector("#login_box")).toBeNull();
+
+    running.change({forceCompact: true});
+    expect(origin.querySelector("#login_box")).toBe(login);
+    expect(login.previousElementSibling?.id).toBe("before");
+    expect(login.nextElementSibling?.id).toBe("after");
+    expect(html.classList.contains("refresherGallLoginBox")).toBe(false);
+
+    running.change({forceCompact: false});
+    expect(login.nextElementSibling).toBe(banner);
+    running.change({hideUselessView: false});
+    expect(origin.querySelector("#login_box")).toBe(login);
+
+    running.change({hideUselessView: true});
+    expect(login.nextElementSibling).toBe(banner);
+    running.stop();
+    running = undefined;
+    expect(origin.querySelector("#login_box")).toBe(login);
+    expect(html.classList.contains("refresherGallLoginBox")).toBe(false);
+    expect(origin.childNodes.length).toBe(3);
+});
+
+it("대상 배너가 없으면 로그인 박스를 건드리지 않는다", async () => {
+    const {origin, login, banner} = loginFixture();
+    banner.remove();
+    running = await runModule(layout, {pushToRight: true, hideUselessView: true});
+    document.dispatchEvent(new Event("DOMContentLoaded"));
+    expect(origin.querySelector("#login_box")).toBe(login);
+    expect(html.classList.contains("refresherGallLoginBox")).toBe(false);
 });
