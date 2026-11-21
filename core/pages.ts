@@ -13,7 +13,3 @@ export const CONTENT_EXCLUDE_MATCHES = [
     "https://sign.dcinside.com/*"
 ];
 
-export const BOARD_PAGE = /\/board\/(view|lists)/;
-export const VIEW_PAGE = /\/board\/view/;
-export const WRITE_PAGE = /\/board\/(write|modify)/;
-export const LIST_PAGE = /\/board\/lists/;
