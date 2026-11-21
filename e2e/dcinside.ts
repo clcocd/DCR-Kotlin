@@ -73,6 +73,9 @@ export class FakeSite {
 
     dcconListState: "available" | "empty" | "failed" = "available";
 
+    /** 선택창에서 별도로 요청하는 최근 디시콘 횟수. */
+    dcconRecentRequests = 0;
+
     /** 받은 쓰기 요청 (댓글 작성, 삭제, 디시콘 댓글, 관리자 글 삭제). fcmToken은 그 머리의 값이다. */
     readonly submitted: { path: string; body: URLSearchParams; fcmToken?: string }[] = [];
 
@@ -155,6 +158,10 @@ export class FakeSite {
                 detail: second ? [{idx: "81", path: "81", title: "인사"}] : [{idx: DCCON.detail_idx, path: DCCON.detail_idx, title: DCCON.title}], tags: []});
             }
             case "/dccon/lists":
+                if (new URLSearchParams(request.postData() ?? "").get("target") === "recent") {
+                    this.dcconRecentRequests++;
+                    return json({target: "recent", list: [DCCON]});
+                }
                 if (this.dcconListState === "failed") return json({target: "icon", list: null});
                 if (this.dcconListState === "empty") return json({target: "icon", max_page: 0, list: []});
                 // 패키지 줄을 키보드로 옮겨 보도록 패키지를 둘 준다.
