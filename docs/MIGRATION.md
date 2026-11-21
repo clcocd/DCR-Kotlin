@@ -37,7 +37,7 @@
 
 ## 개인 패치 상태
 
-**전체 Kotlin 포팅과 원본 기능 동등성 검증 전에는 개인 패치를 적용하지 않는다.** 2026-10-21 최종 이식/제외 범위를 `docs/PATCH-DECISIONS.md`에 기록했다.
+**전체 Kotlin 포팅과 원본 기능 동등성 검증 전에는 개인 패치를 적용하지 않는다.** 현재 개인 패치의 실제 구현 기준은 SHA-256으로 고정한 최종 ZIP과 `docs/FINAL-ZIP-REVERSE-ENGINEERING.md`이며, `docs/PATCH-DECISIONS.md`의 2026-10-21 목록은 역사적 참고 기록이다. ZIP은 코드의 기준이지 실사이트 검증 완료의 증거가 아니다.
 
 - 디시콘 가로 휠: **6.2.2 순정 구현 유지**, 구형 캡처식 개인 패치 제외.
 - YouTube: 원본 템플릿 목적과 업로드 ZIP의 **실사용 미검증 테스트 변형**을 구분한다.
@@ -60,6 +60,6 @@
 1. **기본 구조 먼저**: Kotlin 단일 모듈과 WXT를 유지한다. `kotlin/src/jsMain/kotlin/dev/dcrk/` 아래 `core/`, `features/`, `ui/`, `runtime/` 역할별 구조를 사용하고, 진입점 `Main.kt`를 `runtime/`으로 이동한다. 파일의 패키지·함수·브리지·동작은 변경하지 않는다. Kotlin 테스트와 확장 빌드로 검증한다.
 2. **기능별 전체 이식**: 남은 TypeScript 기능 구현을 해당 Kotlin 역할 디렉터리에서 이식한다. 기능별 Kotlin 테스트·원본 동등성 검증을 마친 구현만 TypeScript에서 제거하며, 기능별 PR로 완료 여부를 기록한다.
 3. **최종 구조 마무리**: 전체 이식 후 불필요한 TypeScript 연결부와 Kotlin 의존성 관계를 정돈하고, WXT·빌드용 최소 코드만 유지한다. Chrome·Firefox 및 원본 기능 동등성을 다시 검증한다.
-4. **개인 패치**: 위 작업과 동등성 검증을 끝낸 뒤 `docs/PATCH-DECISIONS.md`에서 채택한 패치만 이식한다.
+4. **개인 패치**: 위 작업과 동등성 검증을 끝낸 뒤 **최종 ZIP의 실제 구현**과 `docs/FINAL-ZIP-REVERSE-ENGINEERING.md`를 기준으로 이식한다. 과거 결정을 ZIP의 기능 사양으로 대체하지 않는다.
 
 구조 이동 자체는 기능 이식 완료나 실제 사이트 검증 완료를 뜻하지 않는다.
