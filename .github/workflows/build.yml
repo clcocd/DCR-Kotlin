@@ -20,6 +20,9 @@ jobs:
 
       - uses: ./.github/actions/setup
 
+      - name: 2단계 TypeScript 런타임 연결부 목록
+        run: node scripts/audit-kotlin-boundary.mjs
+
       - name: Kotlin/JS 단위 테스트
         run: ./gradlew --no-daemon :kotlin:jsNodeTest
 
