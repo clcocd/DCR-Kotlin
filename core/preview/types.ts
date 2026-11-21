@@ -30,6 +30,8 @@ export interface User {
 export interface PostInfo {
     header?: string;
     title?: string;
+    /** 디시 원문 제목 옆의 작성 기기 표시. */
+    deviceHtml?: string;
     expire?: string;
     /** 작성 시각 ("2026-09-26 02:29:40"). */
     date?: string;
