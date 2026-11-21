@@ -32,6 +32,7 @@ const boundaryFiles = new Set([
     "core/module/types.ts", "core/pages.ts", "core/storage/types.ts",
     "features/metas.ts", "features/preview/ui/blockedDccons.ts",
     "entrypoints/content/index.ts", "entrypoints/upload-hook.ts",
+    "entrypoints/x-embed.content.ts", // X 위젯 window.twttr 접근이 필요한 MAIN-world 브라우저 경계
     "components/overlay/feature-styles.ts", "components/overlay/shadow.ts",
     "components/overlay/styles.ts"
 ]);
