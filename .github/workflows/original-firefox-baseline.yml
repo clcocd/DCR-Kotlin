@@ -1,6 +1,8 @@
 name: 6.2.2 원본 Firefox 동등성 기준선
 
 on:
+  push:
+    branches: [verify/original-firefox-parity-622]
   pull_request:
   workflow_dispatch:
 
@@ -9,7 +11,7 @@ permissions:
 
 jobs:
   original-firefox:
-    if: github.head_ref == 'verify/original-firefox-parity-622'
+    if: github.event_name == 'push' || github.head_ref == 'verify/original-firefox-parity-622'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
