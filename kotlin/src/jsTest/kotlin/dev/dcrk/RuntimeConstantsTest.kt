@@ -31,6 +31,16 @@ class RuntimeConstantsTest {
     }
 
     @Test
+    fun imageSearchAndIpFormatStayOriginal() {
+        val all = runtimeConstants()
+        assertEquals(
+            """["*://*.dcinside.co.kr/viewimage.php*","*://*.dcinside.com/viewimage.php*"]""",
+            js("JSON.stringify")(all.imageSearch.patterns) as String
+        )
+        assertEquals(2, (all.ip.format as Number).toInt())
+    }
+
+    @Test
     fun originalUiContractsArePreserved() {
         val all = runtimeConstants()
         assertEquals(".refresherBlur, .refresherLowActivityBlur", all.block.blurred as String)
