@@ -2,6 +2,8 @@ import QuickLRU from "quick-lru";
 import {describe, expect, it, vi} from "vitest";
 
 import {getEntry, postKey, restoreArchive, setEntry} from "@/core/preview/cache";
+import {cachedPost, createPostLoader} from "@/features/preview/postLoader";
+import type {PostInfo} from "@/core/preview/types";
 import type {DcinsideComment} from "@/core/preview/types";
 
 import {dcComment as comment, preData} from "../../../helpers";
@@ -54,6 +56,31 @@ describe("setEntry", () => {
         vi.advanceTimersByTime(1_000);
         expect(remove).toHaveBeenCalledWith(postKey(pre));
         remove.mockRestore();
+    });
+});
+
+describe("미리보기 본문 재사용", () => {
+    it("본문은 10초 미만에만 재사용하며 2초 신선도와 1분 공유 캐시는 유지한다", async () => {
+        const pre = nextPost();
+        const post = {contents: "캐시된 본문"} as PostInfo;
+        const fetchedAt = Date.now();
+        setEntry(pre, {post, fetchedAt});
+        const now = vi.spyOn(Date, "now");
+        try {
+            const loader = createPostLoader({settings: {disableCache: false}} as Parameters<typeof createPostLoader>[0]);
+            now.mockReturnValue(fetchedAt + 1_999);
+            expect(await loader.getPost(pre)).toMatchObject({post, fresh: true});
+            now.mockReturnValue(fetchedAt + 2_000);
+            expect(await loader.getPost(pre)).toMatchObject({post, fresh: false});
+            now.mockReturnValue(fetchedAt + 9_999);
+            expect(cachedPost(pre)).toEqual({post, age: 9_999});
+            now.mockReturnValue(fetchedAt + 10_000);
+            expect(cachedPost(pre)).toBeUndefined();
+            // 본문 재사용은 끝나도 보관글 폴백에 필요한 공유 캐시 엔트리는 남는다.
+            expect(getEntry(pre)?.post).toBe(post);
+        } finally {
+            now.mockRestore();
+        }
     });
 });
 
