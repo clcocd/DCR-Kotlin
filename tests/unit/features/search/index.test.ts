@@ -4,7 +4,7 @@ import {afterEach, beforeEach, expect, it, vi} from "vitest";
 import {historyDoc} from "@/core/preview/history";
 import search from "@/features/search/index";
 import searchMeta from "@/features/search/meta";
-import {LIST_PAGE, VIEW_PAGE} from "@/core/pages";
+import {LIST_PAGE, VIEW_PAGE} from "@/core/pagePatterns";
 import type {SelectedUser} from "@/stores/ui";
 
 import {type Running, runModule} from "../module";
