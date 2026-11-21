@@ -22,6 +22,7 @@ import {watchGifVideos} from "./gifVideos";
 import {NO_REPLY, parseDate, refreshCommentsOf, toggled, usePreviewStore} from "./previewStore";
 import {TimeStamp} from "./TimeStamp";
 import {UserCard} from "./UserCard";
+import {WriteComment} from "./WriteComment";
 
 interface CommentProps {
     comment: ProcessedComment;
@@ -45,5 +46,5 @@ export const {Comment, CommentDeletePrompt, notifyDeleted, noticeDeleteWarning} 
     react, store: usePreviewStore, noReply: NO_REPLY, toggled, parseDate, refreshCommentsOf, ConfirmDialog,
     DialogActions, ModalDialog, SubmitForm, Button, buttonVariants, Checkbox, DialogHeader, DialogTitle, Input,
     adminDeleteComments, notifyManage, deleteOwnComment, savedNonmember, markPressable, pressContents,
-    openDcconInfo, fitTxtconNearView, watchGifVideos, TimeStamp, UserCard, Check, ChevronDown, ReplyIcon, X, cn
+    openDcconInfo, fitTxtconNearView, watchGifVideos, TimeStamp, UserCard, WriteComment, Check, ChevronDown, ReplyIcon, X, cn
 });
