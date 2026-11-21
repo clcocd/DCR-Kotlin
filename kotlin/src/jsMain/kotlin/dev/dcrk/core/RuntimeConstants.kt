@@ -25,6 +25,12 @@ internal fun runtimeConstants(): dynamic {
             )
         ),
         "writerParams" to props("uid" to "rf_uid", "ip" to "rf_ip"),
+        "pagePatterns" to props(
+            "board" to js("RegExp")("/board/(view|lists)"),
+            "view" to js("RegExp")("/board/view"),
+            "write" to js("RegExp")("/board/(write|modify)"),
+            "list" to js("RegExp")("/board/lists")
+        ),
         "imageSearch" to props("patterns" to arrayOf(
             "*://*.dcinside.co.kr/viewimage.php*", "*://*.dcinside.com/viewimage.php*"
         )),
