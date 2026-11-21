@@ -24,7 +24,7 @@ internal fun createDcconRequests(s: dynamic): dynamic {
     fun fetchPackage(code: String, signal: dynamic): Promise<dynamic> = jsPromise {
         val body = awaitJs(s.csrfBody(props("code" to code)))
         val text = awaitJs(s.ajax.post(urls.detail, props("body" to body, "signal" to signal)).text()) as String
-        if (text.trim() == "error") error("디시콘 정보가 잘못되었습니다.")
+        if (text.trim().trim('"') == "not_login") return@jsPromise "not_login"
         val response = js("JSON.parse")(text)
         if (!record(response) || !record(response.info) || isArray(response.detail) != true || isArray(response.tags) != true) {
             error("디시콘 정보가 아닙니다.")
