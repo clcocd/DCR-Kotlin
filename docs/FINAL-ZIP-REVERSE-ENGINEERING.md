@@ -2,6 +2,8 @@
 
 본 문서는 **사용자 최종 ZIP에서 직접 확인한 코드**를 기준으로 한다. 이전 대화의 템플릿이나 구형 패치 동작을 이식 요구사항으로 취급하지 않는다.
 
+**범위 정정:** 이 파일은 이전 PR #76에서 추출한 **대표 코드 계약**이지 개인 패치 전수 목록이 아니다. **추가로 직접 확인한 개별 동작과 노트 확인/코드 확인/순정 6.2.2 반영 여부는 [`FINAL-ZIP-PATCH-INVENTORY.md`](FINAL-ZIP-PATCH-INVENTORY.md)에 상세 분류했다.** 두 문서 어느 쪽도 순정 컴파일 산출물과의 완전 비교나 실사이트 검증이 완료됐음을 의미하지 않는다.
+
 - 입력: `dcrefresher-reborn-6.2.2-doublecon-empty-message-unified.zip`
 - SHA-256: `5ff415d0c1810c7eac65ade248898a3056d26f37c6938c90dfe1099e406b72a0`
 - 출처: ZIP 내부 `PATCH-NOTES.md`, `manifest.json`, `content-scripts/content.js`, `content-scripts/content.css`, `content-scripts/page.css`, `content-scripts/local-fixes.js`, `content-scripts/x-embed-main.js`
