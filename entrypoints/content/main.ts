@@ -6,7 +6,7 @@ import {documentUrl} from "@/core/http/urls";
 import {onMessage} from "@/core/messaging/protocol";
 import {loadAll, pageState, runPageToggle, runShortcut, settledPageState, stopAll} from "@/core/module/registry";
 import {enablesOf, isModuleEnabled} from "@/core/module/settings";
-import {BOARD_PAGE} from "@/core/pages";
+import {BOARD_PAGE} from "@/core/pagePatterns";
 import {MODULES_KEY} from "@/core/storage/items";
 
 import loaders from "@/features";
