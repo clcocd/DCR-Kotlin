@@ -69,7 +69,7 @@ internal fun createDcconRequests(s: dynamic): dynamic {
     fun fetchRecent(signal: dynamic): Promise<dynamic> = jsPromise {
         val body = awaitJs(s.csrfBody(props("target" to "recent", "page" to "0")))
         val text = awaitJs(s.ajax.post(urls.lists, props("body" to body, "signal" to signal)).text()) as String
-        if (Regex("^\\\"?not_login\\\"?$").matches(text.trim())) return@jsPromise "not_login"
+        if (text.trim() == "not_login" || text.trim() == "\\"not_login\\"") return@jsPromise "not_login"
         val result = js("JSON.parse")(text)
         if (result?.target == "shop") return@jsPromise emptyArray<dynamic>()
         if (!record(result) || isArray(result.list) != true) error("최근 디시콘 목록이 아닙니다.")
