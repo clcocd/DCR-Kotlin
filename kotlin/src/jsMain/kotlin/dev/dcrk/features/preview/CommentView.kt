@@ -78,11 +78,22 @@ internal fun createCommentView(s: dynamic): dynamic {
             props("type" to "button", "className" to variants("aria-expanded:not-hover:bg-transparent"), "aria-label" to "$who 댓글의 답글 ${replyCount}개",
                 "aria-expanded" to !collapsed, "onClick" to { toggleCollapse(no) }, "title" to if (collapsed) "답글 펼치기" else "답글 접기"),
             ui.h(s.ChevronDown, props("className" to s.cn("transition-transform motion-reduce:transition-none", if (collapsed) "-rotate-90" else false)))) else null
+        fun toggleReply() {
+            val next = if (replying) s.noReply else props("commentNo" to if (nested) item.c_no else no, "replyNo" to no)
+            store.setState(props("reply" to next))
+        }
+        val clickEmpty: (dynamic) -> Unit = click@{ event ->
+            if (!canReply || event.button != 0) return@click
+            val target = event.target
+            if (js("Element.prototype").isPrototypeOf(target) != true ||
+                target.closest("a, button, input, textarea, select, label, [role='button'], [contenteditable], .refresher-user, img, video, audio, iframe, .coment_dccon_txt, .comment_dccon") != null ||
+                js("window.getSelection()")?.isCollapsed == false) return@click
+            if (isDccon && target.closest(".refresher-comment-html") != null) return@click
+            toggleReply()
+        }
         val reply = if (canReply) ui.h("button", props("type" to "button", "className" to variants(if (replying) "text-link" else false),
-            "aria-label" to "$who 댓글에 답글", "aria-pressed" to replying, "onClick" to {
-                val next = if (replying) s.noReply else props("commentNo" to if (nested) item.c_no else no, "replyNo" to no)
-                store.setState(props("reply" to next))
-            }), ui.h(if (replying) s.Check else s.ReplyIcon)) else null
+            "aria-label" to "$who 댓글에 답글", "aria-pressed" to replying, "onClick" to { toggleReply() }),
+            ui.h(if (replying) s.Check else s.ReplyIcon)) else null
         val remove = if (canDelete) ui.h("button", props("type" to "button", "className" to variants(undefinedValue()),
             "aria-label" to "$who 댓글 삭제", "disabled" to deleting, "onClick" to {
                 val kind = if (admin || truthy(item.user_id)) "confirm" else "password"
@@ -96,8 +107,8 @@ internal fun createCommentView(s: dynamic): dynamic {
             if (fresh) "animate-fresh-comment" else false, if (deleted) "opacity-60" else false,
             if (p.threadOpen == true) THREAD_OPEN else false, if (depth == 1) REPLY else false,
             if (depth == 1 && p.lastReply != true) REPLY_CONTINUES else false)
-        ui.h("div", props("className" to css, "data-no" to no, "data-deleted" to if (deleted) true else undefinedValue(),
-            "data-blocked" to item.blocked, "data-low-activity" to item.lowActivity,
+        val row = ui.h("div", props("className" to css, "data-no" to no, "data-deleted" to if (deleted) true else undefinedValue(),
+            "data-blocked" to item.blocked, "data-low-activity" to item.lowActivity, "onClick" to clickEmpty,
             "data-duplicate" to if (item.duplicates === 0) true else undefinedValue(), "data-fresh" to if (fresh) true else undefinedValue()),
             ui.div("flex items-center justify-between gap-2",
                 ui.div("flex min-w-0 items-center gap-1", checkbox, ui.h(s.UserCard, props("user" to user, "op" to op)),
@@ -105,6 +116,8 @@ internal fun createCommentView(s: dynamic): dynamic {
                 ui.div("flex shrink-0 items-center gap-3", reply, remove,
                     ui.h(s.TimeStamp, props("date" to string(item.reg_date ?: item.date_time ?: ""))))),
             player, ui.h(body, props("html" to html, "isDccon" to isDccon, "isDeleted" to deleted)))
+        val inlineForm = if (replying && canReply) ui.h(s.WriteComment, props("inlineReply" to true, "key" to no)) else null
+        ui.h(react.Fragment, null, row, inlineForm)
     }
 
     fun notify(pre: dynamic, request: dynamic): Promise<Boolean> = jsPromise {

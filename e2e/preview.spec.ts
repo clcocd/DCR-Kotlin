@@ -637,7 +637,7 @@ test.describe("댓글 쓰기, 지우기", () => {
         await expect(frame.getByRole("textbox", {name: "답글 입력", exact: true})).toBeFocused();
         await expect(frame.getByText("ㅇㅇ에게 답글", {exact: true})).toBeVisible();
         await frame.getByRole("textbox", {name: "답글 입력", exact: true}).fill("답글에 단 답글");
-        await frame.getByRole("button", {name: "작성", exact: true}).click();
+        await frame.getByRole("button", {name: "답글 작성", exact: true}).click();
 
         await expect(frame.getByText("답글에 단 답글", {exact: true})).toBeVisible();
         const {body} = site.submitted[0]!;
