@@ -112,21 +112,24 @@ internal fun createCommentSender(s: dynamic): dynamic {
     }
     fun post(pre: dynamic, post: dynamic, user: dynamic, content: dynamic, reply: dynamic, captcha: dynamic, turnstile: dynamic) = jsPromise {
         val icon = (content.dccons.length as Int) > 0
+        val doubleTxtcon = truthy(content.txtconDouble)
         val txtcon = truthy(content.txtcon)
+        val iconComment = icon || txtcon || doubleTxtcon
         val rcKey = randomKey()
         val send: (dynamic) -> dynamic = { token ->
             val fields = js("Object").assign(props("user" to user), reply,
                 props("captcha" to captcha, "grecaptchaToken" to token, "turnstile" to turnstile))
-            if (txtcon) s.submitTxtcon(pre, post, js("Object").assign(fields, props("text" to content.text, "colors" to content.txtcon)))
+            if (doubleTxtcon) s.submitTxtcon(pre, post, js("Object").assign(fields, props("double" to content.txtconDouble)))
+            else if (txtcon) s.submitTxtcon(pre, post, js("Object").assign(fields, props("text" to content.text, "colors" to content.txtcon)))
             else s.submitComment(pre, post, js("Object").assign(fields, props("memo" to if (icon) content.dccons else content.text,
                 "bigDccon" to (icon && content.bigDccon == true), "rcKey" to rcKey)))
         }
-        val challenge = if (icon || txtcon) props("action" to "insert_icon") else props("action" to "comment_submit", "rcKey" to rcKey)
+        val challenge = if (iconComment) props("action" to "insert_icon") else props("action" to "comment_submit", "rcKey" to rcKey)
         val response = sendWithChallenge(send, challenge)
         val result = response.result as String
-        if (if (icon || txtcon) result == "ok" else isPosted(response)) return@jsPromise props("ok" to true)
+        if (if (iconComment) result == "ok" else isPosted(response)) return@jsPromise props("ok" to true)
         if (response.message == "captcha") return@jsPromise props("ok" to false, "captcha" to true)
-        val message = if (result == "false") s.resultMessage(response) else failures[result] ?: (if (icon) iconFailures[result] else null)
+        val message = if (result == "false") s.resultMessage(response) else failures[result] ?: (if (icon || doubleTxtcon) iconFailures[result] else null)
         props("ok" to false, "captcha" to false, "message" to if (truthy(message)) message else "댓글을 작성하지 못했습니다.")
     }
     fun delete(pre: dynamic, post: dynamic, id: String, password: String) = jsPromise {

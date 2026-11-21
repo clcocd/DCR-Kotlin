@@ -4,7 +4,13 @@ import {urls} from "@/core/http/urls";
 
 import {fcmToken} from "./fcm";
 import {dcBody, type SubmitResult, submitResult} from "./response";
-import type {GalleryPreData, PostInfo} from "./types";
+import type {DcinsideDccon, GalleryPreData, PostInfo} from "./types";
+
+type TxtconColors = { bg: string; txt: string };
+type DoubleTxtconSlot =
+    | { type: "txtcon"; text: string; colors: TxtconColors }
+    | ({ type: "dccon" } & Pick<DcinsideDccon, "package_idx" | "detail_idx">);
+export type DoubleTxtcon = [DoubleTxtconSlot, DoubleTxtconSlot];
 
 export const TXTCON_BACKGROUNDS = kotlinBridge.txtconBackgrounds;
 export const TXTCON_COLORS = kotlinBridge.txtconColors;
@@ -13,8 +19,6 @@ export const {txtconGraphemes: graphemes, wrapTxtcon, normalizeTxtcon} = kotlinB
 
 interface TxtconSubmitFields {
     user: { name: string; pw?: string };
-    text: string;
-    colors: { bg: string; txt: string };
     commentNo: string | null;
     replyNo: string | null;
     captcha?: string;
@@ -24,5 +28,6 @@ interface TxtconSubmitFields {
 }
 
 export const submitTxtcon = kotlinBridge.createTxtconSubmission<
-    (preData: GalleryPreData, postInfo: PostInfo, fields: TxtconSubmitFields) => Promise<SubmitResult>
+    (preData: GalleryPreData, postInfo: PostInfo, fields: TxtconSubmitFields &
+        ({ text: string; colors: TxtconColors } | { double: DoubleTxtcon })) => Promise<SubmitResult>
 >({ajax, urls, fcmToken, dcBody, submitResult});

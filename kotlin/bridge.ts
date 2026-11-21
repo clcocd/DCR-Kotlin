@@ -262,7 +262,7 @@ interface KotlinBridge {
         };
         urls: {
             base: string; vote: string; comments: string; comments_submit: string; dccon_comments_submit: string;
-            txtcon_submit: string; comment_remove: string;
+            txtcon_submit: string; txtcon_double_submit: string; comment_remove: string;
             dccon: {lists: string; detail: string; buy: string; image: string; shop: string};
             database: {version: string; ip: string};
         };

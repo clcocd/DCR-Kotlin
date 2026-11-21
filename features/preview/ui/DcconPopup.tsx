@@ -19,6 +19,7 @@ import {smoothScroll} from "@/utils/dom";
 interface DcconPopupProps {
     onSelect: (dccons: DcinsideDccon[], bigDccon: boolean) => void;
     onClose: () => void;
+    onTxtcon?: () => void;
 }
 
 export const DcconPopup = kotlinBridge.createDcconPicker<DcconPopupProps>({

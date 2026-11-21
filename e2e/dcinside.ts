@@ -71,6 +71,8 @@ export class FakeSite {
     /** 글이 정한 댓글 대상 ($(document).data('comment_id', 'comment_no')). 없으면 그 글이다. */
     commentTarget: { id: string; no: string } | null = null;
 
+    dcconListState: "available" | "empty" | "failed" = "available";
+
     /** 받은 쓰기 요청 (댓글 작성, 삭제, 디시콘 댓글, 관리자 글 삭제). fcmToken은 그 머리의 값이다. */
     readonly submitted: { path: string; body: URLSearchParams; fcmToken?: string }[] = [];
 
@@ -120,6 +122,10 @@ export class FakeSite {
                 this.comments.push(fakeComment(no, {c_no: parent ?? String(no), depth: parent ? 1 : 0, name: body.get("name") ?? "", memo: body.get("memo") ?? ""}));
                 return text(String(no));
             }
+            case "/txtcon/insert":
+            case "/txtcon/insert_double":
+                form();
+                return text("ok");
             case "/dccon/insert_icon": {
                 const body = form();
                 this.comments.push(fakeComment(this.nextCommentNo(), {name: body.get("name") ?? "", memo: `<img class="written_dccon" src="${DCCON.list_img}" alt="${DCCON.title}">`}));
@@ -149,6 +155,8 @@ export class FakeSite {
                 detail: second ? [{idx: "81", path: "81", title: "인사"}] : [{idx: DCCON.detail_idx, path: DCCON.detail_idx, title: DCCON.title}], tags: []});
             }
             case "/dccon/lists":
+                if (this.dcconListState === "failed") return route.fulfill({status: 500, body: "error"});
+                if (this.dcconListState === "empty") return json({target: "icon", max_page: 0, list: []});
                 // 패키지 줄을 키보드로 옮겨 보도록 패키지를 둘 준다.
                 return json({target: "icon", max_page: 0, list: [
                     {package_idx: DCCON.package_idx, title: "테스트콘", main_img_url: DCCON.list_img, detail: [DCCON]},

@@ -3,12 +3,15 @@ import {sendMessage, type TurnstileResult} from "@/core/messaging/protocol";
 import {type ManageResult, resultMessage, submitComment, type SubmitResult, submitTxtcon, userDeleteComment} from "@/core/preview/request";
 import type {DcinsideDccon, GalleryPreData, PostInfo, TurnstileConfig} from "@/core/preview/types";
 
-/** 보낼 댓글. 디시콘이 있으면 디시콘을, txtcon(색)이 있으면 글자콘을, 아니면 글을 보낸다. */
+import type {DoubleTxtcon} from "@/core/preview/txtcon";
+
+/** 텍스트와 함께 글자콘 또는 선택한 디시콘의 전송 데이터를 전달한다. */
 interface CommentContent {
     text: string;
     dccons: DcinsideDccon[];
     bigDccon: boolean;
     txtcon?: { bg: string; txt: string };
+    txtconDouble?: DoubleTxtcon;
 }
 
 /** captcha: 원문 페이지에서만 풀 수 있는 자동입력 방지 확인을 요구받았다. */

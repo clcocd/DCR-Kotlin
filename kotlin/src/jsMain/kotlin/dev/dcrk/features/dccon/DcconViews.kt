@@ -13,9 +13,11 @@ internal fun createDcconPicker(s: dynamic): (dynamic) -> dynamic {
         val double = react.useState(false)
         val big = react.useState(false)
         val selection = react.useState(emptyArray<dynamic>())
+        val unavailable = react.useState(false)
+        val pickingTxtcon = p.onTxtcon != null
         val available = packages[0] as Array<dynamic>
         val chosen = selection[0] as Array<dynamic>
-        val loading = available.isEmpty()
+        val loading = available.isEmpty() && unavailable[0] != true
         val active = available.firstOrNull { it.package_idx === activeId[0] } ?: available.firstOrNull()
         val fetch: () -> dynamic = {
             if (!loading) undefinedValue()
@@ -25,6 +27,10 @@ internal fun createDcconPicker(s: dynamic): (dynamic) -> dynamic {
                 val ok: (dynamic) -> Unit = complete@{ value ->
                     if (signal.aborted == true) return@complete
                     if (kotlin.js.jsTypeOf(value) == "string" || value.length == 0) {
+                        if (pickingTxtcon) {
+                            unavailable[1](true)
+                            return@complete
+                        }
                         val notLogin = value == "not_login"
                         s.uiStore.getState().showToast(if (notLogin) "디시콘은 로그인한 뒤에 쓸 수 있습니다." else "사용 가능한 디시콘이 없습니다.",
                             if (notLogin) "warning" else "error")
@@ -36,8 +42,11 @@ internal fun createDcconPicker(s: dynamic): (dynamic) -> dynamic {
                 }
                 val fail: () -> Unit = {
                     if (signal.aborted != true) {
-                        s.uiStore.getState().showToast("디시콘을 불러오지 못했습니다.", "error")
-                        p.onClose()
+                        if (pickingTxtcon) unavailable[1](true)
+                        else {
+                            s.uiStore.getState().showToast("디시콘을 불러오지 못했습니다.", "error")
+                            p.onClose()
+                        }
                     }
                 }
                 s.fetchDcconList(signal).then(ok, fail)
@@ -78,8 +87,13 @@ internal fun createDcconPicker(s: dynamic): (dynamic) -> dynamic {
                 ui.h(s.FieldLabel, props("htmlFor" to "$id-$key", "className" to "font-normal"), title),
                 ui.h(s.Switch, props("id" to "$id-$key", "size" to "sm", "checked" to state[0], "onCheckedChange" to change)))
         val changeDouble: (Boolean) -> Unit = { double[1](it); selection[1](emptyArray<dynamic>()) }
+        val textChoice = if (pickingTxtcon && !loading)
+            ui.h(s.Button, props("size" to "sm", "variant" to "secondary", "onClick" to p.onTxtcon), "글자콘")
+        else null
         val header = ui.div("flex items-center justify-between", ui.h(s.DialogTitle, null, "디시콘"),
-            ui.div("flex items-center gap-4", toggle("double", "더블콘", double, changeDouble), toggle("big", "대왕콘", big, big[1]), ui.h(s.DialogCloseButton)))
+            ui.div("flex items-center gap-4",
+                if (pickingTxtcon) (if (available.isNotEmpty()) textChoice else null) else toggle("double", "더블콘", double, changeDouble),
+                if (pickingTxtcon) null else toggle("big", "대왕콘", big, big[1]), ui.h(s.DialogCloseButton)))
         val reminder = if (double[0] == true && chosen.isNotEmpty())
             ui.div("flex items-center gap-2", ui.h("img", props("src" to chosen[0].list_img, "alt" to chosen[0].title, "width" to 32, "height" to 32)),
                 ui.span("flex-1 text-muted-foreground", "더블콘 ${chosen.size}/2 - 하나만 더 선택"),
@@ -97,13 +111,18 @@ internal fun createDcconPicker(s: dynamic): (dynamic) -> dynamic {
                         "className" to "cursor-pointer rounded-lg p-0.5 [&>img]:size-full [&>img]:rounded-md [&>img]:object-contain size-12 flex-none border-2 border-transparent aria-pressed:border-primary aria-pressed:bg-transparent"),
                     ui.h("img", props("src" to pack.main_img_url, "alt" to pack.title, "loading" to "lazy", "decoding" to "async"))) }.toTypedArray())
         }
-        val icons = if (loading) placeholder(36, "aspect-square w-full") else
-            ((active?.detail as Array<dynamic>?) ?: emptyArray<dynamic>()).map { item ->
+        val icons = when {
+            loading -> placeholder(36, "aspect-square w-full")
+            pickingTxtcon && unavailable[0] == true -> arrayOf<dynamic>(
+                ui.div("col-span-full flex h-80 flex-col items-center justify-center gap-3 text-center text-sm text-muted-foreground",
+                    ui.h("span", null, "사용 가능한 디시콘이 없습니다."), textChoice))
+            else -> ((active?.detail as Array<dynamic>?) ?: emptyArray<dynamic>()).map { item ->
                 ui.h("button", props("type" to "button", "key" to item.detail_idx, "title" to item.title,
                     "className" to s.cn(s.focusRing, "aspect-square rounded-lg p-0.5 hover:bg-muted [&>img]:size-full [&>img]:rounded-md [&>img]:object-contain"),
                     "onClick" to { choice(item) }),
                     ui.h("img", props("src" to item.list_img, "alt" to item.title, "loading" to "lazy", "decoding" to "async")))
             }.toTypedArray()
+        }
         ui.h(s.ModalDialog, props("onClose" to p.onClose, "className" to "sm:max-w-140", "focusOnOpen" to "keyboard"),
             header, reminder, ui.h("div", props("ref" to strip, "className" to "flex gap-1 overflow-x-auto scrollbar-none aria-busy:overflow-hidden",
                 "aria-busy" to loading, "onScrollEnd" to { wheelTarget.current = null }), packOptions),

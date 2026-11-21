@@ -11,6 +11,7 @@ internal fun runtimeConstants(): dynamic {
             "comments_submit" to "https://gall.dcinside.com/board/forms/comment_submit",
             "dccon_comments_submit" to "https://gall.dcinside.com/dccon/insert_icon",
             "txtcon_submit" to "https://gall.dcinside.com/txtcon/insert",
+            "txtcon_double_submit" to "https://gall.dcinside.com/txtcon/insert_double",
             "comment_remove" to "https://gall.dcinside.com/board/comment/comment_delete_submit",
             "dccon" to props(
                 "lists" to "https://gall.dcinside.com/dccon/lists",
