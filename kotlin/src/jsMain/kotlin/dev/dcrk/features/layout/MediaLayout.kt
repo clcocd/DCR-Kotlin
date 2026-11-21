@@ -173,7 +173,7 @@ internal fun createPreviewMediaHooks(s: dynamic): dynamic {
             else icon.removeAttribute("data-blocked")
         }
     }
-    fun useMedia(ref: dynamic, html: dynamic, gallery: dynamic, only: dynamic) {
+    fun useMedia(ref: dynamic, html: dynamic, gallery: dynamic, only: dynamic, hideMedia: dynamic) {
         val block = s.useRunningModuleSettings("block")
         val entries = s.useBlocksStore { state: dynamic -> state.entries }
         val defaults = s.useBlocksStore { state: dynamic -> state.defaults }
