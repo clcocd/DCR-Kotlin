@@ -41,6 +41,17 @@ class RuntimeConstantsTest {
     }
 
     @Test
+    fun pagePatternsStayOriginal() {
+        val p = runtimeConstants().pagePatterns
+        assertEquals(true, p.board.test("/board/lists/?id=a") as Boolean)
+        assertEquals(true, p.board.test("/board/view/?id=a") as Boolean)
+        assertEquals(false, p.board.test("/board/write/?id=a") as Boolean)
+        assertEquals(true, p.view.test("/board/view/?id=a") as Boolean)
+        assertEquals(true, p.write.test("/board/modify/?id=a") as Boolean)
+        assertEquals(true, p.list.test("/board/lists/?id=a") as Boolean)
+    }
+
+    @Test
     fun originalUiContractsArePreserved() {
         val all = runtimeConstants()
         assertEquals(".refresherBlur, .refresherLowActivityBlur", all.block.blurred as String)
