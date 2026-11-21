@@ -574,6 +574,8 @@ interface KotlinBridge {
     };
     setupPreview(ctx: Pick<ModuleContext, "signal" | "addCleanup"> & {settings: ModuleSettings["preview"]},
         services: Record<string, unknown>): {archiveArticle(): boolean; isOpen(): boolean};
+    moduleSettingsValue(id: string, state: Record<string, unknown>): unknown;
+    runningModuleSettingsValue(id: string, running: Record<string, boolean>, settings: Record<string, unknown>): unknown;
     createModuleRegistry(services: Record<string, unknown>): {
         getModuleApi<K extends keyof ModuleApis>(id: K): ModuleApis[K] | undefined;
         runShortcut(command: string): void;
