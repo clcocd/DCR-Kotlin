@@ -191,7 +191,8 @@ internal fun createPreviewMediaHooks(s: dynamic): dynamic {
         react.useEffect(embeds, arrayOf<dynamic>(html, hideMedia))
         react.useEffect(update, arrayOf<dynamic>(html, gallery, block, entries, defaults, only))
     }
-    return props("markBlockedDccons" to ::mark, "usePreviewMedia" to ::useMedia)
+    return props("markBlockedDccons" to ::mark, "usePreviewMedia" to ::useMedia,
+        "installExternalEmbeds" to ::installExternalEmbeds)
 }
 
 internal fun createScrollLock(react: dynamic): (Boolean) -> Unit = { active ->
