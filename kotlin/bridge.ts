@@ -431,6 +431,9 @@ interface KotlinBridge {
     createUserBubble<T>(services: object): T;
     createMemoDialog(services: object): () => React.ReactNode;
     createBlockRequest(services: object): (options: BlockRequestOptions, selected: SelectedUser) => Promise<void>;
+    createDcconPackageCache<T>(
+        factory: (options: {maxSize: number; maxAge: number}) => import("quick-lru").default<string, T>
+    ): import("quick-lru").default<string, T>;
     createDcconRequests<T>(services: object): T;
     createManageRequests<T>(services: object): T;
     txtconGraphemes(text: string): string[];
