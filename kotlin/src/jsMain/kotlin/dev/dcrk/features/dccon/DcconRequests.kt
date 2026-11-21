@@ -24,7 +24,7 @@ internal fun createDcconRequests(s: dynamic): dynamic {
     fun fetchPackage(code: String, signal: dynamic): Promise<dynamic> = jsPromise {
         val body = awaitJs(s.csrfBody(props("code" to code)))
         val text = awaitJs(s.ajax.post(urls.detail, props("body" to body, "signal" to signal)).text()) as String
-        if (text.trim().trim('"') == "not_login") return@jsPromise "not_login"
+        if (text.trim() == "error") error("디시콘 정보가 잘못되었습니다.")
         val response = js("JSON.parse")(text)
         if (!record(response) || !record(response.info) || isArray(response.detail) != true || isArray(response.tags) != true) {
             error("디시콘 정보가 아닙니다.")
@@ -69,7 +69,7 @@ internal fun createDcconRequests(s: dynamic): dynamic {
     fun fetchRecent(signal: dynamic): Promise<dynamic> = jsPromise {
         val body = awaitJs(s.csrfBody(props("target" to "recent", "page" to "0")))
         val text = awaitJs(s.ajax.post(urls.lists, props("body" to body, "signal" to signal)).text()) as String
-        if (text.trim() == "not_login" || text.trim() == "\\"not_login\\"") return@jsPromise "not_login"
+        if (text.trim().trim('"') == "not_login") return@jsPromise "not_login"
         val result = js("JSON.parse")(text)
         if (result?.target == "shop") return@jsPromise emptyArray<dynamic>()
         if (!record(result) || isArray(result.list) != true) error("최근 디시콘 목록이 아닙니다.")
