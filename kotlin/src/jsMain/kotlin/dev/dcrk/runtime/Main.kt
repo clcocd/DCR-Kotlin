@@ -45,6 +45,7 @@ fun main() {
     api.imageSearchSettings = ::imageSearchSettings
     api.imageSearchMeta = ::imageSearchMeta
     api.layoutSettings = ::layoutSettings
+    api.layoutMeta = ::layoutMeta
     api.userInfoSettings = ::userInfoSettings
     api.defaultFonts = DEFAULT_FONTS
     api.fontExtensionPageVars = ::fontExtensionPageVars

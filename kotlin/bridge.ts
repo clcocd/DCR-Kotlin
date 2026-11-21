@@ -174,6 +174,15 @@ interface KotlinBridge {
         useCompactModeOnView: {type: "check"; default: boolean};
         pushToRight: {type: "check"; default: boolean};
     } & Record<Key, {type: "check"; default: boolean}>;
+    layoutMeta<Key extends string>(ids: readonly Key[]): {
+        id: "layout";
+        settings: {
+            activePixel: {type: "range"; default: number; min: number; max: number; step: number; unit: string};
+            forceCompact: {type: "check"; default: boolean};
+            useCompactModeOnView: {type: "check"; default: boolean};
+            pushToRight: {type: "check"; default: boolean};
+        } & Record<Key, {type: "check"; default: boolean}>;
+    };
     userInfoSettings<Color extends string>(
         colors: Record<Color, string>,
         filters: Record<"all" | "foreign" | "vpn" | "none", string>,
