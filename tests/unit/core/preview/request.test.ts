@@ -339,6 +339,19 @@ describe("submitComment", () => {
         expect(sent[0]?.body.get("name")).toBe("ㅇㅇ");
     });
 
+    it("글의 댓글 대상이 별도 지정되면 그 대상으로 보내고, 없으면 원래 글로 보낸다", async () => {
+        const sent = serve(fetchMock, () => "1234");
+        const info = form(dValue("207,277,508,373,409,363,349,260.5,239,166"));
+        await submit({...info, commentId: "other", commentNo: "77"});
+        await submit(info);
+
+        const fields = ["id", "no", "c_gall_id", "c_gall_no"];
+        expect(sent.map(({body}) => Object.fromEntries(fields.map((key) => [key, body.get(key)])))).toEqual([
+            {id: "other", no: "77", c_gall_id: "other", c_gall_no: "77"},
+            {id: "a", no: "3", c_gall_id: "a", c_gall_no: "3"}
+        ]);
+    });
+
     it("값이 없거나 숫자로 풀리지 않으면 보내지 않고 알린다", async () => {
         serve(fetchMock, () => "1234");
         for (const value of [undefined, dValue("x07,277"), dValue("207,abc,508"), "!!!!"]) {
