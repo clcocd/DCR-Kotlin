@@ -20,7 +20,7 @@ internal fun createPreviewPostService(services: dynamic): dynamic {
     fun cached(pre: dynamic): dynamic {
         val entry = services.getEntry(pre)
         val age = Date.now() - ((entry?.fetchedAt ?: 0) as Number).toDouble()
-        return if (entry?.post != null && age < 60_000)
+        return if (entry?.post != null && age < 10_000)
             props("post" to entry.post, "age" to age) else undefined
     }
 
