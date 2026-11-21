@@ -3,7 +3,7 @@ package dev.dcrk
 import kotlin.js.Promise
 import kotlin.math.max
 
-internal fun createWriteCommentView(s: dynamic): () -> dynamic {
+internal fun createWriteCommentView(s: dynamic): (dynamic) -> dynamic {
     val react = s.react
     val ui = ReactUi(react)
     val store = s.store
@@ -20,15 +20,17 @@ internal fun createWriteCommentView(s: dynamic): () -> dynamic {
         return (0..7).joinToString("") { ((bytes[it] as Int) % 36).toString(36) }
     }
 
-    return {
-        val reply = store { state: dynamic -> state.reply }
+    return { p: dynamic ->
+        val isInline = p?.inlineReply == true
+        val selectedReply = store { state: dynamic -> state.reply }
+        val reply = if (isInline) selectedReply else s.noReply
         val replyName = store { state: dynamic ->
             val list = state.comments as Array<dynamic>?
             list?.firstOrNull { it.no == state.reply.replyNo }?.name ?: undefinedValue()
         }
         val initialKey: () -> String = {
             val pre = store.getState().preData
-            if (pre != null) s.postKey(pre) as String else ""
+            if (pre != null) (s.postKey(pre) as String) + (if (isInline) "|reply:${reply.replyNo}" else "") else ""
         }
         val key = react.useState(initialKey)[0] as String
         val initialDraft: () -> dynamic = { if (key in sendingKeys) "" else drafts.get(key) ?: "" }
@@ -78,7 +80,7 @@ internal fun createWriteCommentView(s: dynamic): () -> dynamic {
         }
         val beforeTxtcon = react.useRef(null)
         val focusReply: () -> dynamic = {
-            if (truthy(reply.replyNo)) textarea.current?.focus()
+            if (isInline && truthy(reply.replyNo)) textarea.current?.focus()
             undefinedValue()
         }
         react.useEffect(focusReply, arrayOf<dynamic>(reply.replyNo))
@@ -109,7 +111,7 @@ internal fun createWriteCommentView(s: dynamic): () -> dynamic {
             if (useDccon) dcconState[1](pick)
             sendingState[1](true)
             sendingKeys.add(target)
-            val sentReply = state.reply
+            val sentReply = if (isInline) state.reply else s.noReply
             fun samePost() = store.getState().signalId === state.signalId
             try {
                 val code = if (post.requireCommentCaptcha == true) {
@@ -139,7 +141,7 @@ internal fun createWriteCommentView(s: dynamic): () -> dynamic {
                     outcome.ok == true -> {
                         if (!useDccon) {
                             if (textarea.current?.value === raw) textarea.current.value = ""
-                            if (drafts.get(target) === raw) drafts.delete(target)
+                            if (drafts.get(key) === raw) drafts.delete(key)
                         }
                         if (txtcon) txtconState[1](false)
                         if (!login) s.saveNonmember(nick, password)
@@ -209,7 +211,13 @@ internal fun createWriteCommentView(s: dynamic): () -> dynamic {
                     "placeholder" to placeholder, "className" to "flex-1", "onChange" to changePw)))
         } else null
         val toReply = if (truthy(reply.replyNo)) {
-            val cancel: () -> Unit = { store.setState(props("reply" to s.noReply)); textarea.current?.focus() }
+            val cancel: () -> Unit = {
+                store.setState(props("reply" to s.noReply))
+                val focus: (dynamic) -> Unit = { _: dynamic ->
+                    document.querySelector("refresher-root")?.shadowRoot?.querySelector("[aria-label='댓글 입력']")?.focus()
+                }
+                window.requestAnimationFrame(focus)
+            }
             ui.div("mb-1 flex items-center gap-1 text-xs text-muted-foreground",
                 ui.span("truncate", replyName, "에게 답글"),
                 ui.h(s.TooltipButton, props("tip" to "답글 취소", "variant" to "ghost", "size" to "icon-xs", "onClick" to cancel), ui.h(s.X)))
@@ -249,7 +257,7 @@ internal fun createWriteCommentView(s: dynamic): () -> dynamic {
                 ui.h(s.WithTooltip, props("tip" to if (txtcon) "글자콘 취소" else "글자콘",
                     "trigger" to ui.h(s.Button, props("variant" to if (txtcon) "default" else "secondary",
                         "size" to "icon", "aria-label" to "글자콘", "aria-pressed" to txtcon, "onClick" to toggleTxtcon))), ui.h(s.Type))),
-            ui.h(s.Button, props("aria-label" to "작성", "className" to "w-full", "disabled" to sending, "onClick" to { submit() }),
+            ui.h(s.Button, props("aria-label" to if (isInline) "답글 작성" else "작성", "className" to "w-full", "disabled" to sending, "onClick" to { submit() }),
                 if (sending) ui.h(s.Spinner, props("aria-hidden" to true)) else ui.h(s.Send)))
         fun swatches(label: String, key: String, palette: Array<String>): dynamic {
             val select: (Array<String>) -> Unit = { values ->
@@ -277,7 +285,7 @@ internal fun createWriteCommentView(s: dynamic): () -> dynamic {
             dcconOpen[1](false)
             submit(props("list" to list, "big" to big))
         }
-        ui.h("div", props("ref" to box, "className" to "pt-3 pr-14 pb-6 pl-8", "onFocus" to touch), fields,
+        ui.h("div", props("ref" to box, "className" to if (isInline) "refresher-inline-reply border-l-2 border-border py-3 pr-14 pl-8" else "pt-3 pr-14 pb-6 pl-8", "onFocus" to touch), fields,
             toReply, ui.div("flex items-end gap-2", edit, tools), palettes,
             ui.tag("p", "mt-2 text-xs text-muted-foreground", byline, "(으)로 $mode 작성 중"),
             if (dcconOpen[0] == true) ui.h(s.DcconPopup, props("onSelect" to choose, "onClose" to { dcconOpen[1](false) })) else null)
