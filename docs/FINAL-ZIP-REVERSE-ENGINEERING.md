@@ -6,6 +6,7 @@
 - SHA-256: `5ff415d0c1810c7eac65ade248898a3056d26f37c6938c90dfe1099e406b72a0`
 - 출처: ZIP 내부 `PATCH-NOTES.md`, `manifest.json`, `content-scripts/content.js`, `content-scripts/content.css`, `content-scripts/page.css`, `content-scripts/local-fixes.js`, `content-scripts/x-embed-main.js`
 - **주의**: ZIP 노트에서 실제 사이트 렌더링 및 서버 댓글 등록은 최종 검증되지 않았다. 코드 존재를 실사용 검증 통과로 해석하지 않는다.
+- Manifest: Chrome용 MV3에서 `declarativeNetRequestWithHostAccess` 및 `https://*.dcinside.co.kr/*` 선택 host 권한이 있다. 현 Kotlin `wxt.config.ts`에는 이 두 선언이 없어 차이가 확인되지만, 기능 의존 관계 검증 없이 무조건 추가할 사양이라고 단정하지 않는다. ZIP에는 Firefox용 Manifest가 없다.
 
 ## ZIP에서 코드로 확인한 동작
 
