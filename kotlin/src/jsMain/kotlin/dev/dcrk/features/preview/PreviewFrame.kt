@@ -49,7 +49,7 @@ fun createPreviewFrame(s: dynamic): () -> dynamic {
         val root = react.useRef(null)
         val hideText = post?.textBlocked == "hide" && !revealed
         val html = if (hideText) s.blockedText else post?.contents ?: ""
-        s.usePreviewMedia(root, html, gallery)
+        s.usePreviewMedia(root, html, gallery, false, blockImage)
         react.useEffect({
             if (root.current != null) s.markPressable(root.current, viewer)
             undefinedValue()

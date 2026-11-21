@@ -403,8 +403,9 @@ interface KotlinBridge {
     createScrollLock(react: typeof React): (active: boolean) => void;
     createCountDown(services: object): () => React.ReactNode;
     createPreviewMediaHooks(services: object): {
-        usePreviewMedia(ref: React.RefObject<HTMLElement | null>, html: string | undefined, gallery: string | undefined, hideOnly?: boolean): void;
+        usePreviewMedia(ref: React.RefObject<HTMLElement | null>, html: string | undefined, gallery: string | undefined, hideOnly?: boolean, hideMedia?: boolean): void;
         markBlockedDccons(root: HTMLElement, gallery: string | undefined, block: ModuleSettings["block"] | undefined, hideOnly: boolean): void;
+        installExternalEmbeds(root: HTMLElement): () => void;
     };
     keepTabInside(event: React.KeyboardEvent<HTMLDivElement>): void;
     createDialogs<T>(services: object): T;
@@ -526,6 +527,7 @@ interface KotlinBridge {
     };
     createPreviewStateService<T>(services: object): T;
     createPreviewPostService(services: object): {
+        supplementYoutubeEmbeds(html: string): string;
         textBlockOf(preData: GalleryPreData, post: PostInfo): PostInfo["textBlocked"];
         cachedPost(preData: GalleryPreData): {post: PostInfo; age: number} | undefined;
         createPostLoader(ctx: PreviewContext): {

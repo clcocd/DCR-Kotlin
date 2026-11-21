@@ -173,7 +173,7 @@ internal fun createPreviewMediaHooks(s: dynamic): dynamic {
             else icon.removeAttribute("data-blocked")
         }
     }
-    fun useMedia(ref: dynamic, html: dynamic, gallery: dynamic, only: dynamic) {
+    fun useMedia(ref: dynamic, html: dynamic, gallery: dynamic, only: dynamic, hideMedia: dynamic) {
         val block = s.useRunningModuleSettings("block")
         val entries = s.useBlocksStore { state: dynamic -> state.entries }
         val defaults = s.useBlocksStore { state: dynamic -> state.defaults }
@@ -185,9 +185,14 @@ internal fun createPreviewMediaHooks(s: dynamic): dynamic {
         }
         react.useEffect(polls, arrayOf<dynamic>(html))
         react.useEffect(gifs, arrayOf<dynamic>(html))
+        val embeds: () -> dynamic = {
+            if (ref.current == null || hideMedia == true) undefinedValue() else installExternalEmbeds(ref.current)
+        }
+        react.useEffect(embeds, arrayOf<dynamic>(html, hideMedia))
         react.useEffect(update, arrayOf<dynamic>(html, gallery, block, entries, defaults, only))
     }
-    return props("markBlockedDccons" to ::mark, "usePreviewMedia" to ::useMedia)
+    return props("markBlockedDccons" to ::mark, "usePreviewMedia" to ::useMedia,
+        "installExternalEmbeds" to ::installExternalEmbeds)
 }
 
 internal fun createScrollLock(react: dynamic): (Boolean) -> Unit = { active ->

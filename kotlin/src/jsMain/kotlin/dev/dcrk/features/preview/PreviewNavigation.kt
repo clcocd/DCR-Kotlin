@@ -35,7 +35,8 @@ internal fun createPreviewPostService(services: dynamic): dynamic {
             val cache = if (stripMedia) stripped else sanitized
             var contents = cache.get(post)
             if (contents === undefined) {
-                contents = services.sanitizeHtml(post.contents ?: "", props("stripMedia" to stripMedia))
+                val raw = (post.contents as String?) ?: ""
+                contents = services.sanitizeHtml(if (stripMedia) raw else supplementYoutubeEmbeds(raw), props("stripMedia" to stripMedia))
                 cache.set(post, contents)
             }
             js("Object").assign(props(), post, props("contents" to contents, "textBlocked" to textBlock(pre, post)))
@@ -81,7 +82,8 @@ internal fun createPreviewPostService(services: dynamic): dynamic {
             })
     }
 
-    return props("textBlockOf" to ::textBlock, "cachedPost" to ::cached, "createPostLoader" to ::create)
+    return props("textBlockOf" to ::textBlock, "cachedPost" to ::cached, "createPostLoader" to ::create,
+        "supplementYoutubeEmbeds" to ::supplementYoutubeEmbeds)
 }
 
 internal fun createPreviewHistoryController(ctx: dynamic, services: dynamic): dynamic {
