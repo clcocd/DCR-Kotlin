@@ -25,6 +25,7 @@ interface DcconRequests {
     getDcconPackage(code: string, signal?: AbortSignal): Promise<DcinsideDcconPackage>;
     addDcconPackage(id: string | number): Promise<"ok" | "fail" | "not_login">;
     fetchDcconList(signal: AbortSignal): Promise<DcconListResult>;
+    fetchRecentDccons(signal: AbortSignal): Promise<DcinsideDcconDetailList[] | "not_login">;
 }
-export const {cachedDcconList, setCachedDcconList, clearDcconCaches, fetchDcconPackage, getDcconPackage, addDcconPackage, fetchDcconList} =
+export const {cachedDcconList, setCachedDcconList, clearDcconCaches, fetchDcconPackage, getDcconPackage, addDcconPackage, fetchDcconList, fetchRecentDccons} =
     kotlinBridge.createDcconRequests<DcconRequests>({ajax, csrfBody, urls: urls.dccon, cache: dcconPackages});
