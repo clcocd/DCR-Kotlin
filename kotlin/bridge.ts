@@ -267,6 +267,8 @@ interface KotlinBridge {
             database: {version: string; ip: string};
         };
         writerParams: {readonly uid: "rf_uid"; readonly ip: "rf_ip"};
+        imageSearch: {readonly patterns: string[]};
+        ip: {readonly format: 2};
         list: {list: string; paging: string; writerRow: string; listRow: string};
         block: {blurred: string; hidden: string; rowsHiddenEvent: string; blockedText: string};
         write: {submit: string; editor: string; subject: string; auto: string; leave: string; posted: string};

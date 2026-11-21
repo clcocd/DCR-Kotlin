@@ -3,7 +3,7 @@
 import {kotlinBridge} from "@/kotlin/bridge";
 
 /** 저장 형식 버전. 메타에 두고 바뀌면 같은 DB 버전이어도 다시 받는다. */
-export const IP_FORMAT = 2;
+export const IP_FORMAT = kotlinBridge.runtimeConstants.ip.format;
 
 export interface CompactIpData {
     /** 만든 시각. version 파일과 따로 캐시되어 저장 버전은 이것을 쓴다. */

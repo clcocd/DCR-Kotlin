@@ -25,6 +25,10 @@ internal fun runtimeConstants(): dynamic {
             )
         ),
         "writerParams" to props("uid" to "rf_uid", "ip" to "rf_ip"),
+        "imageSearch" to props("patterns" to arrayOf(
+            "*://*.dcinside.co.kr/viewimage.php*", "*://*.dcinside.com/viewimage.php*"
+        )),
+        "ip" to props("format" to 2),
         "list" to props(
             "list" to ".gall_list:not([id]) tbody",
             "paging" to ".left_content article:has(.gall_listwrap) .bottom_paging_box",
