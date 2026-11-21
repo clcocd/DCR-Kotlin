@@ -88,6 +88,7 @@ internal fun createCommentView(s: dynamic): dynamic {
             if (js("Element.prototype").isPrototypeOf(target) != true ||
                 target.closest("a, button, input, textarea, select, label, [role='button'], [contenteditable], .refresher-user, img, video, audio, iframe, .coment_dccon_txt, .comment_dccon") != null ||
                 js("window.getSelection()")?.isCollapsed == false) return@click
+            if (isDccon && target.closest(".refresher-comment-html") != null) return@click
             toggleReply()
         }
         val reply = if (canReply) ui.h("button", props("type" to "button", "className" to variants(if (replying) "text-link" else false),
