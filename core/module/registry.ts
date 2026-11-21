@@ -22,10 +22,10 @@ const moduleApisStore = createStore<Record<string, unknown>>(() => ({}));
 export const subscribeModuleApis = moduleApisStore.subscribe;
 
 export const moduleSettings = <Id extends keyof ModuleSettings>(id: Id, state = moduleSettingsStore.getState()): ModuleSettings[Id] | undefined =>
-    state[id] as ModuleSettings[Id] | undefined;
+    kotlinBridge.moduleSettingsValue(id, state) as ModuleSettings[Id] | undefined;
 
 export const runningModuleSettings = <Id extends keyof ModuleSettings>(id: Id): ModuleSettings[Id] | undefined =>
-    runningModulesStore.getState()[id] ? moduleSettings(id) : undefined;
+    kotlinBridge.runningModuleSettingsValue(id, runningModulesStore.getState(), moduleSettingsStore.getState()) as ModuleSettings[Id] | undefined;
 
 const registry = kotlinBridge.createModuleRegistry({
     addFilter, documentUrl, moduleSettingsStore, runningModulesStore, moduleApisStore, shallow, watchStorage, onBfcacheRestore,
