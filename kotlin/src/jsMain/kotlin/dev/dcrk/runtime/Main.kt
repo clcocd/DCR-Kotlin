@@ -47,6 +47,7 @@ fun main() {
     api.layoutSettings = ::layoutSettings
     api.layoutMeta = ::layoutMeta
     api.userInfoSettings = ::userInfoSettings
+    api.userInfoMeta = ::userInfoMeta
     api.defaultFonts = DEFAULT_FONTS
     api.fontExtensionPageVars = ::fontExtensionPageVars
     api.fontsMeta = ::fontsMeta

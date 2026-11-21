@@ -2,6 +2,7 @@ package dev.dcrk
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertSame
 
 class ModuleSettingsFactoriesTest {
     @Test
@@ -51,6 +52,17 @@ class ModuleSettingsFactoriesTest {
         assertEquals(false, settings.checkRatio.default as Boolean)
         assertEquals(true, settings.showFixedNickUID.default as Boolean)
         assertEquals(true, settings.showHalfFixedNickUID.default as Boolean)
+    }
+
+    @Test
+    fun userInfoMetadataSharesOriginalUrlsAndSettings() {
+        val options = userInfoRuntimeOptions()
+        val settings = userInfoSettings(options.badgeColors, options.ipInfoFilters, options.lowActivityActions)
+        val urls = arrayOf<dynamic>("board")
+        val meta = userInfoMeta(urls, settings)
+        assertEquals("userinfo", meta.id as String)
+        assertSame(urls, meta.urls as Array<dynamic>)
+        assertSame(settings, meta.settings)
     }
 
 }

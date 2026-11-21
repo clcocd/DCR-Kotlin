@@ -16,8 +16,4 @@ export const settings = kotlinBridge.userInfoSettings(
 
 export type Ctx = ModuleContext<typeof settings>;
 
-export default defineModuleMeta({
-    id: "userinfo",
-    urls: [BOARD_PAGE],
-    settings
-});
+export default defineModuleMeta(kotlinBridge.userInfoMeta([BOARD_PAGE], settings));

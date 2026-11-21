@@ -119,6 +119,10 @@ internal fun userInfoColorSettings(colors: dynamic): dynamic {
     return settings
 }
 
+/** WXT의 게시판 정규식과 기존 Kotlin 설정 객체를 그대로 가진 메타데이터. */
+internal fun userInfoMeta(urls: Array<dynamic>, settings: dynamic): dynamic =
+    props("id" to "userinfo", "urls" to urls, "settings" to settings)
+
 /** 원본 6.2.2 유저 정보 설정을 배지 색 순서까지 보존해 생성한다. */
 internal fun userInfoSettings(colors: dynamic, filters: dynamic, actions: dynamic): dynamic {
     val settings: dynamic = props(

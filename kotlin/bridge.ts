@@ -183,6 +183,11 @@ interface KotlinBridge {
             pushToRight: {type: "check"; default: boolean};
         } & Record<Key, {type: "check"; default: boolean}>;
     };
+    userInfoMeta<S extends SettingsSchema>(urls: RegExp[], settings: S): {
+        id: "userinfo";
+        urls: RegExp[];
+        settings: S;
+    };
     userInfoSettings<Color extends string>(
         colors: Record<Color, string>,
         filters: Record<"all" | "foreign" | "vpn" | "none", string>,
