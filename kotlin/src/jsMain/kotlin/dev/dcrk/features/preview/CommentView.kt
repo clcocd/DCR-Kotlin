@@ -15,6 +15,13 @@ internal fun extractCommentIcon(html: dynamic): dynamic =
 internal fun extractCommentIp(html: dynamic): dynamic =
     (html as String?)?.let { ipPattern.find(it)?.groupValues?.get(1) } ?: undefinedValue()
 
+internal fun extractCommentNickname(html: dynamic): dynamic {
+    val markup = html as String? ?: return undefinedValue()
+    val doc = js("new DOMParser()").parseFromString(markup, "text/html")
+    val nickname = doc.querySelector(".nickname.an")?.textContent as String?
+    return if (nickname.isNullOrBlank()) undefinedValue() else nickname.trim()
+}
+
 internal fun createCommentView(s: dynamic): dynamic {
     val react = s.react
     val ui = ReactUi(react)
@@ -61,7 +68,9 @@ internal fun createCommentView(s: dynamic): dynamic {
         val author = store { state: dynamic -> state.post?.user?.id ?: undefinedValue() }
         val allowReply = store { state: dynamic -> state.allowReply } == true
         val ip = if (truthy(item.ip)) item.ip else extractCommentIp(item.gallog_icon) ?: extractCommentIp(item.nickname)
-        val user = props("nick" to item.name, "id" to item.user_id, "ip" to ip, "image" to extractCommentIcon(item.gallog_icon))
+        val anonymousNick = extractCommentNickname(item.gallog_icon)
+        val user = props("nick" to if (truthy(anonymousNick)) anonymousNick else item.name,
+            "id" to item.user_id, "ip" to ip, "image" to extractCommentIcon(item.gallog_icon))
         val op = truthy(user.id) && user.id === author
         val who = user.nick ?: user.id ?: user.ip
         val deleted = item.is_delete == "1"

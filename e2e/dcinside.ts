@@ -22,6 +22,7 @@ export interface FakeComment {
     depth: 0 | 1;
     user_id: string;
     name: string;
+    gallog_icon?: string;
     ip: string;
     memo: string;
     is_delete: "0" | "1";
