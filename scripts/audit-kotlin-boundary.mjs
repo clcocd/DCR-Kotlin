@@ -1,8 +1,8 @@
 import {readdirSync, readFileSync} from "node:fs";
 import {join, relative} from "node:path";
 
-// 기능 코드를 모두 Kotlin으로 옮겼는지 판단하기 위한 TS 런타임 연결부 목록.
-// 브리지 미참조는 미이식 판정이 아니다(빌드 설정·타입·CSS 등의 파일도 포함된다).
+// Kotlin 브리지를 직접 참조하지 않는 TS 파일을 찾는다.
+// 브리지 미참조는 미이식 판정이 아니다(빌드 설정·타입 연결부가 포함된다).
 const roots = ["core", "features", "entrypoints", "stores", "components", "utils"];
 const results = [];
 function walk(dir) {
@@ -10,11 +10,13 @@ function walk(dir) {
         const path = join(dir, entry.name);
         if (entry.isDirectory()) {
             walk(path);
-        } else if (entry.isFile() && /\\.tsx?$/.test(entry.name) && !/\\.d\\.ts$/.test(entry.name)) {
+        } else if (entry.isFile() && /\.tsx?$/.test(entry.name) && !/\.d\.ts$/.test(entry.name)) {
             const source = readFileSync(path, "utf8");
-            results.push({path: relative(".", path).replaceAll("\\\\", "/"),
+            results.push({
+                path: relative(".", path).replaceAll("\\", "/"),
                 bridged: /kotlinBridge|__DCR_KOTLIN__/.test(source),
-                lines: source.split("\\n").length});
+                lines: source.split("\n").length
+            });
         }
     }
 }
