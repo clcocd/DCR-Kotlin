@@ -66,6 +66,9 @@ export class FakeSite {
     /** 글 본문 끝에 덧붙일 HTML (투표 iframe 등). */
     postExtra = "";
 
+    /** 원문 제목의 작성 기기 아이콘 HTML. */
+    deviceHtml = "";
+
     /** 댓글 허용. 0이면 멤버만 댓글을 쓸 수 있는 갤러리다. */
     allowReply: 0 | 1 = 1;
 
