@@ -15,6 +15,13 @@ internal fun extractCommentIcon(html: dynamic): dynamic =
 internal fun extractCommentIp(html: dynamic): dynamic =
     (html as String?)?.let { ipPattern.find(it)?.groupValues?.get(1) } ?: undefinedValue()
 
+internal fun extractCommentNickname(html: dynamic): dynamic {
+    val markup = html as String? ?: return undefinedValue()
+    val doc = js("new DOMParser()").parseFromString(markup, "text/html")
+    val nickname = doc.querySelector(".nickname.an")?.textContent as String?
+    return if (nickname.isNullOrBlank()) undefinedValue() else nickname.trim()
+}
+
 internal fun createCommentView(s: dynamic): dynamic {
     val react = s.react
     val ui = ReactUi(react)
