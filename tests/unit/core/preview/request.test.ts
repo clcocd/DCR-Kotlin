@@ -377,4 +377,31 @@ describe("submitTxtcon", () => {
         });
         expect([sent[1]?.body.has("name"), sent[1]?.body.has("password")]).toEqual([false, false]);
     });
+
+    it("더블콘은 슬롯 순서와 답글 대상을 전용 요청으로 보낸다", async () => {
+        const sent = serve(fetchMock, () => "ok");
+        const fields = {user: {name: "ㅇㅇ", pw: "pw"}, commentNo: "10", replyNo: "11"};
+        const text = {type: "txtcon", text: "안녕", colors: {bg: "333333", txt: "ffffff"}} as const;
+        const image = {type: "dccon", package_idx: "8", detail_idx: "81"} as const;
+        const info = post({commentId: "cid", commentNo: "9"});
+        const pre = preData({gallery: "a", id: "3"});
+        await submitTxtcon(pre, info, {...fields, double: [image, text]});
+        await submitTxtcon(pre, info, {...fields, double: [text, {...text, text: "다시"}]});
+
+        expect(sent.map(({url, method}) => [url, method])).toEqual([
+            [urls.txtcon_double_submit, "POST"], [urls.txtcon_double_submit, "POST"]
+        ]);
+        expect(Object.fromEntries(sent[0]!.body)).toMatchObject({
+            id: "cid", no: "9", c_no: "10", reply_no: "11",
+            slot1_type: "dccon", package_idx_1: "8", detail_idx_1: "81",
+            slot2_type: "txtcon", txtcon_text_2: "안녕", txtcon_bg_2: "333333", txtcon_color_2: "ffffff"
+        });
+        expect(Object.fromEntries(sent[1]!.body)).toMatchObject({
+            slot1_type: "txtcon", txtcon_text_1: "안녕",
+            slot2_type: "txtcon", txtcon_text_2: "다시"
+        });
+        expect(sent[0]!.body.has("txtcon_text")).toBe(false);
+        expect(sent[0]!.body.has("txtcon_text_1")).toBe(false);
+        expect(sent[1]!.body.has("package_idx_1")).toBe(false);
+    });
 });

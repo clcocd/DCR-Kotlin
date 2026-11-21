@@ -49,10 +49,28 @@ internal fun createTxtconSubmission(s: dynamic): (dynamic, dynamic, dynamic) -> 
     { pre, post, entry -> jsPromise {
         val form = post.commentForm
         val data = props("id" to (post.commentId ?: pre.gallery), "no" to (post.commentNo ?: pre.id),
-            "txtcon_text" to entry.text, "txtcon_bg" to entry.colors.bg, "txtcon_color" to entry.colors.txt,
             "c_no" to optionalTxtconField(entry.commentNo), "reply_no" to optionalTxtconField(entry.replyNo),
             "name" to optionalTxtconField(entry.user.name), "password" to optionalTxtconField(entry.user.pw),
             "code" to optionalTxtconField(entry.captcha))
+        val slots = entry.double as Array<dynamic>?
+        if (slots == null) {
+            data.txtcon_text = entry.text
+            data.txtcon_bg = entry.colors.bg
+            data.txtcon_color = entry.colors.txt
+        } else {
+            for ((index, slot) in slots.withIndex()) {
+                val number = index + 1
+                data["slot${number}_type"] = slot.type
+                if (slot.type == "dccon") {
+                    data["package_idx_$number"] = slot.package_idx
+                    data["detail_idx_$number"] = slot.detail_idx
+                } else {
+                    data["txtcon_text_$number"] = slot.text
+                    data["txtcon_bg_$number"] = slot.colors.bg
+                    data["txtcon_color_$number"] = slot.colors.txt
+                }
+            }
+        }
         val assign: dynamic = js("Object.assign")
         assign(data, form.checks)
         if (form.gallNickName !== undefinedValue()) {
@@ -62,7 +80,8 @@ internal fun createTxtconSubmission(s: dynamic): (dynamic, dynamic, dynamic) -> 
         assign(data, props("g-recaptcha-response" to "", "g-recaptcha-token" to optionalTxtconField(entry.grecaptchaToken)), entry.turnstile)
         val body = awaitJs(s.dcBody(pre.link, data))
         val token = awaitJs(s.fcmToken())
-        val result = awaitJs(s.ajax.post(s.urls.txtcon_submit, props("body" to body, "headers" to props("fcmToken" to token))).text())
+        val endpoint = if (slots == null) s.urls.txtcon_submit else s.urls.txtcon_double_submit
+        val result = awaitJs(s.ajax.post(endpoint, props("body" to body, "headers" to props("fcmToken" to token))).text())
         s.submitResult(result)
     } }
 

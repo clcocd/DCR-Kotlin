@@ -49,6 +49,12 @@ internal fun createWriteCommentView(s: dynamic): (dynamic) -> dynamic {
         val dcconOpen = react.useState(false)
         val txtconState = react.useState(false)
         val txtcon = txtconState[0] == true
+        val doubleState = react.useState(null)
+        val slots = doubleState[0] as Array<dynamic>?
+        val activeSlot = react.useState(0)
+        val activeIndex = activeSlot[0] as Int
+        val pickerMode = react.useState(false)
+        val selectedImage = slots?.get(activeIndex)?.type == "dccon"
         val colors = react.useState(props("bg" to "3b4890", "txt" to "ffffff"))
         val showInputs = react.useState(false)
         val box = react.useRef(null)
@@ -89,17 +95,83 @@ internal fun createWriteCommentView(s: dynamic): (dynamic) -> dynamic {
             if (text.isNotEmpty()) drafts.set(key, text) else drafts.delete(key)
         }
 
-        fun submit(pick: dynamic = dcconState[0]): Promise<dynamic> = jsPromise {
+        fun textSlot(text: String, color: dynamic): dynamic =
+            props("type" to "txtcon", "text" to text, "colors" to color)
+
+        fun editSlot(update: (dynamic) -> dynamic) {
+            if (slots == null || selectedImage) return
+            val edit: (Array<dynamic>?) -> Array<dynamic>? = { current ->
+                current?.copyOf()?.also { it[activeIndex] = update(it[activeIndex]) }
+            }
+            doubleState[1](edit)
+        }
+
+        fun selectSlot(index: Int) {
+            val slot = slots?.get(index) ?: return
+            activeSlot[1](index)
+            val node = textarea.current
+            if (node != null) node.value = if (slot.type == "txtcon") slot.text else ""
+            if (slot.type == "txtcon") colors[1](slot.colors)
+        }
+
+        fun closePicker() {
+            dcconOpen[1](false)
+            pickerMode[1](false)
+        }
+
+        fun startDouble(second: dynamic) {
+            val node = textarea.current
+            val first = textSlot(s.normalizeTxtcon(node?.value ?: "") as String, colors[0])
+            doubleState[1](arrayOf<dynamic>(first, second))
+            val editSecond = second.type == "txtcon"
+            activeSlot[1](if (editSecond) 1 else 0)
+            if (node != null) node.value = if (editSecond) second.text else first.text
+            closePicker()
+        }
+
+        fun removeSlot(index: Int) {
+            val kept = slots?.get(1 - index) ?: return
+            val node = textarea.current
+            doubleState[1](null)
+            activeSlot[1](0)
+            if (kept.type == "txtcon") {
+                if (node != null) node.value = kept.text
+                colors[1](kept.colors)
+                saveDraft(kept.text as String)
+            } else {
+                dcconState[1](props("list" to arrayOf<dynamic>(kept), "big" to false))
+                txtconState[1](false)
+                beforeTxtcon.current = null
+            }
+        }
+
+        fun swapSlots() {
+            val pair = slots ?: return
+            doubleState[1](arrayOf<dynamic>(pair[1], pair[0]))
+            activeSlot[1](1 - activeIndex)
+        }
+
+        fun submit(pick: dynamic = dcconState[0], useDouble: Boolean = true): Promise<dynamic> = jsPromise {
             val state = store.getState()
             val post = state.post ?: return@jsPromise
             val pre = state.preData ?: return@jsPromise
             val raw = (textarea.current?.value ?: "") as String
             val useDccon = (pick.list.length as Int) > 0
-            val sendTxtcon = txtcon && !useDccon
+            val double = if (useDouble && !useDccon) slots?.copyOf() else null
+            val sendTxtcon = txtcon && !useDccon && double == null
             val text = (if (sendTxtcon) s.normalizeTxtcon(raw) as String else raw).trim()
-            if (sending || (!useDccon && text.isEmpty())) return@jsPromise
-            val target = s.postKey(pre) as String
+            if (sending || (!useDccon && double == null && text.isEmpty())) return@jsPromise
             val toast = s.useUiStore.getState().showToast
+            if (double != null) {
+                val active = double[activeIndex]
+                if (active.type == "txtcon") double[activeIndex] = textSlot(s.normalizeTxtcon(raw) as String, active.colors)
+                if (double.any { it.type == "txtcon" && (it.text as String).isBlank() }) {
+                    toast("글자콘 내용을 입력해주세요.", "warning")
+                    return@jsPromise
+                }
+            }
+            val target = s.postKey(pre) as String
+            val draftAtSend = if (double == null) raw else drafts.get(key)
             if (target in sendingKeys) {
                 toast("앞서 보낸 댓글을 처리하는 중입니다. 잠시 후 다시 시도해 주세요.", "warning")
                 return@jsPromise
@@ -135,15 +207,17 @@ internal fun createWriteCommentView(s: dynamic): (dynamic) -> dynamic {
                     response
                 } else undefinedValue()
                 val payload = props("text" to text, "dccons" to pick.list, "bigDccon" to pick.big,
-                    "txtcon" to if (sendTxtcon) colors[0] else undefinedValue())
+                    "txtcon" to if (sendTxtcon) colors[0] else undefinedValue(),
+                    "txtconDouble" to (double ?: undefinedValue()))
                 val outcome = awaitJs(s.postComment(pre, post, user, payload, sentReply, code, turnstile))
                 when {
                     outcome.ok == true -> {
                         if (!useDccon) {
                             if (textarea.current?.value === raw) textarea.current.value = ""
-                            if (drafts.get(key) === raw) drafts.delete(key)
+                            if (drafts.get(key) === draftAtSend) drafts.delete(key)
                         }
                         if (txtcon) txtconState[1](false)
+                        if (double != null) doubleState[1](null)
                         if (!login) s.saveNonmember(nick, password)
                         val clearReply: (dynamic) -> dynamic = { current ->
                             if (current.reply === sentReply) props("reply" to s.noReply) else current
@@ -176,7 +250,7 @@ internal fun createWriteCommentView(s: dynamic): (dynamic) -> dynamic {
             val node = textarea.current ?: return
             val next = s.normalizeTxtcon(node.value)
             if (node.value != next) node.value = next
-            saveDraft(node.value as String)
+            if (slots == null) saveDraft(node.value as String)
         }
 
         fun exitTxtcon() {
@@ -188,6 +262,8 @@ internal fun createWriteCommentView(s: dynamic): (dynamic) -> dynamic {
             }
             beforeTxtcon.current = null
             txtconState[1](false)
+            doubleState[1](null)
+            pickerMode[1](false)
         }
 
         val mode = when {
@@ -222,14 +298,18 @@ internal fun createWriteCommentView(s: dynamic): (dynamic) -> dynamic {
                 ui.span("truncate", replyName, "에게 답글"),
                 ui.h(s.TooltipButton, props("tip" to "답글 취소", "variant" to "ghost", "size" to "icon-xs", "onClick" to cancel), ui.h(s.X)))
         } else null
+        fun rememberInput(text: String) {
+            if (slots == null) saveDraft(text)
+            else editSlot { textSlot(text, it.colors) }
+        }
         val change: (dynamic) -> Unit = { event ->
             val native = event.nativeEvent
             if (txtcon && !(js("InputEvent.prototype").isPrototypeOf(native) == true && native.isComposing == true)) applyTxtcon()
-            saveDraft(event.target.value as String)
+            rememberInput(event.target.value as String)
         }
         val composition: (dynamic) -> Unit = { event ->
             if (txtcon) applyTxtcon()
-            saveDraft(event.currentTarget.value as String)
+            rememberInput(event.currentTarget.value as String)
         }
         val keyDown: (dynamic) -> Unit = { event ->
             if (event.key == "Enter" && event.shiftKey != true && event.nativeEvent.isComposing != true) {
@@ -238,6 +318,7 @@ internal fun createWriteCommentView(s: dynamic): (dynamic) -> dynamic {
             }
         }
         val edit = ui.h(s.Textarea, props("ref" to textarea, "rows" to 2, "defaultValue" to initialText,
+            "disabled" to (selectedImage || (dcconState[0].list.length as Int) > 0 || (slots != null && sending)),
             "aria-label" to "$mode 입력", "placeholder" to if (txtcon) "글자콘 입력... (최대 20자, 4줄, 줄당 5자로 나뉨, Shift+Enter 줄바꿈)"
             else "댓글 입력... (Shift+Enter 줄바꿈)", "className" to "min-h-16 flex-1 resize-y",
             "onChange" to change, "onCompositionEnd" to composition, "onKeyDown" to keyDown))
@@ -253,10 +334,11 @@ internal fun createWriteCommentView(s: dynamic): (dynamic) -> dynamic {
         val tools = ui.div("flex flex-col gap-2",
             ui.div("flex gap-2",
                 ui.h(s.TooltipButton, props("tip" to "디시콘", "variant" to "secondary", "size" to "icon",
-                    "onClick" to { dcconOpen[1](true) }), ui.h(s.Smile)),
+                    "disabled" to (slots != null && sending), "onClick" to { pickerMode[1](false); dcconOpen[1](true) }), ui.h(s.Smile)),
                 ui.h(s.WithTooltip, props("tip" to if (txtcon) "글자콘 취소" else "글자콘",
                     "trigger" to ui.h(s.Button, props("variant" to if (txtcon) "default" else "secondary",
-                        "size" to "icon", "aria-label" to "글자콘", "aria-pressed" to txtcon, "onClick" to toggleTxtcon))), ui.h(s.Type))),
+                        "size" to "icon", "aria-label" to "글자콘", "aria-pressed" to txtcon,
+                        "disabled" to (slots != null && sending), "onClick" to toggleTxtcon))), ui.h(s.Type))),
             ui.h(s.Button, props("aria-label" to if (isInline) "답글 작성" else "작성", "className" to "w-full", "disabled" to sending, "onClick" to { submit() }),
                 if (sending) ui.h(s.Spinner, props("aria-hidden" to true)) else ui.h(s.Send)))
         fun swatches(label: String, key: String, palette: Array<String>): dynamic {
@@ -265,12 +347,35 @@ internal fun createWriteCommentView(s: dynamic): (dynamic) -> dynamic {
                 if (first != null) {
                     val update: (dynamic) -> dynamic = { setField(it, key, first) }
                     colors[1](update)
+                    editSlot { textSlot(it.text as String, setField(it.colors, key, first)) }
                 }
             }
-            return ui.h(s.ToggleGroup, props("aria-label" to label, "value" to arrayOf<dynamic>(colors[0][key]), "onValueChange" to select),
+            return ui.h(s.ToggleGroup, props("aria-label" to label, "value" to arrayOf<dynamic>(colors[0][key]), "disabled" to (selectedImage || (slots != null && sending)),
+                "onValueChange" to select),
                 palette.map { color -> ui.h(s.ToggleGroupItem, props("key" to color, "value" to color, "aria-label" to "$label #$color",
                     "className" to "size-4.5 min-w-0 cursor-pointer rounded-full border border-foreground/25 p-0 aria-pressed:outline-2 aria-pressed:outline-offset-2 aria-pressed:outline-solid aria-pressed:outline-primary",
                     "style" to props("background" to "#$color"))) }.toTypedArray())
+        }
+        val doubleEditor = if (!txtcon) null else if (slots == null) {
+            ui.div("mt-2", ui.h(s.Button, props("type" to "button", "size" to "sm", "variant" to "secondary", "disabled" to sending,
+                "onClick" to { pickerMode[1](true); dcconOpen[1](true) }), "더블콘 만들기"))
+        } else {
+            val tiles = slots.mapIndexed { index, slot ->
+                val isText = slot.type == "txtcon"
+                val label = if (isText) "글자콘 ${index + 1}" else (slot.title as String? ?: "디시콘")
+                val preview = if (isText) ui.h("span", props("className" to "refresher-doublecon-text",
+                    "style" to props("backgroundColor" to "#${slot.colors.bg}", "color" to "#${slot.colors.txt}")),
+                    if (truthy(slot.text)) slot.text else "글자콘")
+                else ui.h("img", props("src" to slot.list_img, "alt" to label))
+                ui.h("div", props("key" to index, "className" to "flex flex-col gap-1"),
+                    ui.h("button", props("type" to "button", "className" to "refresher-doublecon-tile", "aria-label" to label,
+                        "aria-pressed" to (activeIndex == index), "disabled" to sending, "onClick" to { selectSlot(index) }), preview),
+                    ui.h(s.Button, props("type" to "button", "size" to "xs", "variant" to "ghost",
+                        "aria-label" to "${index + 1}번 콘 삭제", "disabled" to sending, "onClick" to { removeSlot(index) }), "삭제"))
+            }.toTypedArray()
+            ui.div("mt-2 flex flex-wrap items-center gap-2", ui.div("flex items-center gap-1", *tiles),
+                ui.h(s.Button, props("type" to "button", "size" to "xs", "variant" to "secondary", "disabled" to sending,
+                    "onClick" to { swapSlots() }), "위치 바꾸기"))
         }
         val palettes = if (txtcon) ui.div("mt-2 flex flex-wrap items-center gap-2",
             ui.h("span", props("className" to "text-xs text-muted-foreground", "aria-hidden" to true), "배경"),
@@ -280,14 +385,21 @@ internal fun createWriteCommentView(s: dynamic): (dynamic) -> dynamic {
         val byline = if (login) account ?: "회원 계정" else ui.h(s.Button, props("variant" to "link", "size" to "xs",
             "className" to "h-auto p-0 text-xs text-link", "aria-expanded" to showInputs[0], "onClick" to toggleInputs),
             nick.ifEmpty { "닉네임 입력" })
-        val choose: (dynamic, Boolean) -> Unit = { list, big ->
-            if (txtcon) exitTxtcon()
-            dcconOpen[1](false)
-            submit(props("list" to list, "big" to big))
+        val choose: (Array<dynamic>, Boolean) -> Unit = { list, big ->
+            if (pickerMode[0] == true) {
+                val icon = list.firstOrNull()
+                if (icon != null) startDouble(js("Object").assign(props(), icon, props("type" to "dccon")))
+            } else {
+                if (txtcon) exitTxtcon()
+                closePicker()
+                submit(props("list" to list, "big" to big), useDouble = false)
+            }
         }
+        val chooseText: () -> Unit = { startDouble(textSlot("", colors[0])) }
         ui.h("div", props("ref" to box, "className" to if (isInline) "refresher-inline-reply border-l-2 border-border py-3 pr-14 pl-8" else "pt-3 pr-14 pb-6 pl-8", "onFocus" to touch), fields,
-            toReply, ui.div("flex items-end gap-2", edit, tools), palettes,
+            toReply, ui.div("flex items-end gap-2", edit, tools), doubleEditor, palettes,
             ui.tag("p", "mt-2 text-xs text-muted-foreground", byline, "(으)로 $mode 작성 중"),
-            if (dcconOpen[0] == true) ui.h(s.DcconPopup, props("onSelect" to choose, "onClose" to { dcconOpen[1](false) })) else null)
+            if (dcconOpen[0] == true) ui.h(s.DcconPopup, props("onSelect" to choose, "onClose" to ::closePicker,
+                "onTxtcon" to if (pickerMode[0] == true) chooseText else undefinedValue())) else null)
     }
 }

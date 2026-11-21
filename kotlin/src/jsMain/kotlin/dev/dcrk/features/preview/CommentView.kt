@@ -5,7 +5,7 @@ import kotlin.js.Promise
 
 private val iconPattern = Regex("""writer_nikcon[^>]*>\s*<img\b[^>]*?\ssrc=["']?([^"'\s>]+)""")
 private val ipPattern = Regex("""class=["']?ip["']?[^>]*>\s*\(([^)]+)\)""")
-private val dcconPattern = Regex("""<(img|video) class=|<div class="coment_dccon_txt""")
+private val dcconPattern = Regex("""<(img|video) class=|<div class="coment_dccon_txt|class="double_txtcon(?=[ "	])""")
 private const val THREAD_OPEN = "after:pointer-events-none after:absolute after:bottom-0 after:left-11 after:h-2 after:border-l-2 after:border-zinc-300 after:content-[''] dark:after:border-zinc-700"
 private const val REPLY = "ml-8 before:pointer-events-none before:absolute before:top-0 before:left-3 before:h-4.5 before:w-3.5 before:rounded-bl-[10px] before:border-b-2 before:border-l-2 before:border-zinc-300 before:content-[''] dark:before:border-zinc-700"
 private const val REPLY_CONTINUES = "after:pointer-events-none after:absolute after:inset-y-0 after:left-3 after:border-l-2 after:border-zinc-300 after:content-[''] dark:after:border-zinc-700"

@@ -329,3 +329,57 @@
 #portal:has(.refresher-frame) :is([data-slot="dialog-overlay"], [data-slot="alert-dialog-overlay"]) {
     background: none;
 }
+
+/* 디시 원본 래퍼와 댓글 API가 평탄화한 두 콘을 모두 가로로 표시한다. */
+.refresher-comment-html[data-dccon] > .double_txtcon,
+.refresher-comment-html[data-dccon]:has(> :is(.coment_dccon_txt, .written_dccon) + :is(.coment_dccon_txt, .written_dccon)) {
+    display: flex;
+    align-items: flex-start;
+    gap: 0;
+}
+
+.refresher-comment-html[data-dccon] > .double_txtcon > .double_txtcon_item {
+    flex: 0 0 100px;
+    min-width: 0;
+
+    > :is(.coment_dccon_txt, .written_dccon) {
+        width: 100px;
+        height: 100px;
+    }
+}
+
+.refresher-doublecon-tile {
+    display: flex;
+    width: 96px;
+    height: 96px;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+
+    &[aria-pressed="true"] {
+        border-color: var(--primary);
+    }
+
+    img,
+    .refresher-doublecon-text {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
+}
+
+.refresher-doublecon-text {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 7px;
+    white-space: pre-line;
+    word-break: break-all;
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+}
