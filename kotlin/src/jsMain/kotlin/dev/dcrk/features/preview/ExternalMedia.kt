@@ -97,7 +97,7 @@ internal fun installExternalEmbeds(root: dynamic): () -> Unit {
         frame.setAttribute("loading", "lazy")
         frame.setAttribute("allowfullscreen", "")
         quote.replaceWith(frame)
-        restored.add(frame to quote)
+        restored.add(Pair(frame, quote))
     }
 
     for (anchor in jsArray(root.querySelectorAll("a[href]"))) {
@@ -119,7 +119,7 @@ internal fun installExternalEmbeds(root: dynamic): () -> Unit {
         notice.textContent = "X 게시물을 불러오는 중입니다."
         wrap.append(stage, notice, fallback)
         anchor.replaceWith(wrap)
-        restored.add(wrap to anchor)
+        restored.add(Pair(wrap, anchor))
 
         val fail: () -> Unit = {
             if (wrap.isConnected == true && wrap.dataset.refresherXState == "loading") {
