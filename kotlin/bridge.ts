@@ -403,7 +403,7 @@ interface KotlinBridge {
     createScrollLock(react: typeof React): (active: boolean) => void;
     createCountDown(services: object): () => React.ReactNode;
     createPreviewMediaHooks(services: object): {
-        usePreviewMedia(ref: React.RefObject<HTMLElement | null>, html: string | undefined, gallery: string | undefined, hideOnly?: boolean): void;
+        usePreviewMedia(ref: React.RefObject<HTMLElement | null>, html: string | undefined, gallery: string | undefined, hideOnly?: boolean, hideMedia?: boolean): void;
         markBlockedDccons(root: HTMLElement, gallery: string | undefined, block: ModuleSettings["block"] | undefined, hideOnly: boolean): void;
     };
     keepTabInside(event: React.KeyboardEvent<HTMLDivElement>): void;
