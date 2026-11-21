@@ -39,6 +39,6 @@ test("개인 패치: 스포일러 경고 본체와 여백을 보존한다", asyn
 
 test("개인 패치: 지정 가로 여백은 25px이다", async ({listPage}) => {
     const frame = await listPage.openPreview();
-    await expect(frame.locator(".refresher-frame .px-8").first()).toHaveCSS("padding-left", "25px");
+    await expect(frame.locator(".px-8").first()).toHaveCSS("padding-left", "25px");
     await listPage.closePreview();
 });
