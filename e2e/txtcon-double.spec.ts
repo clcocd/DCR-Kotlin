@@ -21,7 +21,7 @@ test("글자콘 더블콘은 이미지와 글자 슬롯의 순서를 바꿔 전�
 });
 
 for (const state of ["empty", "failed"] as const) {
-    test(`글자콘 더블콘은 구매 목록이 ${state}여도 글자콘을 추가하고 삭제할 수 있다`, async ({listPage, site}) => {
+    test(`글자콘 더블콘은 구매 목록이 ${state}여도 글자콘을 선택할 수 있다`, async ({listPage, site}) => {
         site.dcconListState = state;
         const frame = await listPage.openPreview();
         await frame.getByRole("button", {name: "글자콘", exact: true}).click();
@@ -38,6 +38,12 @@ for (const state of ["empty", "failed"] as const) {
         expect(site.submitted).toHaveLength(0);
 
         await input.fill("둘째 콘");
+        if (state === "empty") {
+            await frame.getByRole("button", {name: "작성", exact: true}).click();
+            await expect.poll(() => site.submitted.find(({path}) => path === "/txtcon/insert_double")?.body.get("txtcon_text_2")).toBe("둘째 콘");
+            expect(site.submitted[0]!.body.get("txtcon_text_1")).toBe("첫 콘");
+            return;
+        }
         await frame.getByRole("button", {name: "1번 콘 삭제"}).click();
         await expect(input).toHaveValue("둘째 콘");
         await frame.getByRole("button", {name: "작성", exact: true}).click();

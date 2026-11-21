@@ -155,7 +155,7 @@ export class FakeSite {
                 detail: second ? [{idx: "81", path: "81", title: "인사"}] : [{idx: DCCON.detail_idx, path: DCCON.detail_idx, title: DCCON.title}], tags: []});
             }
             case "/dccon/lists":
-                if (this.dcconListState === "failed") return route.fulfill({status: 500, body: "error"});
+                if (this.dcconListState === "failed") return json({target: "icon", list: null});
                 if (this.dcconListState === "empty") return json({target: "icon", max_page: 0, list: []});
                 // 패키지 줄을 키보드로 옮겨 보도록 패키지를 둘 준다.
                 return json({target: "icon", max_page: 0, list: [
