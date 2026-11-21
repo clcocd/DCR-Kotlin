@@ -473,3 +473,83 @@
     max-width: 100%;
     border: 0;
 }
+
+/* 최종 개인 패치: 본문 사용자 색상과 무채색의 다크 모드 대비를 보존한다. */
+.refresher-html [data-refresher-custom-color] {
+    color: var(--refresher-user-text-color) !important;
+}
+
+.refresher-html [data-refresher-custom-background] {
+    background-color: var(--refresher-user-background-color) !important;
+}
+
+.dark .refresher-html [data-refresher-custom-color]:not([data-refresher-neutral-color]) {
+    /* 상자 전체 invert(1) 후 원래 사용자 지정 색상이 나오도록 미리 보색으로 둔다. */
+    color: rgb(from var(--refresher-user-text-color) calc(255 - r) calc(255 - g) calc(255 - b)) !important;
+}
+
+.dark .refresher-html [data-refresher-neutral-color] {
+    color: #000 !important;
+}
+
+.dark .refresher-html [data-refresher-custom-background]:not([data-refresher-neutral-background]) {
+    background-color: rgb(from var(--refresher-user-background-color) calc(255 - r) calc(255 - g) calc(255 - b)) !important;
+}
+
+.dark .refresher-html [data-refresher-neutral-background] {
+    background-color: #fff !important;
+}
+
+/* OG 카드의 최종 ZIP 치수. 기존 본문/이미지 마크업 구조는 변경하지 않는다. */
+.refresher-html a.og-wrap {
+    width: 70%;
+    max-width: 70%;
+    height: 105px;
+}
+
+.refresher-html div.og-img {
+    width: 104px;
+    height: 104px;
+}
+
+.refresher-html div.og-info {
+    width: calc(100% - 104px);
+    height: 100%;
+}
+
+.refresher-html strong.og-tit {
+    max-width: 70%;
+}
+
+/* 표의 내용과 정렬, 셀 경계는 미리보기 안에서도 원본처럼 유지한다. */
+.refresher-html table {
+    border-collapse: collapse;
+    max-width: 100%;
+}
+
+.refresher-html :is(td, th) {
+    border-color: currentColor;
+    vertical-align: middle;
+}
+
+/* 스포일러 보조 도움말은 파서에서 제거하지만 원래 경고 본체는 보존한다. */
+.refresher-preview-contents #spoiler_warning {
+    box-sizing: border-box;
+    padding: 85px 0 110px;
+    text-align: center;
+}
+
+.refresher-preview-contents #spoiler_warning img {
+    max-width: 100%;
+    margin-inline: auto;
+}
+
+/* 미리보기 제목·본문·댓글·작성 폼의 지정된 가로 여백만 변경한다. */
+.refresher-frame .px-8 {
+    padding-left: 25px;
+    padding-right: 25px;
+}
+
+.refresher-frame .pl-8 {
+    padding-left: 25px;
+}
