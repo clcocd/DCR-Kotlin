@@ -234,7 +234,7 @@ const viewPage = (no: string, comments: FakeComment[], target: { id: string; no:
 <script>window._d = () => ""; window.$ = () => ({data() {}});</script></head><body>
 <input type="hidden" id="e_s_n_o" value="token">
 <div class="view_content_wrap"><header><div class="gallview_head clear ub-content">
-<h3 class="title ub-word"><span class="title_headtext">[말머리]</span><span class="title_subject">글 ${no} 제목</span></h3>
+<h3 class="title ub-word"><span class="title_headtext">[말머리]</span><span class="title_subject">글 ${no} 제목</span>${device}</h3>
 <div class="gall_writer ub-writer" data-nick="고닉" data-uid="user${no}" data-ip="">
 <div class="fl"><span class="nickname"><em>고닉</em></span><span class="gall_date" title="2026-09-30 12:00:00">2026.09.30 12:00:00</span></div>
 <div class="fr"><span class="gall_count">조회 10</span><span class="gall_reply_num">추천 1</span><span class="gall_comment">댓글 ${commentCount}</span></div>
