@@ -87,6 +87,8 @@ test("댓글 디시콘 호버는 설명과 상세 보기 버튼을 표시하고 
     await expect(hover).toContainText(DCCON.title);
     await hover.getByRole("button", {name: "디시콘 보기"}).click();
     await expect(listPage.dialog.getByRole("heading", {name: "디시콘 정보"})).toBeVisible();
+    await listPage.page.keyboard.press("Escape");
+    await expect(listPage.dialog).toHaveCount(0);
     await listPage.closePreview();
     await expect(hover).toHaveCount(0);
 });
