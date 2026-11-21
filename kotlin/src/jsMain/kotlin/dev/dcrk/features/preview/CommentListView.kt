@@ -89,7 +89,7 @@ internal fun createCommentList(s: dynamic): dynamic {
     val threadRender: (dynamic) -> dynamic = { p ->
         val replies = p.replies as Array<dynamic>
         val parent = p.parent
-        val collapsed = store { state: dynamic -> replies.size > 1 && state.collapsed.has(parent.no) == true } == true
+        val collapsed = store { state: dynamic -> replies.size > 1 && state.collapsed.has(parent.no) == true && state.reply.commentNo !== parent.no } == true
         val children = replies.mapIndexed { index, child ->
             comment(child, 1, 0, p.isAdmin, props("lastReply" to (index == replies.lastIndex)))
         }.toTypedArray()
