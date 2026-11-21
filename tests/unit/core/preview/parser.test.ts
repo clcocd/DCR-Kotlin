@@ -129,6 +129,22 @@ describe("parsePostInfo", () => {
         expect(box.textContent).toBe("글");
     });
 
+    it("미리보기에서 보조 안내문만 제거하고 스포일러 경고와 실제 미디어는 보존한다", () => {
+        const body = "<div id='tip_video'>기존 영상 안내</div>"
+            + "<div class='tip_box2 tip_video'>영상 도움말</div>"
+            + "<div id='spoiler_warning_tip'>스포일러 도움말</div>"
+            + "<div id='spoiler_warning'><img src='/warning.png' alt='스포일러 경고'></div>"
+            + "<div class='dc-external-video'><iframe src='https://www.youtube.com/embed/abc'></iframe><a href='https://youtu.be/abc'>원본 링크</a></div>"
+            + "<a class='og-wrap' href='https://example.com'>OG 카드</a><p>실제 본문</p>";
+        const box = contents(parse(page({body})));
+        expect(box.querySelector("#tip_video, .tip_box2.tip_video, #spoiler_warning_tip")).toBeNull();
+        expect(box.querySelector("#spoiler_warning img")?.getAttribute("alt")).toBe("스포일러 경고");
+        expect(box.querySelector(".dc-external-video iframe")).not.toBeNull();
+        expect(box.querySelector(".dc-external-video a")?.textContent).toBe("원본 링크");
+        expect(box.querySelector("a.og-wrap")?.textContent).toBe("OG 카드");
+        expect(box.querySelector("p")?.textContent).toBe("실제 본문");
+    });
+
     it("지연 로딩 이미지 주소를 src로 옮긴다", () => {
         const box = contents(parse(page({body: "<img data-original=\"https://a.dcinside.com/1.jpg\"><img data-original=\"https://a.dcinside.com/2.jpg\" data-block=\"1\">"})));
         const [shown, hidden] = box.querySelectorAll("img");
