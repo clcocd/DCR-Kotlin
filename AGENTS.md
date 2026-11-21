@@ -12,4 +12,4 @@
 8. **PR 기반 개발**: 단계별 브랜치/PR, 통과한 변경만 `main`에 병합한다. 커밋 메시지는 한국어 본문과 명확한 변경 범위를 선호한다.
 9. **GPL-3.0**: 원본 코드/파생 코드를 포함하면 기존 라이선스와 저작권 고지를 보존한다.
 
-진행 계획: `docs/MIGRATION.md`. **최종 개인 패치 구현 기준: `docs/FINAL-ZIP-REVERSE-ENGINEERING.md`와 원본 ZIP**. 과거 기록: `docs/PATCH-DECISIONS.md`. 이식 감사: `docs/KOTLIN-AUDIT.md`.
+진행 계획: `docs/MIGRATION.md`. **최종 개인 패치 이식 순서와 검증: `docs/FINAL-PERSONAL-PATCH-CHECKLIST.md`. 동작 사양은 최종 ZIP을 기준으로 한다.** 과거 기록: `docs/PATCH-DECISIONS.md`. 이식 감사: `docs/KOTLIN-AUDIT.md`.
