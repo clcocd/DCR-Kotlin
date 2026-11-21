@@ -89,6 +89,12 @@ internal fun imageSearchSettings(ids: Array<String>): dynamic {
     return settings
 }
 
+/** 원본 레이아웃 모듈 식별자와 설정을 같은 Kotlin 객체에서 생성한다. */
+internal fun layoutMeta(ids: Array<String>): dynamic = props(
+    "id" to "layout",
+    "settings" to layoutSettings(ids)
+)
+
 /** 레이아웃 모듈의 6.2.2 설정 순서·범위를 그대로 생성한다. */
 internal fun layoutSettings(ids: Array<String>): dynamic {
     val settings: dynamic = props(

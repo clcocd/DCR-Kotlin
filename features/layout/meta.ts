@@ -8,11 +8,9 @@ export const HIDE_OPTIONS = kotlinBridge.layoutHideOptions() satisfies Record<st
 
 export const HIDE_KEYS = objectKeys(HIDE_OPTIONS);
 
-export const settings = kotlinBridge.layoutSettings(HIDE_KEYS) satisfies SettingsSchema;
+const metadata = kotlinBridge.layoutMeta(HIDE_KEYS);
+export const settings = metadata.settings satisfies SettingsSchema;
 
 export type Ctx = ModuleContext<typeof settings>;
 
-export default defineModuleMeta({
-    id: "layout",
-    settings
-});
+export default defineModuleMeta(metadata);

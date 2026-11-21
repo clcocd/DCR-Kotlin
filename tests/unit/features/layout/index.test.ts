@@ -2,6 +2,7 @@
 import {afterEach, expect, it, vi} from "vitest";
 
 import layout from "@/features/layout/index";
+import meta from "@/features/layout/meta";
 import {HIDE_KEYS, HIDE_OPTIONS, settings} from "@/features/layout/meta";
 
 import {type Running, runModule} from "../module";
@@ -79,4 +80,10 @@ it("6.2.2 레이아웃 설정 스키마·순서를 Kotlin에서 그대로 만든
     for (const key of HIDE_KEYS) {
         expect(settings[key]).toEqual({type: "check", default: false});
     }
+});
+
+it("Kotlin layout 메타는 설정 스키마의 같은 객체를 내보낸다", () => {
+    expect(meta.id).toBe("layout");
+    expect(meta.settings).toBe(settings);
+    expect(Object.keys(meta.settings ?? {})).toEqual(Object.keys(settings));
 });

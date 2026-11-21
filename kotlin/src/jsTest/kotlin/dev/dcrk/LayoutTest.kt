@@ -48,4 +48,13 @@ class LayoutTest {
         assertEquals(false, settings.pushToRight.default as Boolean)
     }
 
+    @Test
+    fun layoutMetaPreservesModuleIdAndSettings() {
+        val ids = arrayOf("hideGalleryView", "removeNotice")
+        val meta = layoutMeta(ids)
+        assertEquals("layout", meta.id as String)
+        val stringify: dynamic = js("JSON.stringify")
+        assertEquals(stringify(layoutSettings(ids)) as String, stringify(meta.settings) as String)
+    }
+
 }
