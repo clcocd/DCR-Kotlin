@@ -305,6 +305,19 @@ test.describe("미리보기", () => {
 });
 
 test.describe("미리보기 댓글", () => {
+    test("익명 HTML 닉네임은 우선 표시하고 없거나 일반 닉네임이면 기존 name을 쓴다", async ({listPage, site}) => {
+        site.comments.push(
+            fakeComment(12, {name: "기본닉", gallog_icon: "<span class='nickname an'><em>HTML&amp;닉</em></span>"}),
+            fakeComment(13, {name: "빈닉 대체", gallog_icon: "<span class='nickname an'></span>"}),
+            fakeComment(14, {name: "일반닉 유지", gallog_icon: "<span class='nickname'><em>다른 이름</em></span>"})
+        );
+        await listPage.openPreview();
+        await expect(listPage.comments).toHaveCount(5);
+        await expect(listPage.comments.nth(2).locator(".refresher-user")).toContainText("HTML&닉");
+        await expect(listPage.comments.nth(3).locator(".refresher-user")).toContainText("빈닉 대체");
+        await expect(listPage.comments.nth(4).locator(".refresher-user")).toContainText("일반닉 유지");
+    });
+
     test("답글이 둘 이상인 스레드는 접고 펼 수 있다", async ({listPage, site}) => {
         site.comments.push(fakeComment(12, {c_no: "10", depth: 1, ip: "3.4", memo: "답글 둘"}));
         const frame = await listPage.openPreview();
