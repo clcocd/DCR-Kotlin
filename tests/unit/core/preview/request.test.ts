@@ -16,6 +16,7 @@ import {
     viewUrl,
     vote
 } from "@/core/preview/request";
+import {fetchRecentDccons} from "@/core/preview/dccon";
 import {D_ALPHABET} from "@/core/preview/dcinside-js";
 import {submitTxtcon} from "@/core/preview/txtcon";
 import type {DcinsideComment, DcinsideDcconDetailList, PostInfo} from "@/core/preview/types";
@@ -212,6 +213,25 @@ describe("vote", () => {
 });
 
 describe("디시콘", () => {
+    it("최근 목록은 별도 target=recent, page=0으로 한 번만 가져온다", async () => {
+        const icon = {detail_idx: "31", package_idx: "3", title: "최근콘", list_img: "/icon.png"};
+        const sent = serve(fetchMock, () => JSON.stringify({target: "recent", list: [icon]}));
+        expect(await fetchRecentDccons(signal())).toEqual([icon]);
+        expect(sent).toHaveLength(1);
+        expect(sent[0]?.url).toBe(urls.dccon.lists);
+        expect(sent[0]?.body.get("target")).toBe("recent");
+        expect(sent[0]?.body.get("page")).toBe("0");
+    });
+
+    it("최근 목록은 빈 값·비로그인과 잘못된 응답을 구분한다", async () => {
+        serve(fetchMock, () => JSON.stringify({target: "recent", list: []}));
+        expect(await fetchRecentDccons(signal())).toEqual([]);
+        serve(fetchMock, () => "not_login");
+        expect(await fetchRecentDccons(signal())).toBe("not_login");
+        serve(fetchMock, () => JSON.stringify({target: "recent", list: null}));
+        await expect(fetchRecentDccons(signal())).rejects.toThrow("최근 디시콘 목록이 아닙니다.");
+    });
+
     it("패키지 정보가 아닌 응답은 던진다", async () => {
         for (const reply of ["null", "[]", JSON.stringify({info: null, detail: [], tags: []}), JSON.stringify({info: {}, detail: {}, tags: []})]) {
             serve(fetchMock, () => reply);
