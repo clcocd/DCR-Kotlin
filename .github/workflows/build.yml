@@ -58,6 +58,19 @@ jobs:
       - name: Firefox 미리보기 요청 취소 E2E — AbortError 회귀
         run: bunx playwright test e2e/preview.spec.ts --project=firefox --grep "받는 중에 넘기거나 닫아 끊은 요청은 콘솔에 오류를 남기지 않는다"
 
+      - name: Firefox 전체 콘텐츠 E2E — 최초 기준선과 비교
+        shell: bash
+        run: |
+          set +e
+          bunx playwright test --project=firefox --workers=2 --reporter=json > "$RUNNER_TEMP/firefox-e2e.json"
+          test_exit=$?
+          set -e
+          test -s "$RUNNER_TEMP/firefox-e2e.json"
+          node scripts/verify-e2e-baseline.mjs "$RUNNER_TEMP/firefox-e2e.json" firefox
+          if [[ $test_exit -ne 0 ]]; then
+            echo "::notice::Firefox Playwright 자체는 실패했습니다. 최초 기준선과 비교한 위 검증 결과를 확인하세요."
+          fi
+
       - name: 실제 디시 읽기 전용 E2E — 6.2.2 동작·마크업 검사
         run: bunx playwright test e2e/live/dcinside.spec.ts --project=live --workers=1
 
