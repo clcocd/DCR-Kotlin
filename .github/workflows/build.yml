@@ -52,6 +52,12 @@ jobs:
             echo "::notice::Playwright 자체는 실패했습니다. 위 요약에서 순정 실패인지 신규 실패인지 분리했습니다."
           fi
 
+      - name: Firefox 테스트 브라우저 설치
+        run: bunx playwright install --with-deps firefox
+
+      - name: Firefox 미리보기 요청 취소 E2E — AbortError 회귀
+        run: bunx playwright test e2e/preview.spec.ts --project=firefox --grep "받는 중에 넘기거나 닫아 끊은 요청은 콘솔에 오류를 남기지 않는다"
+
       - name: Kotlin 포함 여부와 Manifest 검증
         shell: bash
         run: |
