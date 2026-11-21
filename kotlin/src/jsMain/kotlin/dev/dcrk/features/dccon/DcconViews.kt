@@ -14,6 +14,10 @@ internal fun createDcconPicker(s: dynamic): (dynamic) -> dynamic {
         val big = react.useState(false)
         val selection = react.useState(emptyArray<dynamic>())
         val unavailable = react.useState(false)
+        val showRecent = react.useState(false)
+        val recentList = react.useState(emptyArray<dynamic>())
+        val recentLoading = react.useState(false)
+        val recentError = react.useState(null)
         val pickingTxtcon = p.onTxtcon != null
         val available = packages[0] as Array<dynamic>
         val chosen = selection[0] as Array<dynamic>
@@ -55,6 +59,30 @@ internal fun createDcconPicker(s: dynamic): (dynamic) -> dynamic {
             }
         }
         react.useEffect(fetch, emptyArray<dynamic>())
+        val fetchRecent: () -> dynamic = {
+            if (showRecent[0] != true) undefinedValue()
+            else {
+                val ctl = js("new AbortController()")
+                val ok: (dynamic) -> Unit = { value ->
+                    if (ctl.signal.aborted != true) {
+                        recentLoading[1](false)
+                        if (value == "not_login") recentError[1]("최근 디시콘은 로그인한 뒤에 볼 수 있습니다.")
+                        else if (js("Array.isArray")(value) == true) recentList[1](value)
+                        else recentError[1]("최근 디시콘 목록을 불러오지 못했습니다.")
+                    }
+                }
+                val fail: () -> Unit = {
+                    if (ctl.signal.aborted != true) {
+                        recentLoading[1](false)
+                        recentError[1]("최근 디시콘 목록을 불러오지 못했습니다.")
+                    }
+                }
+                s.fetchRecentDccons(ctl.signal).then(ok, fail)
+                val dispose: () -> Unit = { ctl.abort() }
+                dispose
+            }
+        }
+        react.useEffect(fetchRecent, arrayOf<dynamic>(showRecent[0]))
         val id = react.useId() as String
         val wheelTarget = react.useRef(null)
         val strip = react.useRef(null)
@@ -92,6 +120,15 @@ internal fun createDcconPicker(s: dynamic): (dynamic) -> dynamic {
         else null
         val header = ui.div("flex items-center justify-between", ui.h(s.DialogTitle, null, "디시콘"),
             ui.div("flex items-center gap-4",
+                ui.h(s.Button, props("size" to "sm", "variant" to "secondary", "onClick" to {
+                    if (showRecent[0] == true) showRecent[1](false)
+                    else {
+                        recentList[1](emptyArray<dynamic>())
+                        recentError[1](null)
+                        recentLoading[1](true)
+                        showRecent[1](true)
+                    }
+                }), if (showRecent[0] == true) "구매한 콘" else "최근"),
                 if (pickingTxtcon) (if (available.isNotEmpty()) textChoice else null) else toggle("double", "더블콘", double, changeDouble),
                 if (pickingTxtcon) null else toggle("big", "대왕콘", big, big[1]), ui.h(s.DialogCloseButton)))
         val reminder = if (double[0] == true && chosen.isNotEmpty())
@@ -101,7 +138,12 @@ internal fun createDcconPicker(s: dynamic): (dynamic) -> dynamic {
         else null
         fun placeholder(total: Int, css: String) = (0 until total).map { ui.h(s.Skeleton, props("key" to it, "className" to css)) }.toTypedArray()
         val packOptions = if (loading) placeholder(12, "size-12 flex-none") else {
-            val change: (Array<dynamic>) -> Unit = { if (it.isNotEmpty()) activeId[1](it[0]) }
+            val change: (Array<dynamic>) -> Unit = {
+                if (it.isNotEmpty()) {
+                    activeId[1](it[0])
+                    showRecent[1](false)
+                }
+            }
             val scrollTo: (dynamic) -> Unit = { it.currentTarget.scrollIntoView(
                 props("behavior" to s.smoothScroll(), "block" to "nearest", "inline" to "center")) }
             ui.h(s.ToggleGroup, props("aria-label" to "디시콘 패키지", "spacing" to 1, "onValueChange" to change,
@@ -111,7 +153,23 @@ internal fun createDcconPicker(s: dynamic): (dynamic) -> dynamic {
                         "className" to "cursor-pointer rounded-lg p-0.5 [&>img]:size-full [&>img]:rounded-md [&>img]:object-contain size-12 flex-none border-2 border-transparent aria-pressed:border-primary aria-pressed:bg-transparent"),
                     ui.h("img", props("src" to pack.main_img_url, "alt" to pack.title, "loading" to "lazy", "decoding" to "async"))) }.toTypedArray())
         }
+        val recentEntries = (recentList[0] as Array<dynamic>).flatMap { item ->
+            if (js("Array.isArray")(item.detail) == true) (item.detail as Array<dynamic>).asList() else listOf(item)
+        }
+        val recentIcons = recentEntries.map { item ->
+            ui.h("button", props("type" to "button", "key" to "${item.package_idx}-${item.detail_idx}",
+                "title" to item.title, "className" to s.cn(s.focusRing,
+                    "aspect-square rounded-lg p-0.5 hover:bg-muted [&>img]:size-full [&>img]:rounded-md [&>img]:object-contain"),
+                "onClick" to { choice(item) }),
+                ui.h("img", props("src" to item.list_img, "alt" to item.title, "loading" to "lazy", "decoding" to "async")))
+        }.toTypedArray()
         val icons = when {
+            showRecent[0] == true && recentLoading[0] == true -> placeholder(12, "aspect-square w-full")
+            showRecent[0] == true && recentError[0] != null -> arrayOf<dynamic>(
+                ui.div("col-span-full flex h-80 items-center justify-center text-center text-sm text-muted-foreground", recentError[0]))
+            showRecent[0] == true && recentIcons.isEmpty() -> arrayOf<dynamic>(
+                ui.div("col-span-full flex h-80 items-center justify-center text-center text-sm text-muted-foreground", "최근 사용한 디시콘이 없습니다."))
+            showRecent[0] == true -> recentIcons
             loading -> placeholder(36, "aspect-square w-full")
             pickingTxtcon && unavailable[0] == true -> arrayOf<dynamic>(
                 ui.div("col-span-full flex h-80 flex-col items-center justify-center gap-3 text-center text-sm text-muted-foreground",

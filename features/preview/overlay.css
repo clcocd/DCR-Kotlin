@@ -383,3 +383,29 @@
     font-size: 16px;
     font-weight: 700;
 }
+
+/* 디시콘 설명은 본문 contain/overflow 바깥의 Shadow 포털에 띄운다. */
+.refresher-dccon-infoview {
+    position: fixed;
+    z-index: 10000;
+    display: flex;
+    max-width: min(280px, calc(100vw - 16px));
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 10px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--popover);
+    color: var(--popover-foreground);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 22%);
+    font-size: 12px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.refresher-dccon-infoview button {
+    cursor: pointer;
+    color: var(--link);
+    text-decoration: underline;
+}

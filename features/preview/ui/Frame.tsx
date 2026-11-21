@@ -9,7 +9,8 @@ import {Separator} from "@/components/ui/separator";
 import {Spinner} from "@/components/ui/spinner";
 import {TooltipButton} from "@/components/WithTooltip";
 import {focusedElement} from "@/components/useReturnFocus";
-import {BLOCKED_TEXT} from "@/core/block";
+import {BLOCKED_TEXT, isBlockedHidden} from "@/core/block";
+import {overlay} from "@/components/overlay/shadow";
 import {useContentModuleSettings, useRunningModuleSettings} from "@/core/module/useModuleSettings";
 import {postKey as keyOfPost} from "@/core/preview/cache";
 import {useUiStore} from "@/stores/ui";
@@ -23,6 +24,7 @@ import {UserCard} from "./UserCard";
 import {CommentList, CommentOrder, CommentSummary, threadParents} from "./CommentList";
 import {clickContents, markMedia, markPressable, pressContents} from "./contentsClick";
 import {CountDown} from "./CountDown";
+import {openDcconInfo} from "./DcconInfoPopup";
 import {ErrorBlock} from "./ErrorBlock";
 import {postTitle, usePreviewStore} from "./previewStore";
 import {PreviewDialogRoot} from "./PreviewDialogRoot";
@@ -39,5 +41,5 @@ export const Frame = kotlinBridge.createPreviewFrame({
     keyOfPost, adjacentPreData, TimeStamp, UserCard, CommentList, CommentOrder, CommentSummary,
     threadParents, clickContents, markMedia, markPressable, pressContents, CountDown, ErrorBlock,
     postTitle, usePreviewStore, PreviewDialogRoot, usePreviewMedia, useScrollLock,
-    useWheelGesture, Votes, WriteComment
+    useWheelGesture, Votes, WriteComment, isBlockedHidden, openDcconInfo, portal: () => overlay.portal
 });

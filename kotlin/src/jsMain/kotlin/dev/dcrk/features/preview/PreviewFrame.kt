@@ -87,6 +87,11 @@ fun createPreviewFrame(s: dynamic): () -> dynamic {
         val commentsSection = react.useRef(null)
         val focusOptions = props("preventScroll" to true)
         s.useScrollLock(visible)
+        react.useEffect({
+            if (visible && scroller.current != null)
+                installDcconHover(scroller.current, s.portal(), s.isBlockedHidden, s.openDcconInfo)
+            else undefinedValue()
+        }, arrayOf<dynamic>(visible, postKey))
 
         react.useEffect({
             if (visible) scroller.current?.focus(focusOptions)

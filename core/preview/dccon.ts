@@ -5,7 +5,7 @@ import {urls} from "@/core/http/urls";
 import {csrfBody} from "@/core/http/cookie";
 import {kotlinBridge} from "@/kotlin/bridge";
 
-import type {DcinsideDcconDetailList, DcinsideDcconPackage} from "./types";
+import type {DcinsideDccon, DcinsideDcconDetailList, DcinsideDcconPackage} from "./types";
 
 /**
  * 디시콘 코드별 패키지 정보. Kotlin이 원본 용량·만료 시간 설정을 만들고
@@ -25,6 +25,7 @@ interface DcconRequests {
     getDcconPackage(code: string, signal?: AbortSignal): Promise<DcinsideDcconPackage>;
     addDcconPackage(id: string | number): Promise<"ok" | "fail" | "not_login">;
     fetchDcconList(signal: AbortSignal): Promise<DcconListResult>;
+    fetchRecentDccons(signal: AbortSignal): Promise<(DcinsideDccon | DcinsideDcconDetailList)[] | "not_login">;
 }
-export const {cachedDcconList, setCachedDcconList, clearDcconCaches, fetchDcconPackage, getDcconPackage, addDcconPackage, fetchDcconList} =
+export const {cachedDcconList, setCachedDcconList, clearDcconCaches, fetchDcconPackage, getDcconPackage, addDcconPackage, fetchDcconList, fetchRecentDccons} =
     kotlinBridge.createDcconRequests<DcconRequests>({ajax, csrfBody, urls: urls.dccon, cache: dcconPackages});

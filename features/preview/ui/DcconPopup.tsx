@@ -11,7 +11,7 @@ import {Skeleton} from "@/components/ui/skeleton";
 import {Switch} from "@/components/ui/switch";
 import {ToggleGroup, ToggleGroupItem} from "@/components/ui/toggle-group";
 import {fetchDcconList} from "@/core/preview/request";
-import {cachedDcconList, setCachedDcconList} from "@/core/preview/dccon";
+import {cachedDcconList, setCachedDcconList, fetchRecentDccons} from "@/core/preview/dccon";
 import type {DcinsideDccon} from "@/core/preview/types";
 import {useUiStore} from "@/stores/ui";
 import {smoothScroll} from "@/utils/dom";
@@ -24,5 +24,5 @@ interface DcconPopupProps {
 
 export const DcconPopup = kotlinBridge.createDcconPicker<DcconPopupProps>({
     react, cn, DialogCloseButton, ModalDialog, focusRing: FOCUS_RING, Button, DialogTitle, Field, FieldLabel, Skeleton,
-    Switch, ToggleGroup, ToggleGroupItem, fetchDcconList, cachedDcconList, setCachedDcconList, uiStore: useUiStore, smoothScroll
+    Switch, ToggleGroup, ToggleGroupItem, fetchDcconList, fetchRecentDccons, cachedDcconList, setCachedDcconList, uiStore: useUiStore, smoothScroll
 });

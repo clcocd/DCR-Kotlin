@@ -62,3 +62,33 @@ test("래퍼와 평탄화된 더블콘 댓글은 두 콘을 가로로 표시한�
     await expect(frame.locator(".refresher-comment-html .double_txtcon")).toHaveCSS("display", "flex");
     await expect(frame.locator(".refresher-comment-html:has(> .coment_dccon_txt + .written_dccon)")).toHaveCSS("display", "flex");
 });
+
+test("최근 디시콘 버튼은 별도 목록을 요청하고 기존 선택 경로를 사용한다", async ({listPage, site}) => {
+    const frame = await listPage.openPreview();
+    await frame.getByRole("button", {name: "디시콘", exact: true}).click();
+    const picker = listPage.dialog;
+    await picker.getByRole("button", {name: "최근", exact: true}).click();
+    await expect(picker.getByRole("button", {name: DCCON.title, exact: true})).toBeVisible();
+    expect(site.dcconRecentRequests).toBe(1);
+    await picker.getByRole("button", {name: DCCON.title, exact: true}).click();
+    await frame.getByRole("button", {name: "작성", exact: true}).click();
+    await expect.poll(() => site.submitted.find(({path}) => path === "/dccon/insert_icon")?.body.get("detail_idx")).toBe(DCCON.detail_idx);
+});
+
+test("댓글 디시콘 호버는 설명과 상세 보기 버튼을 표시하고 클릭하면 정보창을 연다", async ({listPage, site}) => {
+    site.comments = [
+        fakeComment(80, {memo: `<img class="written_dccon" src="${DCCON.list_img}" alt="${DCCON.title}">`})
+    ];
+    const frame = await listPage.openPreview();
+    const image = frame.locator(".refresher-comment-html .written_dccon");
+    await expect(image).toBeVisible();
+    await image.hover();
+    const hover = listPage.overlay.locator(".refresher-dccon-infoview");
+    await expect(hover).toContainText(DCCON.title);
+    await hover.getByRole("button", {name: "디시콘 보기"}).click();
+    await expect(listPage.dialog.getByRole("heading", {name: "디시콘 정보"})).toBeVisible();
+    await listPage.dialog.getByRole("button", {name: "닫기", exact: true}).click();
+    await expect(listPage.dialog).toHaveCount(0);
+    await listPage.closePreview();
+    await expect(hover).toHaveCount(0);
+});
