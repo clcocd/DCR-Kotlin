@@ -45,6 +45,20 @@
 - `content.css`: `.refresher-frame .px-8`, `.pl-8`의 25px 패딩. `.dark .refresher-html iframe:fullscreen {filter:none!important}`. 본문 다크모드, 스포일러, 테이블 및 OG 보정.
 - 디시콘 패키지 휠: `content.js`에 `onWheel` 방식이 존재. 이 ZIP 안의 동작을 기준으로 비교하며 별도 캡처식 가로 휠을 추가하지 않음.
 
+## 최종 ZIP 실행 코드 추가 확인
+
+- **10초 캐시:** `content.js`의 게시글 캐시는 `Date.now() - fetchedAt < 1e4`, 댓글 캐시는 `Date.now() - commentsAt < 1e4`일 때 재사용하는 실제 조건이 있다.
+- **목록 복귀 새로고침:** `__rfResume`는 페이지가 보일 때 중복 갱신을 방지하며 `queueMicrotask`로 이전 타이머를 초기화하고 필요 시 즉시 갱신한다. `visibilitychange`, bfcache `pageshow`, `popstate`와 연결된다.
+- **작성자 검색 결과:** `__rfLastFill`은 URL과 현재 게시글 번호를 키로 하고 `6e4`(60초) 이내의 검색 행을 재사용한다. 다른 검색 조건·상태 제약과 함께 작동한다.
+- **최근 디시콘:** 기존 선택창의 ‘최근’ 버튼이 `/dccon/lists`에 `target:recent`, `page:0`를 보낸다.
+- **디시콘 호버:** `__rfInstallDcconHover`는 `.written_dccon`에 설명과 ‘디시콘 보기’ 버튼을 제공하며 180ms 지연 숨김과 이벤트 정리를 구현했다.
+- **인라인 답글·초안:** `__rfInlineMode`는 답글별 `|reply:<번호>` 키를 사용하고, `__rfPreviousReplies`는 동일 배열 스레드를 재사용한다.
+- **글자콘 시각 보정:** `__rfTxtPending`, `__rfTxtIntersect`, `__rfTxtStop`는 `IntersectionObserver` 기반의 표시/해제 로직이다.
+- **작성 장치 아이콘:** `__rfDeviceIcon`은 원문의 `.title_device` 스타일을 계산·복사해 미리보기에 표시한다.
+- **본문 색상:** `__rfAdaptColors`는 `[style],font[color]`의 색을 CSS 사용자 변수 및 중립색 플래그로 변환한다.
+- **Instagram:** `__rfRenderInstagram`이 인스타그램 `/p/`, `/reel/`, `/tv/` 게시물의 인용 블록을 embed iframe으로 변환한다.
+- **X 렌더링 후처리:** `__rfRenderX`는 X 링크에 `.x-wrap`를 만들고 숨긴 stage에서 렌더한다. 전체 대기 5초, 렌더된 iframe 높이가 100px 미만이면 500ms 후 오류 판정, 오류 안내와 원본 링크를 표시한다. 별도 MAIN world 브리지의 10초 위젯 준비 timeout과 **서로 다른 타이머**다.
+
 ## 노트에 있지만 세부 계약을 아직 복원하지 않은 항목
 
 `PATCH-NOTES.md`는 새로고침 체감 보정, 본문 캐시, 댓글·대댓글 위치·초안·빈 공간 클릭, 최근 디시콘·호버 정보, NetworkError 로그, 디시 전체화면 보정을 언급한다. 각 기능의 **정확한 조건·순정 대비 변경점**은 압축 코드 내 추가 추적이 필요한 상태이다. 파일명의 `empty-message`도 동작 명세를 임의로 만들지 않는다.
@@ -65,4 +79,4 @@ Kotlin 경로는 `kotlin/src/jsMain/kotlin/dev/dcrk/` 기준이다. 위 표는 �
 
 ## 검증 경계
 
-ZIP 정적 소스에서 확인한 사실을 위에 기록했다. 6.2.2 순정 소스나 과거 대화 기준을 덮어쓰지 않는다. **코드 확인 / 브라우저 확인 / 실제 서버 쓰기 확인**을 구분하여 완료를 판정한다. 특히 YouTube의 폐기된 구형 1px 템플릿은 복원 금지이며, 더블콘 전송 성공은 아직 미확인이다.
+ZIP의 CRC, manifest 직접 참조 파일 7개(누락 0개), JS 10개 파일의 Node.js 문법 검사 및 핵심 구현 마커 13개 검증을 통과했다. ZIP 정적 소스에서 확인한 사실을 위에 기록했다. 6.2.2 순정 소스나 과거 대화 기준을 덮어쓰지 않는다. **코드 확인 / 브라우저 확인 / 실제 서버 쓰기 확인**을 구분하여 완료를 판정한다. 특히 YouTube의 폐기된 구형 1px 템플릿은 복원 금지이며, 더블콘 전송 성공은 아직 미확인이다.
