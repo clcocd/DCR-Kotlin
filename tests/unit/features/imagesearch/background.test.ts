@@ -31,6 +31,9 @@ describe("imagesearch 배경 apply", () => {
         await apply(true, {googleLens: true, saucenao: false});
 
         expect([...menus]).toEqual(["other", "imagesearch:googleLens"]);
+        expect(fakeBrowser.contextMenus.create).toHaveBeenLastCalledWith(expect.objectContaining({
+            targetUrlPatterns: ["*://*.dcinside.co.kr/viewimage.php*", "*://*.dcinside.com/viewimage.php*"]
+        }));
     });
 
     it("끄면 이 모듈의 메뉴만 지우고 만들지 않는다", async () => {
