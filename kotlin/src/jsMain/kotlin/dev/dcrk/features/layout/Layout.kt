@@ -42,6 +42,42 @@ fun setupLayout(ctx: dynamic, options: dynamic, viewPage: Boolean, queryString: 
     var removeHideStyle: (() -> Unit)? = null
     var widthQuery: dynamic = null
     var widthWatch: dynamic = null
+    val doc: dynamic = js("document")
+    var originalLoginPosition: dynamic = null
+    var movedLoginBox: dynamic = null
+
+    fun restoreLoginBox() {
+        val original = originalLoginPosition
+        if (original != null) {
+            if (original.parentNode != null && movedLoginBox != null)
+                original.parentNode.insertBefore(movedLoginBox, original)
+            original.remove()
+        }
+        originalLoginPosition = null
+        movedLoginBox = null
+        root.classList.remove("refresherGallLoginBox")
+    }
+
+    fun syncLoginBox() {
+        val eligible = window.location.hostname == "gall.dcinside.com" && window.top === window &&
+            root.classList.contains(pushClass) && root.classList.contains("refresherCompact") == false
+        if (!eligible) {
+            restoreLoginBox()
+            return
+        }
+        if (originalLoginPosition != null) return
+        val box = doc.getElementById("login_box") ?: return
+        val banner = doc.getElementById("hdline_ban") ?: return
+        val source = box.parentNode ?: return
+        val destination = banner.parentNode ?: return
+        val anchor = doc.createComment("refresher-login-box-original")
+        source.insertBefore(anchor, box)
+        destination.insertBefore(box, banner)
+        originalLoginPosition = anchor
+        movedLoginBox = box
+        root.classList.add("refresherGallLoginBox")
+    }
+
 
     fun compact() {
         val settings = ctx.settings
@@ -53,6 +89,7 @@ fun setupLayout(ctx: dynamic, options: dynamic, viewPage: Boolean, queryString: 
             settings.useCompactModeOnView as Boolean,
         )
         root.classList.toggle("refresherCompact", enabled)
+        syncLoginBox()
     }
 
     fun watchWidth() {
@@ -72,16 +109,19 @@ fun setupLayout(ctx: dynamic, options: dynamic, viewPage: Boolean, queryString: 
             layoutHideCss(options, settings, queryString("exception_mode") == "notice"),
         )
         root.classList.toggle(pushClass, settings.pushToRight == true && settings.hideUselessView == true)
+        syncLoginBox()
         return removeStyle
     }
 
     ctx.onRevoke {
         removeHideStyle?.invoke()
+        restoreLoginBox()
         root.classList.remove("refresherCompact", pushClass)
     }
 
     watchWidth()
     removeHideStyle = applyHide()
+    whenDomReady(::syncLoginBox, ctx.signal)
     ctx.onSettingsChanged { keys: dynamic ->
         if (keys.has("activePixel") as Boolean) watchWidth()
         if (compactKeys.any { keys.has(it) as Boolean }) compact()
