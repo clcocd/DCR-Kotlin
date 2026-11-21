@@ -79,10 +79,29 @@ fun setupRefresh(ctx: dynamic, helpers: dynamic): dynamic {
     }
     armNext()
 
+    // 복귀 이벤트가 같은 턴에 연속 발생해도 목록 요청은 한 번만 보낸다.
+    var resumeQueued = false
+    fun resume() {
+        if (resumeQueued) return
+        resumeQueued = true
+        val callback: () -> Unit = {
+            resumeQueued = false
+            if (signal.aborted != true && doc.hidden != true && state.paused != true) {
+                state.quiet = 0
+                if (loader.failures() == 0) {
+                    val since = (js("Date.now")() as Double) - (state.lastRefresh as Double)
+                    if (state.lastRefresh == 0 || since >= MINIMUM_INTERVAL) loadNow(null, null)
+                } else armNext()
+            }
+        }
+        val queue: dynamic = js("queueMicrotask")
+        queue(callback)
+    }
+
     fun catchUp() {
-        if (state.missed != true) return
+        if (state.missed != true || doc.hidden == true || state.paused == true || state.offscreen == true) return
         state.missed = false
-        loadNow(null, null)
+        resume()
     }
 
     val attachTableObserver: () -> Unit = observer@{
@@ -110,17 +129,16 @@ fun setupRefresh(ctx: dynamic, helpers: dynamic): dynamic {
     }
 
     doc.addEventListener("visibilitychange", { _: dynamic ->
-        if (doc.hidden == true) {
-            armNext()
-        } else {
-            state.quiet = 0
-            if (loader.failures() == 0) loadNow(null, null) else armNext()
-        }
+        if (doc.hidden == true) armNext() else resume()
     }, options)
+    // 최초 페이지 표시와 bfcache 복원은 둘 다 pageshow를 통과한다.
+    window.addEventListener("pageshow", { _: dynamic -> resume() }, options)
 
     window.addEventListener("popstate", { _: dynamic ->
-        if (helpers.ownPreviewEntry(history.state) == null && helpers.listUrl(location.href) != helpers.listUrl(loader.currentUrl())) {
-            loadNow(location.href as String, true)
+        if (helpers.ownPreviewEntry(history.state) == null) {
+            if (helpers.listUrl(location.href) != helpers.listUrl(loader.currentUrl())) {
+                loadNow(location.href as String, true)
+            } else resume()
         }
     }, options)
 
