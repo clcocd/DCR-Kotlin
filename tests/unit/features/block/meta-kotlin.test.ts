@@ -1,7 +1,7 @@
 // @vitest-environment-options {"url": "https://gall.dcinside.com/board/lists/?id=test"}
 import {expect, it} from "vitest";
 
-import {BOARD_PAGE} from "@/core/pages";
+import {BOARD_PAGE} from "@/core/pagePatterns";
 import meta, {settings} from "@/features/block/meta";
 
 it("Kotlin 차단 모듈이 원본 URL·단축키·팝업 토글을 유지한다", () => {
