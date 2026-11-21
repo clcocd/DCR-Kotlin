@@ -4,7 +4,6 @@ test("개인 패치: 원문 작성 기기 아이콘을 미리보기 제목에 �
     site.deviceHtml = '<span class="title_device"><span style="color:blue">PC</span></span>';
     const frame = await listPage.openPreview();
     await expect(frame.locator(".refresher-device-icon .title_device")).toContainText("PC");
-    await listPage.closePreview();
 });
 
 test("개인 패치: 미리보기 사용자 지정 색상과 무채색을 보존한다", async ({listPage, site}) => {
