@@ -528,6 +528,7 @@ interface KotlinBridge {
     createPreviewStateService<T>(services: object): T;
     createPreviewPostService(services: object): {
         supplementYoutubeEmbeds(html: string): string;
+        adaptPreviewColors(html: string): string;
         textBlockOf(preData: GalleryPreData, post: PostInfo): PostInfo["textBlocked"];
         cachedPost(preData: GalleryPreData): {post: PostInfo; age: number} | undefined;
         createPostLoader(ctx: PreviewContext): {

@@ -99,6 +99,7 @@ internal fun parsePostInfo(html: String): dynamic {
     if (doc.querySelector(".writing_view_box .mini_pwcheck") != null) throw Error(SECRET_POST)
     restoreMedia(doc)
     val subject = doc.querySelector(".title_subject")
+    val device = doc.querySelector(".title_device")
     if (subject != null) for (script in jsArray(subject.querySelectorAll("script"))) script.remove()
     val body = doc.querySelector(".writing_view_box")
     val contents = body?.innerHTML ?: undefinedValue()
@@ -113,6 +114,7 @@ internal fun parsePostInfo(html: String): dynamic {
     val deleteFields = jsArray(doc.querySelectorAll("#_cmt_del_form_ > input")).map { arrayOf<dynamic>(it.name, it.value) }.toTypedArray()
     val result = props(
         "header" to strip(header), "title" to strip(subject?.textContent),
+        "deviceHtml" to if ((device?.innerHTML as String?)?.trim().isNullOrEmpty()) undefinedValue() else device.outerHTML,
         "expire" to strip(text(".view_content_wrap div.fl > span.mini_autodeltime > div.pop_tipbox > div"), " 자동 삭제"),
         "date" to strip(if (truthy(date?.title)) date.title else date?.textContent), "user" to parseWriter(doc),
         "views" to strip(text(".fr > .gall_count"), "조회"), "upvotes" to strip(text(".fr > .gall_reply_num"), "추천"),

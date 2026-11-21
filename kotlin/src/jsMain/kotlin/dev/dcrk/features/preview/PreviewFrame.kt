@@ -40,6 +40,43 @@ fun createPreviewFrame(s: dynamic): () -> dynamic {
                 "한 번 더 스크롤하면 ", if (forward) "다음" else "이전", " 게시글로 넘어갑니다."))
     }
 
+    // 원문 .title_device의 계산된 CSS를 복제해 Shadow DOM 안에서도 기기 아이콘을 유지한다.
+    val deviceIcon: (dynamic) -> dynamic = { p ->
+        val target = react.useRef(null)
+        react.useLayoutEffect({
+            val parser = js("new DOMParser()")
+            val source = parser.parseFromString(p.html, "text/html").querySelector(".title_device")
+            if (source == null || target.current == null) undefinedValue() else {
+                val probe = doc.createElement("div")
+                probe.className = "gallview_head"
+                probe.style.cssText = "position:fixed!important;left:-10000px!important;opacity:0!important"
+                val heading = doc.createElement("h3")
+                heading.className = "title ub-word"
+                heading.append(source)
+                probe.append(heading)
+                doc.body.append(probe)
+
+                val clone = source.cloneNode(true)
+                val originals = arrayOf<dynamic>(source) + jsArray(source.querySelectorAll("*"))
+                val copies = arrayOf<dynamic>(clone) + jsArray(clone.querySelectorAll("*"))
+                for ((index, original) in originals.withIndex()) {
+                    val css = js("getComputedStyle")(original)
+                    var at = 0
+                    while (at < (css.length as Int)) {
+                        val name = css.item(at) as String
+                        copies[index].style.setProperty(name, css.getPropertyValue(name))
+                        at++
+                    }
+                }
+                probe.remove()
+                target.current.append(clone)
+                val dispose: () -> Unit = { clone.remove() }
+                dispose
+            }
+        }, arrayOf<dynamic>(p.html))
+        ui.h("span", props("ref" to target, "className" to "refresher-device-icon"))
+    }
+
     val contents: () -> dynamic = {
         val post = store { state: dynamic -> state.post }
         val blockImage = store { state: dynamic -> state.imageBlocked } == true
@@ -130,7 +167,8 @@ fun createPreviewFrame(s: dynamic): () -> dynamic {
         val refreshComments: () -> dynamic = { store.getState().requestRefresh(true) }
         val title = if (post == null) listTitle ?: "" else s.postTitle(post)
         val postHeader = ui.div("px-8 pt-6 pb-3",
-            ui.h(s.DialogTitle, props("render" to ui.tag("h2", "text-2xl font-bold")), title),
+            ui.h(s.DialogTitle, props("render" to ui.tag("h2", "text-2xl font-bold")),
+                title, if (truthy(post?.deviceHtml)) ui.h(deviceIcon, props("html" to post.deviceHtml)) else null),
             if (post == null) null else ui.div("mt-3 flex flex-wrap items-center justify-between gap-3",
                 ui.h(s.UserCard, props("user" to (post.user ?: props()), "fetchRatio" to true)),
                 ui.div("flex items-center gap-3", ui.h(s.CountDown),

@@ -75,6 +75,14 @@ describe("parsePostInfo", () => {
         });
     });
 
+    it("원문 제목의 작성 기기 HTML을 별도로 보존하고 표시가 없으면 생략한다", () => {
+        const withIcon = parse(page({head: '<span class="title_device"><span class="icon_pc">PC</span></span>'}));
+        expect(withIcon.deviceHtml).toBe('<span class="title_device"><span class="icon_pc">PC</span></span>');
+        expect(withIcon.title).toBe("제목");
+        expect(parse(page()).deviceHtml).toBeUndefined();
+        expect(parse(page({head: '<span class="title_device"></span>'})).deviceHtml).toBeUndefined();
+    });
+
     it("댓글 폼 값을 꺼낸다", () => {
         expect(parse(page()).commentForm).toEqual({
             fields: [["service_code", "sc1"], ["cmt_gall", "g"], ["gall_nick_name", "갤닉"]],

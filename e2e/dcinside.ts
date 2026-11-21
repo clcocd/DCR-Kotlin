@@ -66,6 +66,9 @@ export class FakeSite {
     /** 글 본문 끝에 덧붙일 HTML (투표 iframe 등). */
     postExtra = "";
 
+    /** 원문 제목의 작성 기기 아이콘 HTML. */
+    deviceHtml = "";
+
     /** 댓글 허용. 0이면 멤버만 댓글을 쓸 수 있는 갤러리다. */
     allowReply: 0 | 1 = 1;
 
@@ -107,7 +110,7 @@ export class FakeSite {
                 return html(listPage(page === "1" ? this.rows : this.page2, page, this.manager));
             }
             case "/board/view/":
-                return html(viewPage(url.searchParams.get("no") ?? "", this.pageComments, this.commentTarget, this.comments.length, this.postExtra));
+                return html(viewPage(url.searchParams.get("no") ?? "", this.pageComments, this.commentTarget, this.comments.length, this.postExtra, this.deviceHtml));
             // 디시 투표 iframe 페이지는 body가 <script>로 시작하고 그 뒤에 459×304 투표 칸이 온다.
             case "/board/poll/vote":
                 return html("<!DOCTYPE html><html><head><meta charset=\"utf-8\"></head><body style=\"margin:0\"><script></script><div class=\"vote\" style=\"width:459px;height:304px\">투표</div></body></html>");
@@ -227,11 +230,11 @@ const pageCommentList = (comments: FakeComment[]): string => (comments.length ==
 </ul></div>`);
 
 /** 글 페이지. 직접 열릴 때 아래 인라인 스크립트가 부르는 디시 전역(_d, $)을 빈 함수로 둔다. */
-const viewPage = (no: string, comments: FakeComment[], target: { id: string; no: string } | null, commentCount: number, extra: string): string => `<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>글 ${no}</title>
+const viewPage = (no: string, comments: FakeComment[], target: { id: string; no: string } | null, commentCount: number, extra: string, device: string): string => `<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><title>글 ${no}</title>
 <script>window._d = () => ""; window.$ = () => ({data() {}});</script></head><body>
 <input type="hidden" id="e_s_n_o" value="token">
 <div class="view_content_wrap"><header><div class="gallview_head clear ub-content">
-<h3 class="title ub-word"><span class="title_headtext">[말머리]</span><span class="title_subject">글 ${no} 제목</span></h3>
+<h3 class="title ub-word"><span class="title_headtext">[말머리]</span><span class="title_subject">글 ${no} 제목</span>${device}</h3>
 <div class="gall_writer ub-writer" data-nick="고닉" data-uid="user${no}" data-ip="">
 <div class="fl"><span class="nickname"><em>고닉</em></span><span class="gall_date" title="2026-09-30 12:00:00">2026.09.30 12:00:00</span></div>
 <div class="fr"><span class="gall_count">조회 10</span><span class="gall_reply_num">추천 1</span><span class="gall_comment">댓글 ${commentCount}</span></div>
