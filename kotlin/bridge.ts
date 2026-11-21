@@ -446,7 +446,7 @@ interface KotlinBridge {
     startContentScript(ctx: ContentScriptContext, services: object): Promise<void>;
     createBackgroundStartup(services: object): () => void;
     startBackgroundModules(modules: BackgroundModule[], services: object): () => Promise<void>;
-    createWriteCommentView(services: object): () => React.ReactNode;
+    createWriteCommentView(services: object): (props: {inlineReply?: boolean}) => React.ReactNode;
     extractCommentIcon(html: string | undefined): string | undefined;
     extractCommentIp(html: string | undefined): string | undefined;
     createCommentView<T>(services: object): T;
