@@ -290,6 +290,7 @@ fun main() {
     api.createMemoTab = ::createMemoTab
     api.parseAppMemos = ::parseAppMemos
     api.formatAppMemos = ::formatAppMemos
+    api.optionDetectModeDescriptions = ::optionDetectModeDescriptions
     api.createBlockDialog = ::createBlockDialog
     api.createBlockTab = ::createBlockTab
     api.optionDcconImage = ::optionDcconImage
