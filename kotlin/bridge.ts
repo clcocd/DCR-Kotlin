@@ -29,7 +29,7 @@ import type {sha256} from "@/utils/hash";
 import type {hasModifier, isTyping} from "@/utils/event";
 import type {Ctx as RefreshContext} from "@/features/refresh/meta";
 import type {Ctx as LayoutContext} from "@/features/layout/meta";
-import type {AnyModule, AnyModuleIcons, AnyModuleLabels, ModuleInfo, DefinedModule, ModuleDefinition, ModuleImpl, AnyModuleMeta, ModuleApis, ModuleContext, ModuleSettings, SettingSchema, LabelsOf} from "@/core/module/types";
+import type {AnyModule, AnyModuleIcons, AnyModuleLabels, ModuleInfo, DefinedModule, ModuleDefinition, ModuleImpl, AnyModuleMeta, ModuleApis, ModuleContext, ModuleSettings, SettingSchema, SettingsSchema, LabelsOf} from "@/core/module/types";
 import type {ManageResult} from "@/core/preview/manage";
 import type {CacheEntry} from "@/core/preview/cache";
 import type {DcinsideComment, GalleryPreData, PostInfo} from "@/core/preview/types";
@@ -182,6 +182,11 @@ interface KotlinBridge {
             useCompactModeOnView: {type: "check"; default: boolean};
             pushToRight: {type: "check"; default: boolean};
         } & Record<Key, {type: "check"; default: boolean}>;
+    };
+    userInfoMeta<S extends SettingsSchema>(urls: RegExp[], settings: S): {
+        id: "userinfo";
+        urls: RegExp[];
+        settings: S;
     };
     userInfoSettings<Color extends string>(
         colors: Record<Color, string>,
