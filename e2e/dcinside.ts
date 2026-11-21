@@ -110,7 +110,7 @@ export class FakeSite {
                 return html(listPage(page === "1" ? this.rows : this.page2, page, this.manager));
             }
             case "/board/view/":
-                return html(viewPage(url.searchParams.get("no") ?? "", this.pageComments, this.commentTarget, this.comments.length, this.postExtra));
+                return html(viewPage(url.searchParams.get("no") ?? "", this.pageComments, this.commentTarget, this.comments.length, this.postExtra, this.deviceHtml));
             // 디시 투표 iframe 페이지는 body가 <script>로 시작하고 그 뒤에 459×304 투표 칸이 온다.
             case "/board/poll/vote":
                 return html("<!DOCTYPE html><html><head><meta charset=\"utf-8\"></head><body style=\"margin:0\"><script></script><div class=\"vote\" style=\"width:459px;height:304px\">투표</div></body></html>");
