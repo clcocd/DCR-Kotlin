@@ -185,6 +185,10 @@ internal fun createPreviewMediaHooks(s: dynamic): dynamic {
         }
         react.useEffect(polls, arrayOf<dynamic>(html))
         react.useEffect(gifs, arrayOf<dynamic>(html))
+        val embeds: () -> dynamic = {
+            if (ref.current == null || hideMedia == true) undefinedValue() else installExternalEmbeds(ref.current)
+        }
+        react.useEffect(embeds, arrayOf<dynamic>(html, hideMedia))
         react.useEffect(update, arrayOf<dynamic>(html, gallery, block, entries, defaults, only))
     }
     return props("markBlockedDccons" to ::mark, "usePreviewMedia" to ::useMedia)
